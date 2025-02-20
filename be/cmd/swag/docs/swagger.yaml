@@ -1,0 +1,179 @@
+basePath: /
+definitions:
+  model.LoginInput:
+    properties:
+      user_account:
+        type: string
+      user_password:
+        type: string
+    type: object
+  model.RegisterInput:
+    properties:
+      verify_key:
+        type: string
+      verify_purpose:
+        type: string
+      verify_type:
+        type: integer
+    type: object
+  model.UpdatePasswordInput:
+    properties:
+      password:
+        type: string
+      token:
+        type: string
+    type: object
+  model.VerifyInput:
+    properties:
+      verify_code:
+        type: string
+      verify_key:
+        type: string
+    type: object
+  response.ErrResponseData:
+    properties:
+      code:
+        description: Ma status code
+        type: integer
+      detail:
+        description: Thong bao loi
+      error:
+        type: string
+    type: object
+  response.ResponseData:
+    properties:
+      code:
+        description: Ma status code
+        type: integer
+      data:
+        description: Du lieu duoc return
+      message:
+        description: Thong bao loi
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8082
+info:
+  contact:
+    email: lytranvinh.work@gmail.com
+    name: TEAM V
+    url: example.com/be/
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: example.com/be/
+  title: API Documentation Go Ecommerce
+  version: 1.0.0
+paths:
+  /v1/user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user by account and password
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Login user
+      tags:
+      - accounts management
+  /v1/user/register:
+    post:
+      consumes:
+      - application/json
+      description: When user register, system will send OTP to user's phone number
+        or email address
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Register a new account
+      tags:
+      - accounts management
+  /v1/user/upgrade_password_register:
+    post:
+      consumes:
+      - application/json
+      description: after verification otp can be updated password
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePasswordInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: update password when register
+      tags:
+      - accounts management
+  /v1/user/verify_account:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP bu user when register
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.VerifyInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Verify OTP bu user when register
+      tags:
+      - accounts management
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
