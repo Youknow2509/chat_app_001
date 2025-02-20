@@ -6,23 +6,167 @@ package database
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
+	"time"
 )
 
-type UserBase001 struct {
+type UserInfoUserGender string
+
+const (
+	UserInfoUserGenderSecret UserInfoUserGender = "Secret"
+	UserInfoUserGenderMale   UserInfoUserGender = "Male"
+	UserInfoUserGenderFemale UserInfoUserGender = "Female"
+)
+
+func (e *UserInfoUserGender) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = UserInfoUserGender(s)
+	case string:
+		*e = UserInfoUserGender(s)
+	default:
+		return fmt.Errorf("unsupported scan type for UserInfoUserGender: %T", src)
+	}
+	return nil
+}
+
+type NullUserInfoUserGender struct {
+	UserInfoUserGender UserInfoUserGender
+	Valid              bool // Valid is true if UserInfoUserGender is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullUserInfoUserGender) Scan(value interface{}) error {
+	if value == nil {
+		ns.UserInfoUserGender, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.UserInfoUserGender.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullUserInfoUserGender) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.UserInfoUserGender), nil
+}
+
+type UserInfoUserState string
+
+const (
+	UserInfoUserStateLocked       UserInfoUserState = "Locked"
+	UserInfoUserStateActivated    UserInfoUserState = "Activated"
+	UserInfoUserStateNotActivated UserInfoUserState = "Not Activated"
+)
+
+func (e *UserInfoUserState) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = UserInfoUserState(s)
+	case string:
+		*e = UserInfoUserState(s)
+	default:
+		return fmt.Errorf("unsupported scan type for UserInfoUserState: %T", src)
+	}
+	return nil
+}
+
+type NullUserInfoUserState struct {
+	UserInfoUserState UserInfoUserState
+	Valid             bool // Valid is true if UserInfoUserState is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullUserInfoUserState) Scan(value interface{}) error {
+	if value == nil {
+		ns.UserInfoUserState, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.UserInfoUserState.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullUserInfoUserState) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.UserInfoUserState), nil
+}
+
+type AuthToken struct {
+	ID          string
+	UserID      string
+	AccessToken string
+	CreatedAt   sql.NullTime
+	ExpiresAt   time.Time
+}
+
+type Chat struct {
+	ID string
+	// Type: private | group
+	Type        string
+	GroupName   sql.NullString
+	GroupAvatar sql.NullString
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
+}
+
+type ChatMember struct {
+	ChatID string
+	UserID string
+	// Role: admin | member
+	Role string
+}
+
+type Friend struct {
+	UserID   sql.NullString
+	FriendID sql.NullString
+}
+
+type FriendRequest struct {
+	ID        string
+	FromUser  sql.NullString
+	ToUser    sql.NullString
+	Status    sql.NullString
+	CreatedAt sql.NullTime
+}
+
+type Notification struct {
+	ID        string
+	UserID    sql.NullString
+	Type      sql.NullString
+	Data      json.RawMessage
+	CreatedAt sql.NullTime
+}
+
+type RefreshToken struct {
+	ID           string
+	UserID       string
+	RefreshToken string
+	CreatedAt    sql.NullTime
+	ExpiresAt    time.Time
+}
+
+type UserBase struct {
 	// User ID
-	UserID int32
+	UserID string
 	// User account
 	UserAccount string
 	// User password
 	UserPassword string
 	// Salt for hashing
 	UserSalt string
+	// Refresh token status: 0 true | 1 false
+	UserIsRefreshToken sql.NullInt32
 	// Last login timestamp
 	UserLoginTime sql.NullTime
 	// Last logout timestamp
 	UserLogoutTime sql.NullTime
-	// Status user have refresh token: 0-enabled, 1-disabled
-	UserIsRefreshTokenEnabled uint8
 	// IP address of last login
 	UserLoginIp sql.NullString
 	// Creation timestamp
@@ -31,34 +175,34 @@ type UserBase001 struct {
 	UserUpdatedAt sql.NullTime
 }
 
-type UserInfo001 struct {
-	// User  ID
-	UserID uint64
-	// User  account
+type UserInfo struct {
+	// User ID
+	UserID string
+	// User account
 	UserAccount string
-	// User  nickname
+	// User nickname
 	UserNickname sql.NullString
-	// User  avatar
+	// User avatar
 	UserAvatar sql.NullString
-	// User  state: 0-Locked, 1-Activated, 2-Not Activated
-	UserState uint8
+	// User state
+	UserState UserInfoUserState
 	// Mobile phone number
 	UserMobile sql.NullString
-	// User  gender: 0-Secret, 1-Male, 2-Female
-	UserGender sql.NullInt16
-	// User  birthday
+	// User gender
+	UserGender NullUserInfoUserGender
+	// User birthday
 	UserBirthday sql.NullTime
-	// User  email address
+	// User email address
 	UserEmail sql.NullString
-	// Authentication status: 0-Not Authenticated, 1-Pending, 2-Authenticated, 3-Failed
-	UserIsAuthentication uint8
+	// Authentication status
+	UserIsAuthentication int8
 	// Record creation time
 	CreatedAt sql.NullTime
 	// Record update time
 	UpdatedAt sql.NullTime
 }
 
-type UserVerify001 struct {
+type UserVerify struct {
 	// Verification ID
 	VerifyID int32
 	// One-time password

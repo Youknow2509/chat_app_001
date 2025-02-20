@@ -1,36 +1,57 @@
 -- name: GetOneUserInfo :one
-SELECT user_id, user_account, user_password, user_salt
-FROM `user_base_001`
+SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token
+FROM `user_base`
 WHERE user_account = ?;
 
 -- name: GetOneUserInfoAdmin :one
-SELECT user_id, user_account, user_password, user_salt, user_login_time, user_logout_time, user_login_ip
-    , user_created_at, user_updated_at
-FROM `user_base_001`
+SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token,
+    user_login_time, user_logout_time, user_login_ip, user_created_at, user_updated_at
+FROM `user_base`
 WHERE user_account = ?;
 
 -- name: CheckUserBaseExists :one
 SELECT COUNT(*)
-FROM `user_base_001`
+FROM `user_base`
 WHERE user_account = ?;
 
 -- name: AddUserBase :execresult
-INSERT INTO `user_base_001` (
-    user_account, user_password, user_salt, user_created_at, user_updated_at
+INSERT INTO `user_base` (
+    user_account, user_password, user_salt, user_is_refresh_token, 
+    user_created_at, user_updated_at
 ) VALUES (
-    ?, ?, ?, NOW(), NOW()
+    ?, ?, ?, 0, NOW(), NOW()
 );
 
--- name: UpdatePassword :exec
-UPDATE `user_base_001` 
+-- name: UpdatePasswordWithUserID :exec
+UPDATE `user_base` 
 SET user_password = ? WHERE user_id = ?;
 
 -- name: LoginUserBase :exec
-UPDATE `user_base_001`
+UPDATE `user_base`
 SET user_login_time = NOW(), user_login_ip = ?
 WHERE user_account = ? AND user_password = ?;
 
 -- name: LogoutUserBase :exec
-UPDATE `user_base_001`
+UPDATE `user_base`
 SET user_logout_time = NOW()
 WHERE user_account = ?;
+
+-- name: RefreshTokenUserOn :exec
+UPDATE `user_base`
+SET user_is_refresh_token = 0
+WHERE user_account = ?;
+
+-- name: RefreshTokenUserOff :exec
+UPDATE `user_base`
+SET user_is_refresh_token = 1
+WHERE user_account = ?;
+
+-- name: IsRefreshTokenUser :one
+SELECT user_is_refresh_token
+FROM `user_base`
+WHERE user_account = ?;
+
+-- name: IsRefreshTokenUserWithID :one
+SELECT user_is_refresh_token
+FROM `user_base`
+WHERE user_id = ?;

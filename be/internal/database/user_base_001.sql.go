@@ -11,10 +11,11 @@ import (
 )
 
 const addUserBase = `-- name: AddUserBase :execresult
-INSERT INTO ` + "`" + `user_base_001` + "`" + ` (
-    user_account, user_password, user_salt, user_created_at, user_updated_at
+INSERT INTO ` + "`" + `user_base` + "`" + ` (
+    user_account, user_password, user_salt, user_is_refresh_token, 
+    user_created_at, user_updated_at
 ) VALUES (
-    ?, ?, ?, NOW(), NOW()
+    ?, ?, ?, 0, NOW(), NOW()
 )
 `
 
@@ -30,7 +31,7 @@ func (q *Queries) AddUserBase(ctx context.Context, arg AddUserBaseParams) (sql.R
 
 const checkUserBaseExists = `-- name: CheckUserBaseExists :one
 SELECT COUNT(*)
-FROM ` + "`" + `user_base_001` + "`" + `
+FROM ` + "`" + `user_base` + "`" + `
 WHERE user_account = ?
 `
 
@@ -42,16 +43,17 @@ func (q *Queries) CheckUserBaseExists(ctx context.Context, userAccount string) (
 }
 
 const getOneUserInfo = `-- name: GetOneUserInfo :one
-SELECT user_id, user_account, user_password, user_salt
-FROM ` + "`" + `user_base_001` + "`" + `
+SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token
+FROM ` + "`" + `user_base` + "`" + `
 WHERE user_account = ?
 `
 
 type GetOneUserInfoRow struct {
-	UserID       int32
-	UserAccount  string
-	UserPassword string
-	UserSalt     string
+	UserID             string
+	UserAccount        string
+	UserPassword       string
+	UserSalt           string
+	UserIsRefreshToken sql.NullInt32
 }
 
 func (q *Queries) GetOneUserInfo(ctx context.Context, userAccount string) (GetOneUserInfoRow, error) {
@@ -62,37 +64,27 @@ func (q *Queries) GetOneUserInfo(ctx context.Context, userAccount string) (GetOn
 		&i.UserAccount,
 		&i.UserPassword,
 		&i.UserSalt,
+		&i.UserIsRefreshToken,
 	)
 	return i, err
 }
 
 const getOneUserInfoAdmin = `-- name: GetOneUserInfoAdmin :one
-SELECT user_id, user_account, user_password, user_salt, user_login_time, user_logout_time, user_login_ip
-    , user_created_at, user_updated_at
-FROM ` + "`" + `user_base_001` + "`" + `
+SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token,
+    user_login_time, user_logout_time, user_login_ip, user_created_at, user_updated_at
+FROM ` + "`" + `user_base` + "`" + `
 WHERE user_account = ?
 `
 
-type GetOneUserInfoAdminRow struct {
-	UserID         int32
-	UserAccount    string
-	UserPassword   string
-	UserSalt       string
-	UserLoginTime  sql.NullTime
-	UserLogoutTime sql.NullTime
-	UserLoginIp    sql.NullString
-	UserCreatedAt  sql.NullTime
-	UserUpdatedAt  sql.NullTime
-}
-
-func (q *Queries) GetOneUserInfoAdmin(ctx context.Context, userAccount string) (GetOneUserInfoAdminRow, error) {
+func (q *Queries) GetOneUserInfoAdmin(ctx context.Context, userAccount string) (UserBase, error) {
 	row := q.db.QueryRowContext(ctx, getOneUserInfoAdmin, userAccount)
-	var i GetOneUserInfoAdminRow
+	var i UserBase
 	err := row.Scan(
 		&i.UserID,
 		&i.UserAccount,
 		&i.UserPassword,
 		&i.UserSalt,
+		&i.UserIsRefreshToken,
 		&i.UserLoginTime,
 		&i.UserLogoutTime,
 		&i.UserLoginIp,
@@ -102,8 +94,34 @@ func (q *Queries) GetOneUserInfoAdmin(ctx context.Context, userAccount string) (
 	return i, err
 }
 
+const isRefreshTokenUser = `-- name: IsRefreshTokenUser :one
+SELECT user_is_refresh_token
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_account = ?
+`
+
+func (q *Queries) IsRefreshTokenUser(ctx context.Context, userAccount string) (sql.NullInt32, error) {
+	row := q.db.QueryRowContext(ctx, isRefreshTokenUser, userAccount)
+	var user_is_refresh_token sql.NullInt32
+	err := row.Scan(&user_is_refresh_token)
+	return user_is_refresh_token, err
+}
+
+const isRefreshTokenUserWithID = `-- name: IsRefreshTokenUserWithID :one
+SELECT user_is_refresh_token
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_id = ?
+`
+
+func (q *Queries) IsRefreshTokenUserWithID(ctx context.Context, userID string) (sql.NullInt32, error) {
+	row := q.db.QueryRowContext(ctx, isRefreshTokenUserWithID, userID)
+	var user_is_refresh_token sql.NullInt32
+	err := row.Scan(&user_is_refresh_token)
+	return user_is_refresh_token, err
+}
+
 const loginUserBase = `-- name: LoginUserBase :exec
-UPDATE ` + "`" + `user_base_001` + "`" + `
+UPDATE ` + "`" + `user_base` + "`" + `
 SET user_login_time = NOW(), user_login_ip = ?
 WHERE user_account = ? AND user_password = ?
 `
@@ -120,7 +138,7 @@ func (q *Queries) LoginUserBase(ctx context.Context, arg LoginUserBaseParams) er
 }
 
 const logoutUserBase = `-- name: LogoutUserBase :exec
-UPDATE ` + "`" + `user_base_001` + "`" + `
+UPDATE ` + "`" + `user_base` + "`" + `
 SET user_logout_time = NOW()
 WHERE user_account = ?
 `
@@ -130,17 +148,39 @@ func (q *Queries) LogoutUserBase(ctx context.Context, userAccount string) error 
 	return err
 }
 
-const updatePassword = `-- name: UpdatePassword :exec
-UPDATE ` + "`" + `user_base_001` + "`" + ` 
+const refreshTokenUserOff = `-- name: RefreshTokenUserOff :exec
+UPDATE ` + "`" + `user_base` + "`" + `
+SET user_is_refresh_token = 1
+WHERE user_account = ?
+`
+
+func (q *Queries) RefreshTokenUserOff(ctx context.Context, userAccount string) error {
+	_, err := q.db.ExecContext(ctx, refreshTokenUserOff, userAccount)
+	return err
+}
+
+const refreshTokenUserOn = `-- name: RefreshTokenUserOn :exec
+UPDATE ` + "`" + `user_base` + "`" + `
+SET user_is_refresh_token = 0
+WHERE user_account = ?
+`
+
+func (q *Queries) RefreshTokenUserOn(ctx context.Context, userAccount string) error {
+	_, err := q.db.ExecContext(ctx, refreshTokenUserOn, userAccount)
+	return err
+}
+
+const updatePasswordWithUserID = `-- name: UpdatePasswordWithUserID :exec
+UPDATE ` + "`" + `user_base` + "`" + ` 
 SET user_password = ? WHERE user_id = ?
 `
 
-type UpdatePasswordParams struct {
+type UpdatePasswordWithUserIDParams struct {
 	UserPassword string
-	UserID       int32
+	UserID       string
 }
 
-func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
-	_, err := q.db.ExecContext(ctx, updatePassword, arg.UserPassword, arg.UserID)
+func (q *Queries) UpdatePasswordWithUserID(ctx context.Context, arg UpdatePasswordWithUserIDParams) error {
+	_, err := q.db.ExecContext(ctx, updatePasswordWithUserID, arg.UserPassword, arg.UserID)
 	return err
 }
