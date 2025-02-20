@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -30,9 +29,9 @@ func GetUserRegisterKeyVerify(key string) string {
 }
 
 // create uuid
-func GenerateCliTokenUUID(userId int) string {
+func GenerateCliTokenUUID(userId string) string {
 	newUUID := uuid.New()
 	// convert uuid to string, remove -
 	uuidStr := strings.ReplaceAll(newUUID.String(), "-", "")
-	return strconv.Itoa(userId) + "clitoken" + uuidStr
+	return userId + ":clitoken:" + uuidStr
 }

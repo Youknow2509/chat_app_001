@@ -10,7 +10,7 @@ CREATE TABLE user_info (
   user_gender ENUM('Secret', 'Male', 'Female') COMMENT 'User gender',
   user_birthday DATE COMMENT 'User birthday',
   user_email VARCHAR(100) COMMENT 'User email address',
-  user_is_authentication TINYINT NOT NULL COMMENT 'Authentication status',
+  user_is_authentication TINYINT DEFAULT 1 COMMENT 'Authentication status: 1 false | 0 true',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation time',
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record update time',
   CONSTRAINT idx_user_account_email UNIQUE (user_account, user_email)

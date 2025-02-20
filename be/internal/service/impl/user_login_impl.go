@@ -22,6 +22,7 @@ import (
 	"example.com/be/internal/utils/random"
 	"example.com/be/internal/utils/sendto"
 	"example.com/be/response"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -51,15 +52,15 @@ func (s *sUserLogin) Login(ctx context.Context, in *model.LoginInput) (codeResul
 
 	// upgrade state login
 	go s.r.LoginUserBase(ctx, database.LoginUserBaseParams{
-		UserLoginIp:  sql.NullString{String: "127.0.0.1", Valid: true},
+		UserLoginIp:  sql.NullString{String: "127.0.0.1", Valid: true}, // TODO: get ip device login
 		UserAccount:  in.UserAccount,
 		UserPassword: userBase.UserPassword,
 	})
 	// create uuid
-	subToken := utils.GenerateCliTokenUUID(int(userBase.UserID))
+	subToken := utils.GenerateCliTokenUUID(userBase.UserID)
 	log.Println("subToken: ", subToken)
 	// get user info table
-	infoUser, err := s.r.GetUser(ctx, uint64(userBase.UserID))
+	infoUser, err := s.r.GetUserWithID(ctx, userBase.UserID)
 	if err != nil {
 		return response.ErrCodeAuthFailed, out, err
 	}
@@ -109,8 +110,7 @@ func (s *sUserLogin) Register(ctx context.Context, in *model.RegisterInput) (cod
 	fmt.Println("userKey::", userKey)
 	fmt.Println("otpFound::", otpFound)
 	// fmt.Println("Err:: ", err)
-
-	// utils...
+	// Check handle get otp in redis - TODO handle utils...
 	switch {
 	case errors.Is(err, redis.Nil):
 		fmt.Println("key does not exist")
@@ -233,43 +233,33 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 	}
 	passworkHash := crypto.HashPasswordWithSalt(in.Password, salt)
 
-	userBase := database.AddUserBaseParams{
+	userBase := database.AddUserBaseWithUUIDParams{
+		UserID:       uuid.New().String(),
 		UserAccount:  infoOTP.VerifyKey,
 		UserPassword: passworkHash,
 		UserSalt:     salt,
 	}
 	// add userBase to user_base table
-	newUserBase, err := s.r.AddUserBase(ctx, userBase)
-	if err != nil {
-		return response.ErrCodeAddUserBase, err
-	}
-
-	user_id, err := newUserBase.LastInsertId()
+	_ , err = s.r.AddUserBaseWithUUID(ctx, userBase)
 	if err != nil {
 		return response.ErrCodeAddUserBase, err
 	}
 
 	// add user_id to user_info table
-
-	newUserInfo, err := s.r.AddUserHaveUserId(ctx, database.AddUserHaveUserIdParams{
-		UserID:               uint64(user_id),
+	_, err = s.r.AddUserHaveUserId(ctx, database.AddUserHaveUserIdParams{
+		UserID:               userBase.UserID,
 		UserAccount:          infoOTP.VerifyKey,
 		UserNickname:         sql.NullString{String: infoOTP.VerifyKey, Valid: true},
 		UserAvatar:           sql.NullString{String: "", Valid: true},
-		UserState:            1,
+		UserState:            database.UserInfoUserStateActivated,
 		UserMobile:           sql.NullString{String: "", Valid: true},
-		UserGender:           sql.NullInt16{Int16: 0, Valid: true},
+		UserGender:           database.NullUserInfoUserGender{UserInfoUserGender: database.UserInfoUserGenderMale, Valid: false},
 		UserBirthday:         sql.NullTime{Time: time.Time{}, Valid: false},
 		UserEmail:            sql.NullString{String: infoOTP.VerifyKey, Valid: true},
-		UserIsAuthentication: 0,
 	})
 	if err != nil {
 		return response.ErrCodeAddUserInfo, err
 	}
 
-	user_id, err = newUserInfo.LastInsertId()
-	if err != nil {
-		return response.ErrCodeAddUserBase, err
-	}
-	return int(user_id), nil
+	return 200, nil
 }

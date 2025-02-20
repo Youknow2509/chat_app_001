@@ -1,6 +1,7 @@
 package user
 
 import (
+	"example.com/be/internal/controller/account"
 	"github.com/gin-gonic/gin"
 )
 

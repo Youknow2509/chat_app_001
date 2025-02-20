@@ -28,8 +28,9 @@ type LoginInput struct {
 }
 
 type LoginOutput struct {
-	Token   string `json:"token"`
-	Message string `json:"message"`
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
+	Message      string `json:"message"`
 }
 
 // two factor authentication
