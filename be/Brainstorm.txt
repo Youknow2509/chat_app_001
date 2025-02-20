@@ -1,4 +1,5 @@
 Chat APP
+ - API_KEY = 123456 <- Authentication: Bearer {API_KEY}
  - ?page=2&limit=20
 1. Auth service /auth
  - Đăng ký -> OTP verify
@@ -11,6 +12,9 @@ Chat APP
  name,email, avt_url
     }
  }
+ - /validateToken <- true
+ - /validateRefreshToken <- true
+ - /refreshToken
 2. User service /user
  - /getUserInfo (dùng token) -> get full
  - /findUser/{email} (dùng token) -> tên, email, ảnh
@@ -30,8 +34,7 @@ Chat APP
  - Thêm người vào group chat
 
 3.2 Chat service /chat
-
- - /createGroupChat
+ - /createChat
  {
     list_id[],
     groupName,
@@ -39,28 +42,29 @@ Chat APP
  // admin là người gọi api
  // groupType là "group"
 
- - /createChat
- {
-    targetUserId
- }
  // 2 người đều là admin
  // groupType là "private"
 
- - /getGroupInfo/{groupId} -> {
-    groupName,
+ - /getChatInfo/{chatId} -> {
+    chatName,
     numberOfMember,
     list_mem
  }
  - /getLists -> {
-    list[{groupName,
-    groupId}]
+    list[{chatName,
+    chatId}]
  }
  // mở app thì sort (sort thì gọi api lấy groupid, timestamp)
  // trong khi có websocket thì theo websocket để sort
 
+ - /getUserInChat/{chatId} ->
+  {
+  chatId,
+  listUser // chỉ cần userId
+ }
  // sắp xếp thứ tự chats
  - /addMemToChat/{groupId}/{userId}
- - /updateGroupChat/{groupId} <- {
+ - /updateChat/{groupId} <- {
  groupName, avt_url
  }
  - /changeGroupAdmin/{groupId}/{userId} - admin
@@ -78,7 +82,8 @@ Chat APP
   "sender_id": ObjectId("user_id"),  // ID người gửi
   "chat_id": ObjectId("chat_id"),    // ID của cuộc trò chuyện
   "content": "Nội dung tin nhắn",
-  "timestamp": ISODate("2025-02-18T12:00:00Z"),
+  "createdAt": 17201929110,
+  "deletedAt": 17201929110,
   "message_type": "text",            // Loại tin nhắn (ví dụ: text, image, file, video)
   "status": "sent",                  // Trạng thái tin nhắn (ví dụ: sent, delivered, read)
   "parent_message_id": ObjectId("parent_message_id"),  // ID tin nhắn trả lời (nếu có)

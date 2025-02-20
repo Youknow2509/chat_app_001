@@ -10,38 +10,6 @@ import (
 	"database/sql"
 )
 
-const addUserAutoUserId = `-- name: AddUserAutoUserId :execresult
-INSERT INTO ` + "`" + `user_info` + "`" + ` (
-    user_account, user_nickname, user_avatar, 
-    user_state, user_mobile, user_gender, 
-    user_birthday, user_email)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-`
-
-type AddUserAutoUserIdParams struct {
-	UserAccount  string
-	UserNickname sql.NullString
-	UserAvatar   sql.NullString
-	UserState    UserInfoUserState
-	UserMobile   sql.NullString
-	UserGender   NullUserInfoUserGender
-	UserBirthday sql.NullTime
-	UserEmail    sql.NullString
-}
-
-func (q *Queries) AddUserAutoUserId(ctx context.Context, arg AddUserAutoUserIdParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, addUserAutoUserId,
-		arg.UserAccount,
-		arg.UserNickname,
-		arg.UserAvatar,
-		arg.UserState,
-		arg.UserMobile,
-		arg.UserGender,
-		arg.UserBirthday,
-		arg.UserEmail,
-	)
-}
-
 const addUserHaveUserId = `-- name: AddUserHaveUserId :execresult
 INSERT INTO ` + "`" + `user_info` + "`" + ` (
     user_id, user_account, user_nickname, 

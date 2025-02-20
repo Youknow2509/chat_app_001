@@ -10,23 +10,30 @@ import (
 	"database/sql"
 )
 
-const addUserBase = `-- name: AddUserBase :execresult
+const addUserBaseWithUUID = `-- name: AddUserBaseWithUUID :execresult
 INSERT INTO ` + "`" + `user_base` + "`" + ` (
+    user_id,
     user_account, user_password, user_salt, user_is_refresh_token, 
     user_created_at, user_updated_at
 ) VALUES (
-    ?, ?, ?, 0, NOW(), NOW()
+    ?, ?, ?, ?, 0, NOW(), NOW()
 )
 `
 
-type AddUserBaseParams struct {
+type AddUserBaseWithUUIDParams struct {
+	UserID       string
 	UserAccount  string
 	UserPassword string
 	UserSalt     string
 }
 
-func (q *Queries) AddUserBase(ctx context.Context, arg AddUserBaseParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, addUserBase, arg.UserAccount, arg.UserPassword, arg.UserSalt)
+func (q *Queries) AddUserBaseWithUUID(ctx context.Context, arg AddUserBaseWithUUIDParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, addUserBaseWithUUID,
+		arg.UserID,
+		arg.UserAccount,
+		arg.UserPassword,
+		arg.UserSalt,
+	)
 }
 
 const checkUserBaseExists = `-- name: CheckUserBaseExists :one
@@ -122,7 +129,7 @@ func (q *Queries) IsRefreshTokenUserWithID(ctx context.Context, userID string) (
 
 const loginUserBase = `-- name: LoginUserBase :exec
 UPDATE ` + "`" + `user_base` + "`" + `
-SET user_login_time = NOW(), user_login_ip = ?
+SET user_login_time = NOW(), user_login_ip = ?, user_is_refresh_token = 0
 WHERE user_account = ? AND user_password = ?
 `
 

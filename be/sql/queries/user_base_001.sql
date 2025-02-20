@@ -14,12 +14,13 @@ SELECT COUNT(*)
 FROM `user_base`
 WHERE user_account = ?;
 
--- name: AddUserBase :execresult
+-- name: AddUserBaseWithUUID :execresult
 INSERT INTO `user_base` (
+    user_id,
     user_account, user_password, user_salt, user_is_refresh_token, 
     user_created_at, user_updated_at
 ) VALUES (
-    ?, ?, ?, 0, NOW(), NOW()
+    ?, ?, ?, ?, 0, NOW(), NOW()
 );
 
 -- name: UpdatePasswordWithUserID :exec
@@ -28,7 +29,7 @@ SET user_password = ? WHERE user_id = ?;
 
 -- name: LoginUserBase :exec
 UPDATE `user_base`
-SET user_login_time = NOW(), user_login_ip = ?
+SET user_login_time = NOW(), user_login_ip = ?, user_is_refresh_token = 0
 WHERE user_account = ? AND user_password = ?;
 
 -- name: LogoutUserBase :exec

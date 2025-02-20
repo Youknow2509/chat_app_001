@@ -56,13 +56,6 @@ SELECT * FROM user_info LIMIT ? OFFSET ?;
 -- name: RemoveUser :exec
 DELETE FROM user_info WHERE user_id = ?;
 
--- name: AddUserAutoUserId :execresult
-INSERT INTO `user_info` (
-    user_account, user_nickname, user_avatar, 
-    user_state, user_mobile, user_gender, 
-    user_birthday, user_email)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-
 -- name: AddUserHaveUserId :execresult
 INSERT INTO `user_info` (
     user_id, user_account, user_nickname, 
@@ -76,3 +69,4 @@ SET user_nickname = ?, user_avatar = ?, user_mobile = ?,
     user_gender = ?, user_birthday = ?, user_email = ?, 
     updated_at = NOW()
 WHERE user_id = ?;
+
