@@ -10,6 +10,34 @@ import (
 	"database/sql"
 )
 
+const deleteFriendRequest = `-- name: DeleteFriendRequest :exec
+DELETE FROM friend_requests
+WHERE id = ?
+`
+
+func (q *Queries) DeleteFriendRequest(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteFriendRequest, id)
+	return err
+}
+
+const getFriendRequestCount = `-- name: GetFriendRequestCount :one
+SELECT COUNT(*) AS count
+FROM friend_requests
+WHERE (from_user = ? AND status = 'pending') OR (to_user = ? AND status = 'pending')
+`
+
+type GetFriendRequestCountParams struct {
+	FromUser sql.NullString
+	ToUser   sql.NullString
+}
+
+func (q *Queries) GetFriendRequestCount(ctx context.Context, arg GetFriendRequestCountParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getFriendRequestCount, arg.FromUser, arg.ToUser)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getFriendRequestUserReceive = `-- name: GetFriendRequestUserReceive :many
 SELECT
     id,
@@ -18,7 +46,15 @@ SELECT
     created_at
 FROM friend_requests
 WHERE to_user = ?
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?
 `
+
+type GetFriendRequestUserReceiveParams struct {
+	ToUser sql.NullString
+	Limit  int32
+	Offset int32
+}
 
 type GetFriendRequestUserReceiveRow struct {
 	ID        string
@@ -27,8 +63,8 @@ type GetFriendRequestUserReceiveRow struct {
 	CreatedAt sql.NullTime
 }
 
-func (q *Queries) GetFriendRequestUserReceive(ctx context.Context, toUser sql.NullString) ([]GetFriendRequestUserReceiveRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFriendRequestUserReceive, toUser)
+func (q *Queries) GetFriendRequestUserReceive(ctx context.Context, arg GetFriendRequestUserReceiveParams) ([]GetFriendRequestUserReceiveRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFriendRequestUserReceive, arg.ToUser, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +99,15 @@ SELECT
     created_at
 FROM friend_requests 
 WHERE from_user = ?
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?
 `
+
+type GetFriendRequestUserSendParams struct {
+	FromUser sql.NullString
+	Limit    int32
+	Offset   int32
+}
 
 type GetFriendRequestUserSendRow struct {
 	ID        string
@@ -72,8 +116,8 @@ type GetFriendRequestUserSendRow struct {
 	CreatedAt sql.NullTime
 }
 
-func (q *Queries) GetFriendRequestUserSend(ctx context.Context, fromUser sql.NullString) ([]GetFriendRequestUserSendRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFriendRequestUserSend, fromUser)
+func (q *Queries) GetFriendRequestUserSend(ctx context.Context, arg GetFriendRequestUserSendParams) ([]GetFriendRequestUserSendRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFriendRequestUserSend, arg.FromUser, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -112,12 +156,16 @@ FROM (
     WHERE friends.user_id = ? OR friend_id = ?
 ) AS f
 JOIN user_info ui ON ui.user_id = f.friend_id
+ORDER BY ui.user_nickname ASC
+LIMIT ? OFFSET ?
 `
 
 type GetFriendUserParams struct {
 	UserID   sql.NullString
 	UserID_2 sql.NullString
 	FriendID sql.NullString
+	Limit    int32
+	Offset   int32
 }
 
 type GetFriendUserRow struct {
@@ -128,7 +176,13 @@ type GetFriendUserRow struct {
 }
 
 func (q *Queries) GetFriendUser(ctx context.Context, arg GetFriendUserParams) ([]GetFriendUserRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFriendUser, arg.UserID, arg.UserID_2, arg.FriendID)
+	rows, err := q.db.QueryContext(ctx, getFriendUser,
+		arg.UserID,
+		arg.UserID_2,
+		arg.FriendID,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

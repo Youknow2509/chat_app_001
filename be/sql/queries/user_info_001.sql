@@ -48,7 +48,9 @@ WHERE user_id IN (?);
 
 -- name: FindUsers :many
 SELECT * FROM user_info 
-WHERE user_account LIKE ? OR user_nickname LIKE ?;
+WHERE user_account LIKE ? OR user_nickname LIKE ?
+ORDER BY user_nickname ASC
+LIMIT ? OFFSET ?;
 
 -- name: ListUsers :many
 SELECT * FROM user_info LIMIT ? OFFSET ?;
@@ -70,3 +72,7 @@ SET user_nickname = ?, user_avatar = ?, user_mobile = ?,
     updated_at = NOW()
 WHERE user_id = ?;
 
+-- name: FindUserWithMail :many
+SELECT * FROM user_info WHERE user_email LIKE ?
+ORDER BY user_nickname ASC
+LIMIT ? OFFSET ?;

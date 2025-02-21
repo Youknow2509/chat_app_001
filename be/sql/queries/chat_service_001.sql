@@ -52,3 +52,44 @@ WHERE id = ?;
 SELECT COUNT(*)
 FROM chat_members
 WHERE chat_id = ? AND user_id = ? AND role = 'admin';
+
+-- name: GetChatListForUser :many
+SELECT
+    c.id AS chat_id,
+    c.group_name AS chat_name,
+    c.group_avatar AS chat_avatar,
+    c.updated_at AS chat_updated_at,
+    c.type AS chat_type
+FROM chats c
+JOIN chat_members cm 
+    ON c.id = cm.chat_id
+WHERE cm.user_id = ?
+ORDER BY c.updated_at DESC
+LIMIT ? OFFSET ?;
+
+-- name: GetAllUsersInChat :many
+SELECT 
+    ui.user_id,
+    ui.user_nickname,
+    ui.user_avatar,
+    ui.user_email
+FROM chat_members cm
+JOIN user_info ui ON cm.user_id = ui.user_id
+WHERE cm.chat_id = ?
+ORDER BY ui.user_nickname ASC;
+
+-- name: GetUsersInChat :many
+SELECT 
+    ui.user_id,
+    ui.user_nickname,
+    ui.user_avatar,
+    ui.user_email
+FROM chat_members cm
+JOIN user_info ui ON cm.user_id = ui.user_id
+WHERE cm.chat_id = ?
+ORDER BY ui.user_nickname ASC
+LIMIT ? OFFSET ?;
+
+
+
+    

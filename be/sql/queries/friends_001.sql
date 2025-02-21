@@ -1,4 +1,5 @@
 
+
 -- name: GetFriendUser :many
 SELECT ui.user_id, ui.user_nickname, ui.user_avatar, ui.user_email
 FROM (
@@ -10,7 +11,9 @@ FROM (
     FROM friends
     WHERE friends.user_id = ? OR friend_id = ?
 ) AS f
-JOIN user_info ui ON ui.user_id = f.friend_id;
+JOIN user_info ui ON ui.user_id = f.friend_id
+ORDER BY ui.user_nickname ASC
+LIMIT ? OFFSET ?;
 
 -- name: InsertFriendRequest :exec
 INSERT INTO friend_requests (id, from_user, to_user, status, created_at)
@@ -33,7 +36,9 @@ SELECT
     status,
     created_at
 FROM friend_requests 
-WHERE from_user = ?;
+WHERE from_user = ?
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?;
 
 -- name: GetFriendRequestUserReceive :many
 SELECT
@@ -42,4 +47,15 @@ SELECT
     status,
     created_at
 FROM friend_requests
-WHERE to_user = ?;
+WHERE to_user = ?
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?;
+
+-- name: GetFriendRequestCount :one
+SELECT COUNT(*) AS count
+FROM friend_requests
+WHERE (from_user = ? AND status = 'pending') OR (to_user = ? AND status = 'pending');
+
+-- name: DeleteFriendRequest :exec  
+DELETE FROM friend_requests
+WHERE id = ?;

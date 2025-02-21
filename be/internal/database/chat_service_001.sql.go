@@ -109,6 +109,53 @@ func (q *Queries) DeleteMemberFromChat(ctx context.Context, arg DeleteMemberFrom
 	return err
 }
 
+const getAllUsersInChat = `-- name: GetAllUsersInChat :many
+SELECT 
+    ui.user_id,
+    ui.user_nickname,
+    ui.user_avatar,
+    ui.user_email
+FROM chat_members cm
+JOIN user_info ui ON cm.user_id = ui.user_id
+WHERE cm.chat_id = ?
+ORDER BY ui.user_nickname ASC
+`
+
+type GetAllUsersInChatRow struct {
+	UserID       string
+	UserNickname sql.NullString
+	UserAvatar   sql.NullString
+	UserEmail    sql.NullString
+}
+
+func (q *Queries) GetAllUsersInChat(ctx context.Context, chatID string) ([]GetAllUsersInChatRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllUsersInChat, chatID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllUsersInChatRow
+	for rows.Next() {
+		var i GetAllUsersInChatRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.UserNickname,
+			&i.UserAvatar,
+			&i.UserEmail,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getChatList = `-- name: GetChatList :many
 SELECT id AS groupId, group_name AS groupName, updated_at
 FROM chats
@@ -150,6 +197,64 @@ func (q *Queries) GetChatList(ctx context.Context, arg GetChatListParams) ([]Get
 	return items, nil
 }
 
+const getChatListForUser = `-- name: GetChatListForUser :many
+SELECT
+    c.id AS chat_id,
+    c.group_name AS chat_name,
+    c.group_avatar AS chat_avatar,
+    c.updated_at AS chat_updated_at,
+    c.type AS chat_type
+FROM chats c
+JOIN chat_members cm 
+    ON c.id = cm.chat_id
+WHERE cm.user_id = ?
+ORDER BY c.updated_at DESC
+LIMIT ? OFFSET ?
+`
+
+type GetChatListForUserParams struct {
+	UserID string
+	Limit  int32
+	Offset int32
+}
+
+type GetChatListForUserRow struct {
+	ChatID        string
+	ChatName      sql.NullString
+	ChatAvatar    sql.NullString
+	ChatUpdatedAt sql.NullTime
+	ChatType      string
+}
+
+func (q *Queries) GetChatListForUser(ctx context.Context, arg GetChatListForUserParams) ([]GetChatListForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getChatListForUser, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetChatListForUserRow
+	for rows.Next() {
+		var i GetChatListForUserRow
+		if err := rows.Scan(
+			&i.ChatID,
+			&i.ChatName,
+			&i.ChatAvatar,
+			&i.ChatUpdatedAt,
+			&i.ChatType,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGroupInfo = `-- name: GetGroupInfo :one
 SELECT c.group_name,
        COUNT(cm.user_id) AS numberOfMember,
@@ -178,6 +283,60 @@ func (q *Queries) GetGroupInfo(ctx context.Context, id string) (GetGroupInfoRow,
 		&i.ChatType,
 	)
 	return i, err
+}
+
+const getUsersInChat = `-- name: GetUsersInChat :many
+SELECT 
+    ui.user_id,
+    ui.user_nickname,
+    ui.user_avatar,
+    ui.user_email
+FROM chat_members cm
+JOIN user_info ui ON cm.user_id = ui.user_id
+WHERE cm.chat_id = ?
+ORDER BY ui.user_nickname ASC
+LIMIT ? OFFSET ?
+`
+
+type GetUsersInChatParams struct {
+	ChatID string
+	Limit  int32
+	Offset int32
+}
+
+type GetUsersInChatRow struct {
+	UserID       string
+	UserNickname sql.NullString
+	UserAvatar   sql.NullString
+	UserEmail    sql.NullString
+}
+
+func (q *Queries) GetUsersInChat(ctx context.Context, arg GetUsersInChatParams) ([]GetUsersInChatRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersInChat, arg.ChatID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersInChatRow
+	for rows.Next() {
+		var i GetUsersInChatRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.UserNickname,
+			&i.UserAvatar,
+			&i.UserEmail,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertChatMember = `-- name: InsertChatMember :exec
