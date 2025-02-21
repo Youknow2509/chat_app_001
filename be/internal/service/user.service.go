@@ -15,14 +15,16 @@ type (
 		UpdatePasswordRegister(ctx context.Context, in *model.UpdatePasswordInput) (userId int, err error)
 	}
 
-	IUserInfo interface {
-		GetInfoByUserId(ctx context.Context) error
-		GetAllUser(ctx context.Context) error
+	IUserInfo interface { // handle with token
+		GetUserInfo(ctx context.Context) (out model.UserInfoOutput, err error)
+		FindUser(ctx context.Context, email string) (out model.UserInfoOutput, err error)
+		UpdateUserInfo(ctx context.Context, in *model.UpdateUserInfoInput) (codeResult int, err error)
+		AddFriendRequest(ctx context.Context, email string) (codeResult int, err error)
+		ResponseFriendRequest(ctx context.Context, friendId string) (codeResult int, err error)
 	}
 
 	IUserAdmin interface {
-		RemoveUser(ctx context.Context) error
-		FindOneUser(ctx context.Context) error
+		// TODO
 	}
 )
 
