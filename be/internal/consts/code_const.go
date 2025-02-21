@@ -6,6 +6,7 @@ const (
 
 	TIME_OTP_REGISTER int = 1
 	TIME_2FA_OTP_REGISTER int = 10
+	TIME_SAVE_CACHE_OFTEN_USE int = 10
 
 	EMAIL_HOST = "lytranvinh.work@gmail.com"
 

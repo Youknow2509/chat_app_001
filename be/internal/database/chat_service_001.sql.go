@@ -256,10 +256,13 @@ func (q *Queries) GetChatListForUser(ctx context.Context, arg GetChatListForUser
 }
 
 const getGroupInfo = `-- name: GetGroupInfo :one
-SELECT c.group_name,
-       COUNT(cm.user_id) AS numberOfMember,
-       GROUP_CONCAT(cm.user_id) AS list_mem,
-       c.type AS chat_type
+SELECT 
+    c.id AS groupId,
+    c.group_name,
+    COUNT(cm.user_id) AS numberOfMember,
+    GROUP_CONCAT(cm.user_id) AS list_mem,
+    c.type AS chat_type,
+    c.group_avatar AS chat_avatar
 FROM chats AS c
 JOIN chat_members AS cm ON c.id = cm.chat_id
 WHERE c.id = ?
@@ -267,20 +270,24 @@ GROUP BY c.id
 `
 
 type GetGroupInfoRow struct {
+	Groupid        string
 	GroupName      sql.NullString
 	Numberofmember int64
 	ListMem        sql.NullString
 	ChatType       string
+	ChatAvatar     sql.NullString
 }
 
 func (q *Queries) GetGroupInfo(ctx context.Context, id string) (GetGroupInfoRow, error) {
 	row := q.db.QueryRowContext(ctx, getGroupInfo, id)
 	var i GetGroupInfoRow
 	err := row.Scan(
+		&i.Groupid,
 		&i.GroupName,
 		&i.Numberofmember,
 		&i.ListMem,
 		&i.ChatType,
+		&i.ChatAvatar,
 	)
 	return i, err
 }

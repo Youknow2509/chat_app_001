@@ -10,6 +10,8 @@ const (
 
 	ErrCodeAuthFailed = 401 // Auth failed
 
+	ErrCodeUnmarshalData = 40001 // Unmarshal data failed
+
 	// Register Code
 	ErrCodeUserHasExist = 50001 // User has exist
 	ErrCodeBindRegisterInput = 50002
@@ -39,6 +41,7 @@ const (
 	
 	ErrCodeAddUserInfo = 90001
 	ErrCodeUserNotFound = 90002
+	ErrCodeDeleteCache = 90003
 
 	// two factor authentication code
 	ErrCodeTwoFactorAuthSetupFailed = 9002
@@ -66,7 +69,8 @@ const (
 
 // message
 var msg = map[int]string{
-	
+	ErrCodeUnmarshalData: "unmarshal data failed",
+	ErrCodeDeleteCache: "delete cache failed",
 	ErrCodeGetListChatForUser: "get list chat for user failed",
 	ErrCodeGetUserInChat: "get user in chat failed",
 	ErrCodeGetListChat: "get list chat failed",

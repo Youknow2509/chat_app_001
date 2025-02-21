@@ -11,10 +11,13 @@ INSERT INTO chat_members (chat_id, user_id, role)
 VALUES (?, ?, ?);
 
 -- name: GetGroupInfo :one
-SELECT c.group_name,
-       COUNT(cm.user_id) AS numberOfMember,
-       GROUP_CONCAT(cm.user_id) AS list_mem,
-       c.type AS chat_type
+SELECT 
+    c.id AS groupId,
+    c.group_name,
+    COUNT(cm.user_id) AS numberOfMember,
+    GROUP_CONCAT(cm.user_id) AS list_mem,
+    c.type AS chat_type,
+    c.group_avatar AS chat_avatar
 FROM chats AS c
 JOIN chat_members AS cm ON c.id = cm.chat_id
 WHERE c.id = ?

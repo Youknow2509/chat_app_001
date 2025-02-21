@@ -11,9 +11,9 @@ type (
 	IChatService interface {
 		CreateChatGroup(ctx context.Context, in *model.CreateChatGroupInput) (codeResult int, err error)
 		CreateChatPrivate(ctx context.Context, in *model.CreateChatPrivateInput) (codeResult int, err error)
-		GetChatInfo(ctx context.Context, chatId string) (out *model.ChatInfoOutput, err error)
-		GetListChatForUser(ctx context.Context) // TODO: handle input and output
-		GetUserInChat(ctx context.Context, chatId string) (out *model.GetUserInChatOutput, err error)
+		GetChatInfo(ctx context.Context, in *model.InputGetChatInfor) (out *model.ChatInfoOutput, err error)
+		GetListChatForUser(ctx context.Context, in *model.InputGetChatForUser) (out []*model.OutGetListChatForUser, codeResult int, err error)
+		GetUserInChat(ctx context.Context, in *model.InputGetUserInChat) (out *model.GetUserInChatOutput, err error)
 		AddMemberToChat(ctx context.Context, in *model.AddMemberToChatInput) (codeResult int, err error)
 	}
 

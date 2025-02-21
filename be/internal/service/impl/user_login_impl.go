@@ -300,5 +300,5 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 		return response.ErrCodeAddUserInfo, err
 	}
 
-	return 200, nil
+	return response.ErrCodeSuccess, nil
 }

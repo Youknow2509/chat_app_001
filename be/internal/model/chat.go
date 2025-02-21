@@ -15,6 +15,8 @@ type CreateChatPrivateInput struct {
 
 // Chat information
 type ChatInfoOutput struct {
+	Avatar         string   `json:"avatar"`
+	ChatID         string   `json:"chat_id"`
 	ChatName       string   `json:"chat_name"`
 	NumberofMember int      `json:"number_of_member"`
 	ListId         []string `json:"list_id"`
@@ -71,7 +73,6 @@ type InputGetChatForUser struct {
 	UserID string `json:"user_id"`
 	Page   int    `json:"page"`
 	Limit  int    `json:"limit"`
-	Offset int    `json:"offset"`
 }
 
 // input get user in chat
