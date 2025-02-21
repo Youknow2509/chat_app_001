@@ -2,8 +2,9 @@ package model
 
 // create chat group input
 type CreateChatGroupInput struct {
-	GroupName string   `json:"group_name"`
-	ListId    []string `json:"list_id"`
+	UserIDCreate string   `json:"user_id_create"`
+	GroupName    string   `json:"group_name"`
+	ListId       []string `json:"list_id"`
 }
 
 // CreateChatPrivateInput
@@ -58,4 +59,32 @@ type DelMenForChatInput struct {
 type DelChatInput struct {
 	AdminChatID string `json:"admin_chat_id"`
 	ChatID      string `json:"chat_id"`
+}
+
+// InputGetChatInfor
+type InputGetChatInfor struct {
+	ChatID string `json:"chat_id"`
+}
+
+// input get chat for user
+type InputGetChatForUser struct {
+	UserID string `json:"user_id"`
+	Page   int    `json:"page"`
+	Limit  int    `json:"limit"`
+	Offset int    `json:"offset"`
+}
+
+// input get user in chat
+type InputGetUserInChat struct {
+	ChatID string `json:"chat_id"`
+	Page   int    `json:"page"`
+	Limit  int    `json:"limit"`
+}
+
+// Out get list chat for user
+type OutGetListChatForUser struct {
+	ChatID   string `json:"chat_id"`
+	ChatName string `json:"chat_name"`
+	Avatar   string `json:"avatar"`
+	TypeChat string `json:"type_chat"`
 }

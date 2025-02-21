@@ -35,3 +35,8 @@ func GenerateCliTokenUUID(userId string) string {
 	uuidStr := strings.ReplaceAll(newUUID.String(), "-", "")
 	return userId + ":clitoken:" + uuidStr
 }
+
+// get offset with limit and page number
+func GetOffsetWithLimit(pageNumber, limit int) int {
+	return (pageNumber - 1) * limit
+}

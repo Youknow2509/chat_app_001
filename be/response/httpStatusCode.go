@@ -54,10 +54,26 @@ const (
 	ErrCodeTokenInvalid = 100004
 	ErrCodeBindTokenInput = 100005
 	
+	// chat
+	ErrCodeAddMemberToChat = 110001
+	ErrCodeCreateChatGroup = 110002
+	ErrCodeCreateChatPrivate = 110003
+	ErrCodeGetChatInfo = 110004 
+	ErrCodeGetListChat = 110005
+	ErrCodeGetUserInChat = 110006
+	ErrCodeGetListChatForUser = 110007
 )
 
 // message
 var msg = map[int]string{
+	
+	ErrCodeGetListChatForUser: "get list chat for user failed",
+	ErrCodeGetUserInChat: "get user in chat failed",
+	ErrCodeGetListChat: "get list chat failed",
+	ErrCodeGetChatInfo: "get chat info failed",
+	ErrCodeCreateChatPrivate: "create chat private failed",
+	ErrCodeCreateChatGroup: "create chat group failed",
+	ErrCodeAddMemberToChat: "add member to chat failed",
 	ErrCodeSuccess:      "success",
 	ErrCodeParamInvalid: "email is invalid",
 	ErrInvalidToken: "token is invalid",
@@ -91,4 +107,9 @@ var msg = map[int]string{
     ErrCodeTokenExpired: "token expired",
     ErrCodeTokenInvalid: "token invalid",
 	ErrCodeBindTokenInput: "bind token input failed",
+}
+
+// get message code
+func GetMessageCode(code int) string {
+    return msg[code]
 }

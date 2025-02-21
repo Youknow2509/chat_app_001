@@ -1,0 +1,27 @@
+2025-02-21T21:25:24.906+0700	INFO	test/create_user_test.go:117	Logger initialized
+2025-02-21T21:25:24.913+0700	INFO	initialize/init_mysql.go:36	MySQL connection successful
+2025-02-21T21:25:24.913+0700	INFO	test/create_user_test.go:122	Mysql initialized
+2025-02-21T21:25:24.913+0700	INFO	initialize/init_mysqlc.go:30	SQLC connection successful
+2025-02-21T21:25:24.913+0700	INFO	test/create_user_test.go:126	MysqlC initialized
+2025-02-21T21:25:24.913+0700	INFO	test/create_user_test.go:130	Service interface initialized
+2025-02-21T21:25:24.915+0700	INFO	test/create_user_test.go:134	Redis initialized
+2025-02-21T21:25:25.937+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us1@gmail.com sucess
+2025-02-21T21:25:25.942+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 1
+2025-02-21T21:25:26.964+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us2@gmail.com sucess
+2025-02-21T21:25:26.976+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 2
+2025-02-21T21:25:27.995+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us3@gmail.com sucess
+2025-02-21T21:25:28.004+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 3
+2025-02-21T21:25:29.026+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us4@gmail.com sucess
+2025-02-21T21:25:29.036+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 4
+2025-02-21T21:25:30.056+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us5@gmail.com sucess
+2025-02-21T21:25:30.063+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 5
+2025-02-21T21:25:31.086+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us6@gmail.com sucess
+2025-02-21T21:25:31.095+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 6
+2025-02-21T21:25:32.114+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us7@gmail.com sucess
+2025-02-21T21:25:32.117+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 7
+2025-02-21T21:25:33.135+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us8@gmail.com sucess
+2025-02-21T21:25:33.139+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 8
+2025-02-21T21:25:34.160+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us9@gmail.com sucess
+2025-02-21T21:25:34.168+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 9
+2025-02-21T21:25:35.185+0700	INFO	impl/user_login_impl.go:187	OTP is sent to email: us10@gmail.com sucess
+2025-02-21T21:25:35.192+0700	INFO	impl/user_login_impl.go:208	Last id verify user: 10

@@ -2,8 +2,8 @@ Chat APP
  - API_KEY = 123456 <- Authentication: Bearer {API_KEY}
  - ?page=2&limit=20
 1. Auth service /auth
- - Đăng ký -> OTP verify
- - Verify đăng ký -> tạo mật khẩu
+ - Đăng ký -> OTP verify [cmp]
+ - Verify đăng ký -> tạo mật khẩu [cmp]
  - Đăng nhập -> trả về access_token, refresh_token, thông tin tên, email, ảnh
  {
  "access_token",
@@ -12,8 +12,8 @@ Chat APP
  name,email, avt_url
     }
  }
- - /validateToken <- true
- - /validateRefreshToken <- true
+ - /validateToken <- true  [cmp]
+ - /validateRefreshToken <- true [cmp]
  - /refreshToken
 2. User service /user
  - /getUserInfo (dùng token) -> get full
