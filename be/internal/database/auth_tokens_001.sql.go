@@ -64,7 +64,7 @@ SELECT
     expires_at,
     created_at,
     expires_at
-FROM auth_tokens WHERE access_token = ?
+FROM auth_tokens WHERE access_token = ? LIMIT 1
 `
 
 type GetAccessTokenRow struct {
@@ -79,6 +79,40 @@ type GetAccessTokenRow struct {
 func (q *Queries) GetAccessToken(ctx context.Context, accessToken string) (GetAccessTokenRow, error) {
 	row := q.db.QueryRowContext(ctx, getAccessToken, accessToken)
 	var i GetAccessTokenRow
+	err := row.Scan(
+		&i.ID,
+		&i.AccessToken,
+		&i.UserID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.ExpiresAt_2,
+	)
+	return i, err
+}
+
+const getAccessTokenByCacheKey = `-- name: GetAccessTokenByCacheKey :one
+SELECT 
+    id,
+    access_token,
+    user_id,
+    expires_at,
+    created_at,
+    expires_at
+FROM auth_tokens WHERE cache_key = ? LIMIT 1
+`
+
+type GetAccessTokenByCacheKeyRow struct {
+	ID          string
+	AccessToken string
+	UserID      string
+	ExpiresAt   time.Time
+	CreatedAt   sql.NullTime
+	ExpiresAt_2 time.Time
+}
+
+func (q *Queries) GetAccessTokenByCacheKey(ctx context.Context, cacheKey string) (GetAccessTokenByCacheKeyRow, error) {
+	row := q.db.QueryRowContext(ctx, getAccessTokenByCacheKey, cacheKey)
+	var i GetAccessTokenByCacheKeyRow
 	err := row.Scan(
 		&i.ID,
 		&i.AccessToken,
@@ -144,16 +178,18 @@ const insertAccessToken = `-- name: InsertAccessToken :exec
 INSERT INTO auth_tokens (
     id, 
     user_id, 
+    cache_key,
     access_token, 
     created_at, 
     expires_at
 )
-VALUES (?, ?, ?, now(), ?)
+VALUES (?, ?, ?, ?, now(), ?)
 `
 
 type InsertAccessTokenParams struct {
 	ID          string
 	UserID      string
+	CacheKey    string
 	AccessToken string
 	ExpiresAt   time.Time
 }
@@ -162,6 +198,7 @@ func (q *Queries) InsertAccessToken(ctx context.Context, arg InsertAccessTokenPa
 	_, err := q.db.ExecContext(ctx, insertAccessToken,
 		arg.ID,
 		arg.UserID,
+		arg.CacheKey,
 		arg.AccessToken,
 		arg.ExpiresAt,
 	)

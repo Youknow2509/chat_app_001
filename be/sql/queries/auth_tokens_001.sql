@@ -6,7 +6,7 @@ SELECT
     expires_at,
     created_at,
     expires_at
-FROM auth_tokens WHERE access_token = ?;
+FROM auth_tokens WHERE access_token = ? LIMIT 1;
 
 -- name: GetAccessTokenByUserID :many
 SELECT 
@@ -18,15 +18,26 @@ SELECT
     expires_at
 FROM auth_tokens WHERE user_id = ?;
 
+-- name: GetAccessTokenByCacheKey :one
+SELECT 
+    id,
+    access_token,
+    user_id,
+    expires_at,
+    created_at,
+    expires_at
+FROM auth_tokens WHERE cache_key = ? LIMIT 1;
+
 -- name: InsertAccessToken :exec
 INSERT INTO auth_tokens (
     id, 
     user_id, 
+    cache_key,
     access_token, 
     created_at, 
     expires_at
 )
-VALUES (?, ?, ?, now(), ?);
+VALUES (?, ?, ?, ?, now(), ?);
 
 -- name: DeleteAccessToken :exec
 DELETE FROM auth_tokens WHERE access_token = ?;

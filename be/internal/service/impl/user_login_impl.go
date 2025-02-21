@@ -77,8 +77,47 @@ func (s *sUserLogin) Login(ctx context.Context, in *model.LoginInput) (codeResul
 	// create token
 	out.Token, err = auth.CreateToken(subToken)
 	if err != nil {
-		return response.ErrCodeAuthFailed, out, fmt.Errorf("create token failed: %w", err)
+		return response.ErrCodeAuthFailed, out, fmt.Errorf("create access token failed: %w", err)
 	}
+	// create refresh token
+	uuidRefreshToken := uuid.New().String()
+	out.RefreshToken, err = auth.CreateRefreshToken(uuidRefreshToken)
+	if err != nil {
+		return response.ErrCodeAuthFailed, out, fmt.Errorf("create refresh token failed: %w", err)
+	}
+	// save access token in db
+	timeExAccesstoken, err := time.ParseDuration(global.Config.Jwt.JWT_EXPIRATION)
+	if global.Config.Jwt.JWT_EXPIRATION == "" || err != nil {
+		timeExAccesstoken = time.Hour
+	}
+	go func() {
+		errInsertToken := s.r.InsertAccessToken(ctx, database.InsertAccessTokenParams{
+			ID:          uuid.New().String(),
+			UserID:      userBase.UserID,
+			CacheKey:    subToken,
+			AccessToken: out.Token,
+			ExpiresAt:   time.Now().Add(timeExAccesstoken),
+		})
+		if errInsertToken != nil {
+			log.Println("Insert token failed: ", errInsertToken)
+		}
+	}()
+	// save refresh token in db
+	timeExRefreshtoken, err := time.ParseDuration(global.Config.Jwt.JWT_REFRESH_EXPIRED)
+	if global.Config.Jwt.JWT_REFRESH_EXPIRED == "" || err != nil {
+		timeExRefreshtoken = time.Hour * 24 * 7
+	}
+	go func() {
+		errInsertRToken := s.r.InsertRefreshToken(ctx, database.InsertRefreshTokenParams{
+			ID:           uuidRefreshToken,
+			UserID:       userBase.UserID,
+			RefreshToken: out.RefreshToken,
+			ExpiresAt:    time.Now().Add(timeExRefreshtoken),
+		})
+		if errInsertRToken != nil {
+			log.Println("Insert refresh token failed: ", errInsertRToken)
+		}
+	}()
 
 	return response.ErrCodeSuccess, out, nil
 }
@@ -240,22 +279,22 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 		UserSalt:     salt,
 	}
 	// add userBase to user_base table
-	_ , err = s.r.AddUserBaseWithUUID(ctx, userBase)
+	_, err = s.r.AddUserBaseWithUUID(ctx, userBase)
 	if err != nil {
 		return response.ErrCodeAddUserBase, err
 	}
 
 	// add user_id to user_info table
 	_, err = s.r.AddUserHaveUserId(ctx, database.AddUserHaveUserIdParams{
-		UserID:               userBase.UserID,
-		UserAccount:          infoOTP.VerifyKey,
-		UserNickname:         sql.NullString{String: infoOTP.VerifyKey, Valid: true},
-		UserAvatar:           sql.NullString{String: "", Valid: true},
-		UserState:            database.UserInfoUserStateActivated,
-		UserMobile:           sql.NullString{String: "", Valid: true},
-		UserGender:           database.NullUserInfoUserGender{UserInfoUserGender: database.UserInfoUserGenderMale, Valid: false},
-		UserBirthday:         sql.NullTime{Time: time.Time{}, Valid: false},
-		UserEmail:            sql.NullString{String: infoOTP.VerifyKey, Valid: true},
+		UserID:       userBase.UserID,
+		UserAccount:  infoOTP.VerifyKey,
+		UserNickname: sql.NullString{String: infoOTP.VerifyKey, Valid: true},
+		UserAvatar:   sql.NullString{String: "", Valid: true},
+		UserState:    database.UserInfoUserStateActivated,
+		UserMobile:   sql.NullString{String: "", Valid: true},
+		UserGender:   database.NullUserInfoUserGender{UserInfoUserGender: database.UserInfoUserGenderMale, Valid: false},
+		UserBirthday: sql.NullTime{Time: time.Time{}, Valid: false},
+		UserEmail:    sql.NullString{String: infoOTP.VerifyKey, Valid: true},
 	})
 	if err != nil {
 		return response.ErrCodeAddUserInfo, err

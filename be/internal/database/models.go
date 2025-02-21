@@ -99,8 +99,10 @@ func (ns NullUserInfoUserState) Value() (driver.Value, error) {
 }
 
 type AuthToken struct {
-	ID          string
-	UserID      string
+	ID     string
+	UserID string
+	// Cache key save token in redis
+	CacheKey    string
 	AccessToken string
 	CreatedAt   sql.NullTime
 	ExpiresAt   time.Time
@@ -194,8 +196,8 @@ type UserInfo struct {
 	UserBirthday sql.NullTime
 	// User email address
 	UserEmail sql.NullString
-	// Authentication status
-	UserIsAuthentication int8
+	// Authentication status: 1 false | 0 true
+	UserIsAuthentication sql.NullInt16
 	// Record creation time
 	CreatedAt sql.NullTime
 	// Record update time

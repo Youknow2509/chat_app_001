@@ -20,7 +20,7 @@ func (jtk *JwtTokenRouter) InitTokenRouter(Router *gin.RouterGroup) {
 		// token validate
 		jwtRouterPublic.POST("/valid_token", tokenController.Jwt.JwtValidToken)
 		// token refresh
-		jwtRouterPublic.POST("/refreshToken")
+		jwtRouterPublic.POST("/refreshToken") // TODO
 	}
 
 	// private router

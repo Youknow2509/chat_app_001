@@ -108,3 +108,16 @@ func (cJ *cJwtToken) JwtValidToken(c *gin.Context) {
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, out)
 }
+
+// Handle refresh token request
+func (cJ *cJwtToken) RefreshToken(c *gin.Context) {
+
+	var params model.JwtRefreshInput
+	if err := c.ShouldBindJSON(&params); err != nil {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+		return
+	}
+
+	// TODO: todo cmp
+	response.SuccessResponse(c, response.ErrCodeSuccess, "TODO complete")
+}
