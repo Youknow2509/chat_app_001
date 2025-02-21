@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	"example.com/be/global"
@@ -35,26 +37,31 @@ func CreateToken(uuidToken string) (string, error) {
 			ExpiresAt: expirationAt.Unix(),
 			IssuedAt:  now.Unix(),
 			Issuer:    "go-ecommerce",
-			// TODO: save id user 
 			Subject:   uuidToken,
 		},
 	})
 }
 
 // create refresh token
-func CreateRefreshToken(uuidToken string, uuidAccessToken string) (string, error) {
+func CreateRefreshToken(uuidToken string) (string, error) {
 	// set time expiration
-	timeEx := global.Config.Jwt.JWT_REFRESH_EXPIRED
-	if timeEx == "" {
-		timeEx = "7"
+	timEx := global.Config.Jwt.JWT_REFRESH_EXPIRED
+	if timEx == "" {
+		timEx = "7"
+	}
+	timExInt, err := strconv.ParseInt(timEx, 10, 64)
+    if err != nil {
+        return "Pare time", err
     }
+
+    timeExInt := timExInt * 24
+	timeEx := fmt.Sprintf("%dh", timeExInt)
 	// convert to time duration
 	expiration, err := time.ParseDuration(timeEx)
 	if err != nil {
 		return "", err
 	}
-	expiration = expiration * (24 * time.Hour)
-	// get time expiration token
+
 	now := time.Now()
 	expirationAt := now.Add(expiration)
 
@@ -64,7 +71,7 @@ func CreateRefreshToken(uuidToken string, uuidAccessToken string) (string, error
 			ExpiresAt: expirationAt.Unix(),
 			IssuedAt:  now.Unix(),
 			Issuer:    "go-ecommerce",
-			Subject:   uuidAccessToken,
+			Subject:   uuidToken,
 		},
 	})
 }

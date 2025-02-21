@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  model.JwtInput:
+    properties:
+      data:
+        type: string
+    type: object
   model.LoginInput:
     properties:
       user_account:
@@ -68,6 +73,84 @@ info:
   title: API Documentation Go Ecommerce
   version: 1.0.0
 paths:
+  /v1/token/create_refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: Testing create a new refresh JWT token
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.JwtInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Create a new JWT token test
+      tags:
+      - Token
+  /v1/token/create_token:
+    post:
+      consumes:
+      - application/json
+      description: Testing create a new JWT token
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.JwtInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Create a new JWT token test
+      tags:
+      - Token
+  /v1/token/valid_token:
+    post:
+      consumes:
+      - application/json
+      description: Validate token for access token and refresh token
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.JwtInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Validate token for access token and refresh token
+      tags:
+      - Token
   /v1/user/login:
     post:
       consumes:

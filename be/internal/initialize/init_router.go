@@ -21,6 +21,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	userRouter := routers.RouterGroupApp.User
+	tokenRouter := routers.RouterGroupApp.Token
 
 	MainGroup := router.Group("/v1")
 	{
@@ -28,6 +29,7 @@ func InitRouter() *gin.Engine {
 	}
 	{
 		userRouter.InitUserRouter(MainGroup)
+		tokenRouter.InitTokenRouter(MainGroup)
         //... other routes...
 	}
 

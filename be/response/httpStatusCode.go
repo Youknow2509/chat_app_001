@@ -46,6 +46,14 @@ const (
 
 	// rate limit code
 	ErrCodeTooManyRequests = 429
+
+	// token
+	ErrCodeCreateToken = 100001
+	ErrCodeCreateRefreshToken = 100002
+	ErrCodeTokenExpired = 100003
+	ErrCodeTokenInvalid = 100004
+	ErrCodeBindTokenInput = 100005
+	
 )
 
 // message
@@ -78,4 +86,9 @@ var msg = map[int]string{
 	ErrCodeTwoFactorAuthSetupFailed: "two factor authentication setup failed",
 	ErrCodeTwoFactorAuthFailed: "two factor authentication failed",
 	ErrCodeTooManyRequests: "too many requests",
+	ErrCodeCreateToken: "create token failed",
+	ErrCodeCreateRefreshToken: "create refresh token failed",
+    ErrCodeTokenExpired: "token expired",
+    ErrCodeTokenInvalid: "token invalid",
+	ErrCodeBindTokenInput: "bind token input failed",
 }
