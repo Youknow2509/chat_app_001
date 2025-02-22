@@ -46,6 +46,7 @@ const (
 	// two factor authentication code
 	ErrCodeTwoFactorAuthSetupFailed = 9002
 	ErrCodeTwoFactorAuthFailed = 9003
+	ErrCodeUnauthorized = 9004
 
 	// rate limit code
 	ErrCodeTooManyRequests = 429
@@ -65,10 +66,13 @@ const (
 	ErrCodeGetListChat = 110005
 	ErrCodeGetUserInChat = 110006
 	ErrCodeGetListChatForUser = 110007
+	
 )
 
 // message
 var msg = map[int]string{
+
+	ErrCodeUnauthorized: "unauthorized",
 	ErrCodeUnmarshalData: "unmarshal data failed",
 	ErrCodeDeleteCache: "delete cache failed",
 	ErrCodeGetListChatForUser: "get list chat for user failed",

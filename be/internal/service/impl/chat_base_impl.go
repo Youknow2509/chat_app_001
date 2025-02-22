@@ -251,11 +251,11 @@ func (s *sChatBase) AddMemberToChat(ctx context.Context, in *model.AddMemberToCh
 }
 
 // CreateChatGroup implements service.IChatService.
-func (s *sChatBase) CreateChatGroup(ctx context.Context, in *model.CreateChatGroupInput) (codeResult int, err error) {
+func (s *sChatBase) CreateChatGroup(ctx context.Context, in *model.CreateChatGroupInput) (codeResult int, out *model.OutputCreateChatGroup, err error) {
 	// 1. check list members
 	if len(in.ListId) < 2 {
 		global.Logger.Error("List members must be greater than 2")
-		return response.ErrCodeParamInvalid, nil
+		return response.ErrCodeParamInvalid, nil, nil
 	}
 	// 2. create chat group
 	uuidGroupChat := uuid.New().String()
@@ -265,7 +265,7 @@ func (s *sChatBase) CreateChatGroup(ctx context.Context, in *model.CreateChatGro
 	})
 	if err != nil {
 		global.Logger.Error("Err create group chat", zap.Error(err))
-		return response.ErrCodeCreateChatGroup, err
+		return response.ErrCodeCreateChatGroup, nil, err
 	}
 	// 3. add member to chat
 	go func() {
@@ -309,33 +309,42 @@ func (s *sChatBase) CreateChatGroup(ctx context.Context, in *model.CreateChatGro
 			fmt.Printf("Err delete cache %s", keyCacheAdmin)
 		}
 	}()
-
+	// 6. set data to output
+	out = &model.OutputCreateChatGroup{
+		ChatId: uuidGroupChat,
+		Avatar: "",
+		Name:   in.GroupName,
+	}
 	fmt.Printf("Create chat group %s from %s success", uuidGroupChat, in.UserIDCreate)
-	return response.ErrCodeSuccess, nil
+	return response.ErrCodeSuccess, out, nil
 }
 
 // CreateChatPrivate implements service.IChatService.
-func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatPrivateInput) (codeResult int, err error) {
+func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatPrivateInput) (codeResult int, out *model.OutputCreateChatGroup, err error) {
 	// 1. Check user is exist
 	_, err = s.r.GetUserWithID(ctx, in.User1)
 	if err != nil {
 		fmt.Printf("Err get user with id %s", in.User1)
 		global.Logger.Error("Err get user with id", zap.Error(err))
-		return response.ErrCodeUserNotFound, err
+		return response.ErrCodeUserNotFound, nil, err
 	}
 	_, err = s.r.GetUserWithID(ctx, in.User2)
 	if err != nil {
 		fmt.Printf("Err get user with id %s", in.User2)
 		global.Logger.Error("Err get user with id", zap.Error(err))
-		return response.ErrCodeUserNotFound, err
+		return response.ErrCodeUserNotFound, nil, err
 	}
 	// 2. create chat private
+	groupNameChat := in.User1 + " - " + in.User2
 	uuidChatPrivate := uuid.New().String()
-	err = s.r.CreateChat(ctx, uuidChatPrivate)
+	err = s.r.CreateChat(ctx, database.CreateChatParams{
+		ID:        uuidChatPrivate,
+		GroupName: sql.NullString{String: groupNameChat, Valid: false},
+	})
 	if err != nil {
 		fmt.Printf("Err create chat private %s", uuidChatPrivate)
 		global.Logger.Error("Err create chat private", zap.Error(err))
-		return response.ErrCodeCreateChatPrivate, err
+		return response.ErrCodeCreateChatPrivate, nil, err
 	}
 	// 3. add member to chat
 	go func() {
@@ -376,7 +385,13 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 			global.Logger.Error("Err delete cache", zap.Error(err))
 		}
 	}()
-	return response.ErrCodeSuccess, nil
+	// 5. set data to output
+	out = &model.OutputCreateChatGroup{
+		ChatId: uuidChatPrivate,
+		Avatar: "",
+		Name:   groupNameChat,
+	}
+	return response.ErrCodeSuccess, out, nil
 }
 
 // new chat base service impl interface chat service

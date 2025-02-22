@@ -11,6 +11,7 @@ import (
 func InitServiceInterface() {
 	q := database.New(global.Mdbc)
 	service.InitUserLogin(impl.NewSUserLogin(q))
-
+	service.InitChatService(impl.NewSChatBase(q))
+	service.InitChatServiceAdmin(impl.NewSChatAdmin(q))
 	// ...
 }

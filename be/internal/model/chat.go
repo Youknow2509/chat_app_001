@@ -89,3 +89,11 @@ type OutGetListChatForUser struct {
 	Avatar   string `json:"avatar"`
 	TypeChat string `json:"type_chat"`
 }
+
+// output create chat group
+type OutputCreateChatGroup struct {
+	ChatId string `json:"chat_id"`
+	Avatar string `json:"avatar"`
+	Name  string `json:"name"`
+}
+

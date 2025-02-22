@@ -9,8 +9,8 @@ import (
 // create interface
 type (
 	IChatService interface {
-		CreateChatGroup(ctx context.Context, in *model.CreateChatGroupInput) (codeResult int, err error)
-		CreateChatPrivate(ctx context.Context, in *model.CreateChatPrivateInput) (codeResult int, err error)
+		CreateChatGroup(ctx context.Context, in *model.CreateChatGroupInput) (codeResult int, out *model.OutputCreateChatGroup, err error)
+		CreateChatPrivate(ctx context.Context, in *model.CreateChatPrivateInput) (codeResult int, out *model.OutputCreateChatGroup, err error)
 		GetChatInfo(ctx context.Context, in *model.InputGetChatInfor) (out *model.ChatInfoOutput, err error)
 		GetListChatForUser(ctx context.Context, in *model.InputGetChatForUser) (out []*model.OutGetListChatForUser, codeResult int, err error)
 		GetUserInChat(ctx context.Context, in *model.InputGetUserInChat) (out *model.GetUserInChatOutput, err error)

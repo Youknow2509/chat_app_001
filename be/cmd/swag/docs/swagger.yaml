@@ -1,5 +1,28 @@
 basePath: /
 definitions:
+  model.CreateChatGroupInput:
+    properties:
+      group_name:
+        type: string
+      list_id:
+        items:
+          type: string
+        type: array
+      user_id_create:
+        type: string
+    type: object
+  model.CreateChatPrivateInput:
+    properties:
+      user1:
+        type: string
+      user2:
+        type: string
+    type: object
+  model.InputGetChatInfor:
+    properties:
+      chat_id:
+        type: string
+    type: object
   model.JwtInput:
     properties:
       data:
@@ -73,6 +96,100 @@ info:
   title: API Documentation Go Ecommerce
   version: 1.0.0
 paths:
+  /v1/chat/create-chat-group:
+    post:
+      consumes:
+      - application/json
+      description: Create a chat group with user after auth, user create is admin
+        and others users are members
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateChatGroupInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Create a chat group with user after auth
+      tags:
+      - Chat
+  /v1/chat/create-chat-private:
+    post:
+      consumes:
+      - application/json
+      description: Create a chat private both user
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateChatPrivateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Create a chat private
+      tags:
+      - Chat
+  /v1/chat/get-chat-info:
+    get:
+      consumes:
+      - application/json
+      description: Get chat information by chat id
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.InputGetChatInfor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get chat information
+      tags:
+      - Chat
   /v1/token/create_refresh_token:
     post:
       consumes:

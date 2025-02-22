@@ -1,18 +1,20 @@
 -- name: GetUserWithID :one
 SELECT
-    user_id, 
-    user_account, 
-    user_nickname, 
-    user_avatar, 
-    user_state, 
-    user_mobile, 
-    user_gender, 
-    user_birthday, 
-    user_email, 
-    created_at, 
-    updated_at
-FROM `user_info`
-WHERE user_id = ? LIMIT 1;
+    user_info.user_id, 
+    user_info.user_account, 
+    user_info.user_nickname, 
+    user_info.user_avatar, 
+    user_info.user_state, 
+    user_info.user_mobile, 
+    user_info.user_gender, 
+    user_info.user_birthday, 
+    user_info.user_email, 
+    user_base.user_is_refresh_token,
+    user_info.created_at, 
+    user_info.updated_at
+FROM `user_info` INNER JOIN `user_base`
+    ON user_base.user_id = user_info.user_id
+WHERE user_info.user_id = ? LIMIT 1;
 
 -- name: GetUserWithAccount :one
 SELECT

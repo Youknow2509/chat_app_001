@@ -1,6 +1,6 @@
 -- name: CreateChat :exec
-INSERT INTO chats (id, type, created_at, updated_at)
-VALUES (?, 'private', now(), now());
+INSERT INTO chats (id, group_name, type, created_at, updated_at)
+VALUES (?, ?, 'private', now(), now());
 
 -- name: CreateGroupChat :exec
 INSERT INTO chats (id, type, group_name, created_at, updated_at)

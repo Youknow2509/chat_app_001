@@ -60,12 +60,17 @@ func (q *Queries) CheckAdminGroupChat(ctx context.Context, arg CheckAdminGroupCh
 }
 
 const createChat = `-- name: CreateChat :exec
-INSERT INTO chats (id, type, created_at, updated_at)
-VALUES (?, 'private', now(), now())
+INSERT INTO chats (id, group_name, type, created_at, updated_at)
+VALUES (?, ?, 'private', now(), now())
 `
 
-func (q *Queries) CreateChat(ctx context.Context, id string) error {
-	_, err := q.db.ExecContext(ctx, createChat, id)
+type CreateChatParams struct {
+	ID        string
+	GroupName sql.NullString
+}
+
+func (q *Queries) CreateChat(ctx context.Context, arg CreateChatParams) error {
+	_, err := q.db.ExecContext(ctx, createChat, arg.ID, arg.GroupName)
 	return err
 }
 

@@ -2,6 +2,7 @@ package context
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"example.com/be/internal/consts"
@@ -9,8 +10,10 @@ import (
 )
 
 type InfoUserUUID struct {
-	UserId      uint64
-	UserAccount string
+	UserId             string
+	UserAccount        string
+	UserState          string
+	UserIsRefreshToken sql.NullInt32
 }
 
 /**
@@ -29,16 +32,33 @@ func getSubjectUUID(ctx context.Context) (string, error) {
  *  Get userID from context in header field
  *  Header field add new parameter when auth middleware
  */
-func GetUserIdFromUUID(ctx context.Context) (uint64, error) {
+func GetUserIdFromUUID(ctx context.Context) (string, error) {
 	sUUID, err := getSubjectUUID(ctx)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	// get infoUser Redis from uuid
 	var userInfo InfoUserUUID
 	if err := cache.GetCache(ctx, sUUID, &userInfo); err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return userInfo.UserId, nil
+}
+
+/**
+ * Get user info from UUID
+ */
+func GetUserInfoFromUUID(ctx context.Context) (*InfoUserUUID, error) {
+	sUUID, err := getSubjectUUID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// get infoUser Redis from uuid
+	var userInfo InfoUserUUID
+	if err := cache.GetCache(ctx, sUUID, &userInfo); err != nil {
+		return nil, err
+	}
+
+	return &userInfo, nil
 }
