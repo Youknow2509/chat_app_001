@@ -3,6 +3,7 @@ package auth
 import (
 	"strings"
 
+	"example.com/be/global"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,4 +15,14 @@ func ExtractBearerToken(c *gin.Context) (string, bool) {
 		return strings.TrimPrefix(authHeader, "Bearer "), true
 	}
 	return "", false
+}
+
+// check token exists in cache
+func CheckAccessTokenExists(ctx *gin.Context , subUUID string) error {
+	err := global.Rdb.Get(ctx, subUUID).Err()
+	if err != nil {
+
+		return err
+	}
+	return nil
 }

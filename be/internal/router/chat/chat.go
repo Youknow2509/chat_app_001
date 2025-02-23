@@ -16,18 +16,25 @@ func (cb *ChatBaseRouter) InitChatBaseRouter(Router *gin.RouterGroup) {
 	chatRouterPublic := Router.Group("/chat")
 	chatRouterPublic.Use(middlewares.AuthenMiddleware())
 	{
-		chatRouterPublic.POST("create-chat-group", chatController.Chat.CreateChatGroup)
-		chatRouterPublic.POST("create-chat-private", chatController.Chat.CreateChatPrivate)
 		// TODO: handle add controller
 		chatRouterPublic.GET("get-chat-info", chatController.Chat.GetChatInfo)
 		chatRouterPublic.GET("get-list-chat-for-user")
 		chatRouterPublic.GET("get-user-in-chat")
-		chatRouterPublic.POST("add-member-to-chat")
 	}
+    // mprivate router
+    chatRouterMPrivate := Router.Group("/chat") // TODO: handle middleware routes
+    chatRouterMPrivate.Use(middlewares.AuthenMiddleware())
+    chatRouterMPrivate.Use(middlewares.TokenAuthMiddleware())
+    {
+        chatRouterMPrivate.GET("create-chat-group", chatController.Chat.CreateChatGroup)
+		chatRouterMPrivate.GET("create-chat-private", chatController.Chat.CreateChatPrivate)
+		chatRouterMPrivate.POST("add-member-to-chat")
+    }
 
 	// private router
 	chatRouterPrivate := Router.Group("/chat") // TODO: handle middleware routes
-	chatRouterPublic.Use(middlewares.AuthenMiddleware())
+	chatRouterPrivate.Use(middlewares.AuthenMiddleware())
+    chatRouterPrivate.Use(middlewares.TokenAuthMiddleware())
 	{
 		// TODO: handle add controller
 		chatRouterPrivate.POST("upgrade-chat-info")

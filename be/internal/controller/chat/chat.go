@@ -88,16 +88,21 @@ func (ct *cChat) CreateChatPrivate(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Authorization Bearer token"
-// @Param        payload body model.InputGetChatInfor true "payload"
+// @Param        chat_id query string true "Chat ID"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /v1/chat/get-chat-info [get]
 func (ct *cChat) GetChatInfo(c *gin.Context) {
-	var p model.InputGetChatInfor
-	if err := c.ShouldBindJSON(&p); err != nil {
-		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
-		return
-	}
+	
+	chatID := c.Query("chat_id")
+    if chatID == "" {
+        response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Chat ID is required")
+        return
+    }
+
+    p := model.InputGetChatInfor{
+        ChatID: chatID,
+    }
 
 	outputData, err := service.ChatService().GetChatInfo(c, &p)
 	if err != nil {

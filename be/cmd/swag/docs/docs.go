@@ -140,13 +140,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.InputGetChatInfor"
-                        }
+                        "type": "string",
+                        "description": "Chat ID",
+                        "name": "chat_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -475,14 +473,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.InputGetChatInfor": {
-            "type": "object",
-            "properties": {
-                "chat_id": {
-                    "type": "string"
-                }
-            }
-        },
         "model.JwtInput": {
             "type": "object",
             "properties": {
@@ -587,7 +577,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8082",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "API Documentation Go Ecommerce",
+	Title:            "API Documentation Chat App",
 	Description:      "This is a sample server celler server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

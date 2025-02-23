@@ -20,7 +20,7 @@ type InfoUserUUID struct {
  * Get UUID in header contact after authorization middleware
  * (middleware add new parameter in header)
  */
-func getSubjectUUID(ctx context.Context) (string, error) {
+func GetSubjectUUID(ctx context.Context) (string, error) {
 	sUUID, ok := ctx.Value(consts.PAYLOAD_SUBJECT_UUID).(string)
 	if !ok {
 		return "", errors.New("uuid not found in context")
@@ -33,7 +33,7 @@ func getSubjectUUID(ctx context.Context) (string, error) {
  *  Header field add new parameter when auth middleware
  */
 func GetUserIdFromUUID(ctx context.Context) (string, error) {
-	sUUID, err := getSubjectUUID(ctx)
+	sUUID, err := GetSubjectUUID(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +50,7 @@ func GetUserIdFromUUID(ctx context.Context) (string, error) {
  * Get user info from UUID
  */
 func GetUserInfoFromUUID(ctx context.Context) (*InfoUserUUID, error) {
-	sUUID, err := getSubjectUUID(ctx)
+	sUUID, err := GetSubjectUUID(ctx)
 	if err != nil {
 		return nil, err
 	}

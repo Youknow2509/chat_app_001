@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "This is a sample server celler server.",
-        "title": "API Documentation Go Ecommerce",
+        "title": "API Documentation Chat App",
         "termsOfService": "example.com/be/",
         "contact": {
             "name": "TEAM V",
@@ -134,13 +134,11 @@
                         "required": true
                     },
                     {
-                        "description": "payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.InputGetChatInfor"
-                        }
+                        "type": "string",
+                        "description": "Chat ID",
+                        "name": "chat_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -465,14 +463,6 @@
                     "type": "string"
                 },
                 "user2": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.InputGetChatInfor": {
-            "type": "object",
-            "properties": {
-                "chat_id": {
                     "type": "string"
                 }
             }

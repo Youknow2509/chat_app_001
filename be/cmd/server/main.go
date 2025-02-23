@@ -11,7 +11,7 @@ import (
 	// swagger embed files
 )
 
-// @title           API Documentation Go Ecommerce
+// @title           API Documentation Chat App
 // @version         1.0.0
 // @description     This is a sample server celler server.
 // @termsOfService  example.com/be/

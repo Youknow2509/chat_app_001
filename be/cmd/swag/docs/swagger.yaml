@@ -18,11 +18,6 @@ definitions:
       user2:
         type: string
     type: object
-  model.InputGetChatInfor:
-    properties:
-      chat_id:
-        type: string
-    type: object
   model.JwtInput:
     properties:
       data:
@@ -93,7 +88,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: example.com/be/
-  title: API Documentation Go Ecommerce
+  title: API Documentation Chat App
   version: 1.0.0
 paths:
   /v1/chat/create-chat-group:
@@ -170,12 +165,11 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: payload
-        in: body
-        name: payload
+      - description: Chat ID
+        in: query
+        name: chat_id
         required: true
-        schema:
-          $ref: '#/definitions/model.InputGetChatInfor'
+        type: string
       produces:
       - application/json
       responses:

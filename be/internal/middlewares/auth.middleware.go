@@ -2,21 +2,12 @@ package middlewares
 
 import (
 	"context"
-	"database/sql"
 	"log"
 
 	"example.com/be/internal/consts"
 	"example.com/be/internal/utils/auth"
-	"example.com/be/internal/utils/cache"
 	"github.com/gin-gonic/gin"
 )
-
-type InfoUserUUID struct {
-	UserId             string
-	UserAccount        string
-	UserState          string
-	UserIsRefreshToken sql.NullInt32
-}
 
 // func authen middleware
 func AuthenMiddleware() gin.HandlerFunc {
@@ -38,12 +29,6 @@ func AuthenMiddleware() gin.HandlerFunc {
 		}
 		// update claims to context
 		log.Println("Claims:: uuid:: ", claims.Subject)
-		// check token exist in cache - get infoUser Redis from uuid
-		var userInfo InfoUserUUID
-		if err := cache.GetCache(context.Background(), claims.Subject, &userInfo); err != nil {
-			c.AbortWithStatusJSON(401, gin.H{"code": 40003, "err": "Unauthorized", "description": "Token not exist in cache"})
-			return
-		}
 		// set data to context
 		ctx := context.WithValue(c.Request.Context(), consts.PAYLOAD_SUBJECT_UUID, claims.Subject)
 		c.Request = c.Request.WithContext(ctx)

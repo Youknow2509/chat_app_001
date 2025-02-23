@@ -50,6 +50,6 @@ rabbitmq:
 
 jwt:
   token_hour_lifespan: 1
-  jwt_expiration: 1h
+  jwt_expiration: 8h
   api_secret: "xxx.yyy.zzz"
   jwt_refresh_expired: 7 # days
