@@ -15,6 +15,10 @@ CREATE TABLE user_verify (
 -- +goose StatementEnd
 
 -- +goose StatementBegin
+CREATE INDEX idx_user_verify_id ON user_verify (verify_id);
+-- +goose StatementEnd
+
+-- +goose StatementBegin
 CREATE INDEX idx_user_verify_verify_key ON user_verify (verify_key);
 -- +goose StatementEnd
 
@@ -23,6 +27,10 @@ CREATE INDEX idx_user_verify_verify_key_hash ON user_verify (verify_key_hash);
 -- +goose StatementEnd
 
 -- +goose Down
+-- +goose StatementBegin
+DROP INDEX idx_user_verify_id ON user_verify;
+-- +goose StatementEnd
+
 -- +goose StatementBegin
 DROP INDEX idx_user_verify_verify_key ON user_verify;
 DROP INDEX idx_user_verify_verify_key_hash ON user_verify;

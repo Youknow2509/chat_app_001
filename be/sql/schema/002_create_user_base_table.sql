@@ -20,7 +20,7 @@ CREATE INDEX idx_user_base_user_account ON user_base (user_account);
 -- +goose StatementEnd
 
 -- +goose StatementBegin
-CREATE INDEX idx_user_base_user_login_ip ON user_base (user_login_ip);
+CREATE INDEX idx_user_base_id ON user_base (user_id);
 -- +goose StatementEnd
 
 -- +goose Down
@@ -29,7 +29,7 @@ DROP INDEX idx_user_base_user_account ON user_base;
 -- +goose StatementEnd
 
 -- +goose StatementBegin
-DROP INDEX idx_user_base_user_login_ip ON user_base;
+DROP INDEX idx_user_base_id ON user_base;
 -- +goose StatementEnd
 
 -- +goose StatementBegin

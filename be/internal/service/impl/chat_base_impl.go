@@ -338,7 +338,22 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 		global.Logger.Error("Err get user with id", zap.Error(err))
 		return response.ErrCodeUserNotFound, nil, err
 	}
-	// 2. create chat private
+	// 2. check chat private exists
+	chatIdExists, err := s.r.CheckPrivateChatExists(ctx, database.CheckPrivateChatExistsParams{
+		UserID: in.User1,
+		UserID_2: in.User2,
+	})
+	if err != nil {
+        fmt.Printf("Err check private chat exists when create chat private")
+        global.Logger.Error("Err check private chat exists", zap.Error(err))
+        return response.ErrCodeCreateChatPrivate, nil, err
+    }
+	if chatIdExists != "" {
+		global.Logger.Error("Chat private is exist with ID: ", zap.String("chatId", chatIdExists))
+        return response.ErrCodeChatPrivateExists, nil, nil
+    }
+
+	// 3. create chat private
 	groupNameChat := in.User1 + " - " + in.User2
 	uuidChatPrivate := uuid.New().String()
 	err = s.r.CreateChat(ctx, database.CreateChatParams{
@@ -350,7 +365,7 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 		global.Logger.Error("Err create chat private", zap.Error(err))
 		return response.ErrCodeCreateChatPrivate, nil, err
 	}
-	// 3. add member to chat
+	// 4. add member to chat
 	go func() {
 		errAddChatMember1 := s.r.InsertChatMember(ctx, database.InsertChatMemberParams{
 			ChatID: uuidChatPrivate,
@@ -373,7 +388,7 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 			global.Logger.Error("Err add member to chat", zap.Error(errAddChatMember2))
 		}
 	}()
-	// 4. remove cache data list chat group user
+	// 5. remove cache data list chat group user
 	go func() {
 		keyCache1 := fmt.Sprintf("listchat::user%s", in.User1)
 		err = utils.DeleteCacheWithKeyPrefix(keyCache1)
@@ -389,7 +404,7 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 			global.Logger.Error("Err delete cache", zap.Error(err))
 		}
 	}()
-	// 5. set data to output
+	// 6. set data to output
 	out = &model.OutputCreateChatGroup{
 		ChatId: uuidChatPrivate,
 		Avatar: "",

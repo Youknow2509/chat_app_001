@@ -59,6 +59,29 @@ func (q *Queries) CheckAdminGroupChat(ctx context.Context, arg CheckAdminGroupCh
 	return count, err
 }
 
+const checkPrivateChatExists = `-- name: CheckPrivateChatExists :one
+SELECT c.id
+FROM chats c
+JOIN chat_members cm1 ON c.id = cm1.chat_id
+JOIN chat_members cm2 ON c.id = cm2.chat_id
+WHERE c.type = 'private'
+  AND cm1.user_id = ?
+  AND cm2.user_id = ?
+LIMIT 1
+`
+
+type CheckPrivateChatExistsParams struct {
+	UserID   string
+	UserID_2 string
+}
+
+func (q *Queries) CheckPrivateChatExists(ctx context.Context, arg CheckPrivateChatExistsParams) (string, error) {
+	row := q.db.QueryRowContext(ctx, checkPrivateChatExists, arg.UserID, arg.UserID_2)
+	var id string
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createChat = `-- name: CreateChat :exec
 INSERT INTO chats (id, group_name, type, created_at, updated_at)
 VALUES (?, ?, 'private', now(), now())

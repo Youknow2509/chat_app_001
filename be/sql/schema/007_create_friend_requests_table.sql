@@ -11,15 +11,7 @@ CREATE TABLE friend_requests (
 );
 -- +goose StatementEnd
 
--- +goose StatementBegin
-CREATE INDEX idx_friend_requests_status ON friend_requests (status);
--- +goose StatementEnd
-
 -- +goose Down
--- +goose StatementBegin
-DROP INDEX idx_friend_requests_status ON friend_requests;
--- +goose StatementEnd
-
 -- +goose StatementBegin
 DROP TABLE friend_requests;
 -- +goose StatementEnd

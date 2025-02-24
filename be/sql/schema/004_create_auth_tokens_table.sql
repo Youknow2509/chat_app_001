@@ -19,6 +19,10 @@ CREATE INDEX idx_auth_tokens_user_id ON auth_tokens (user_id);
 CREATE INDEX idx_auth_tokens_cache_key ON auth_tokens (cache_key);
 -- +goose StatementEnd
 
+-- +goose StatementBegin
+CREATE INDEX idx_auth_tokens_id ON auth_tokens (id);
+-- +goose StatementEnd
+
 -- +goose Down
 -- +goose StatementBegin
 DROP INDEX idx_auth_tokens_user_id ON auth_tokens;
@@ -26,6 +30,10 @@ DROP INDEX idx_auth_tokens_user_id ON auth_tokens;
 
 -- +goose StatementBegin
 DROP INDEX idx_auth_tokens_cache_key ON auth_tokens;
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+DROP INDEX idx_auth_tokens_id ON auth_tokens;
 -- +goose StatementEnd
 
 -- +goose StatementBegin

@@ -6,6 +6,16 @@ VALUES (?, ?, 'private', now(), now());
 INSERT INTO chats (id, type, group_name, created_at, updated_at)
 VALUES (?, 'group', ?, now(), now());
 
+-- name: CheckPrivateChatExists :one
+SELECT c.id
+FROM chats c
+JOIN chat_members cm1 ON c.id = cm1.chat_id
+JOIN chat_members cm2 ON c.id = cm2.chat_id
+WHERE c.type = 'private'
+  AND cm1.user_id = ?
+  AND cm2.user_id = ?
+LIMIT 1;
+
 -- name: InsertChatMember :exec
 INSERT INTO chat_members (chat_id, user_id, role)
 VALUES (?, ?, ?);

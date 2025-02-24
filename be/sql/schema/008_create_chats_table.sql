@@ -6,22 +6,20 @@ CREATE TABLE chats (
   group_name VARCHAR(50),
   group_avatar TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT idx_group_name UNIQUE (group_name)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd
 
 -- +goose StatementBegin
-CREATE INDEX idx_chats_type ON chats (type);
+CREATE INDEX idx_chats_id ON chats (id);
 -- +goose StatementEnd
 
 -- +goose StatementBegin
 CREATE INDEX idx_chats_group_name ON chats (group_name);
--- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP INDEX idx_chats_type ON chats;
+DROP INDEX idx_chats_id ON chats;
 -- +goose StatementEnd
 
 -- +goose StatementBegin

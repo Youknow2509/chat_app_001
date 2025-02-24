@@ -66,12 +66,14 @@ const (
 	ErrCodeGetListChat = 110005
 	ErrCodeGetUserInChat = 110006
 	ErrCodeGetListChatForUser = 110007
+	ErrCodeChatPrivateExists = 110008
 	
 )
 
 // message
 var msg = map[int]string{
 
+	ErrCodeChatPrivateExists: "chat private exists",
 	ErrCodeUnauthorized: "unauthorized",
 	ErrCodeUnmarshalData: "unmarshal data failed",
 	ErrCodeDeleteCache: "delete cache failed",

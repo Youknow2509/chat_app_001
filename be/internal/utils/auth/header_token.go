@@ -19,10 +19,16 @@ func ExtractBearerToken(c *gin.Context) (string, bool) {
 
 // check token exists in cache
 func CheckAccessTokenExists(ctx *gin.Context , subUUID string) error {
-	err := global.Rdb.Get(ctx, subUUID).Err()
+	data, err := global.Rdb.Get(ctx, subUUID).Result()
 	if err != nil {
-
 		return err
 	}
+	if data == "" {
+        return gin.Error{
+			Err:     err,
+            Type: gin.ErrorTypePublic,
+			Meta: "Token not found",
+		}
+    }
 	return nil
 }

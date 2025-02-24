@@ -17,37 +17,23 @@ CREATE TABLE user_info (
 );
 -- +goose StatementEnd
 
--- +goose StatementBegin
-CREATE INDEX idx_user_info_nickname ON user_info (user_nickname);
--- +goose StatementEnd
 
 -- +goose StatementBegin
 CREATE INDEX idx_user_info_email ON user_info (user_email);
 -- +goose StatementEnd
 
 -- +goose StatementBegin
-CREATE INDEX idx_user_info_user_state ON user_info (user_state);
+CREATE INDEX idx_user_id ON user_info (user_id);
 -- +goose StatementEnd
 
--- +goose StatementBegin
-CREATE INDEX idx_user_info_user_is_authentication ON user_info (user_is_authentication);
--- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP INDEX idx_user_info_nickname ON user_info;
+DROP INDEX idx_user_id ON user_info;
 -- +goose StatementEnd
 
 -- +goose StatementBegin
 DROP INDEX idx_user_info_email ON user_info;
--- +goose StatementEnd
-
--- +goose StatementBegin
-DROP INDEX idx_user_info_user_state ON user_info;
--- +goose StatementEnd
-
--- +goose StatementBegin
-DROP INDEX idx_user_info_user_is_authentication ON user_info;
 -- +goose StatementEnd
 
 -- +goose StatementBegin
