@@ -270,6 +270,10 @@ func (s *sChatBase) CreateChatGroup(ctx context.Context, in *model.CreateChatGro
 	// 3. add member to chat
 	go func() {
 		for _, v := range in.ListId {
+			// check id equal id user create
+			if (v == in.UserIDCreate) {
+				continue
+			}
 			errAddChatMember := s.r.AddMemberToChat(ctx, database.AddMemberToChatParams{
 				ChatID: uuidGroupChat,
 				UserID: v,
