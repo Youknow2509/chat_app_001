@@ -40,10 +40,24 @@ func (s *sChatBase) GetChatInfo(ctx context.Context, in *model.InputGetChatInfor
 		global.Logger.Error("Chat group is not exist")
 		return nil, nil
 	}
-	// 2. Get data in cache
+	// 2. check role user or user access in chat info
+	cUserInChat, err := s.r.CheckUserInChat(ctx, database.CheckUserInChatParams{
+		ID:    in.ChatID,
+		UserID: in.UserID,
+	})
+	if err != nil {
+		fmt.Printf("Err check user in chat %s", in.ChatID)
+		global.Logger.Error("Err check user in chat", zap.Error(err))
+		return nil, err
+	}
+	if cUserInChat < 1 {
+		global.Logger.Error("User is not in chat")
+		return nil, fmt.Errorf("user is not in chat")
+	}
+	// 3. Get data in cache
 	keyCache := fmt.Sprintf("chatinfo::%s", in.ChatID)
 	dataCache, err := global.Rdb.Get(ctx, keyCache).Result()
-	// Check handle get otp in redis - TODO handle utils...
+	// Check handle get data in redis - TODO handle utils...
 	switch {
 	case errors.Is(err, redis.Nil):
 		fmt.Println("key does not exist")

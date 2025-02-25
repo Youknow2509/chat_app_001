@@ -12,6 +12,8 @@ const (
 
 	ErrCodeUnmarshalData = 40001 // Unmarshal data failed
 
+	ErrCodeInvalidInput = 40002 // Invalid input
+
 	// Register Code
 	ErrCodeUserHasExist = 50001 // User has exist
 	ErrCodeBindRegisterInput = 50002
@@ -68,12 +70,14 @@ const (
 	ErrCodeGetListChatForUser = 110007
 	ErrCodeChatPrivateExists = 110008
 	ErrCodeCreateChatGroupSuccess = 110009
-	
+	ErrCodeCheckUserInChat = 110010
 ) 
 
 // message
 var msg = map[int]string{
 
+	ErrCodeInvalidInput: "invalid input",
+	ErrCodeCheckUserInChat: "check user in chat failed",
 	ErrCodeCreateChatGroupSuccess: "create chat group success",
 	ErrCodeChatPrivateExists: "chat private exists",
 	ErrCodeUnauthorized: "unauthorized",

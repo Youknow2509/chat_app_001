@@ -16,6 +16,12 @@ WHERE c.type = 'private'
   AND cm2.user_id = ?
 LIMIT 1;
 
+-- name: CheckUserInChat :one
+SELECT COUNT(*) 
+FROM chats ch JOIN chat_members ch_m
+    ON ch.id = ch_m.chat_id
+WHERE ch.id = ? AND ch_m.user_id = ?;
+
 -- name: InsertChatMember :exec
 INSERT INTO chat_members (chat_id, user_id, role)
 VALUES (?, ?, ?);

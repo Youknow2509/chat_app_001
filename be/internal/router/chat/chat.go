@@ -14,10 +14,11 @@ func (cb *ChatBaseRouter) InitChatBaseRouter(Router *gin.RouterGroup) {
 	// public router
 	chatRouterPublic := Router.Group("/chat")
 	chatRouterPublic.Use(middlewares.AuthenMiddleware())
+	chatRouterPublic.Use(middlewares.TokenAuthMiddleware())
 	{
 		// TODO: handle get only data from user have access
 		chatRouterPublic.GET("get-chat-info", chatController.Chat.GetChatInfo)
-		chatRouterPublic.GET("get-list-chat-for-user")
+		chatRouterPublic.GET("get-list-chat-for-user", chatController.Chat.GetListChatForUser)
 		chatRouterPublic.GET("get-user-in-chat")
 	}
 	// mprivate router

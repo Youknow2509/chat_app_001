@@ -2,6 +2,7 @@ package chat
 
 import (
 	"fmt"
+	"strconv"
 
 	"example.com/be/global"
 	"example.com/be/internal/model"
@@ -109,7 +110,7 @@ func (ct *cChat) AddMemberToChat(c *gin.Context) {
 		return
 	}
 	parameters.AdminChatID = userIDReq
-	// call to service 
+	// call to service
 	codeResult, out, err := service.ChatService().AddMemberToChat(c, parameters)
 	if err != nil {
 		global.Logger.Error("Error adding member to chat", zap.Error(err))
@@ -137,22 +138,85 @@ func (ct *cChat) AddMemberToChat(c *gin.Context) {
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /v1/chat/get-chat-info [get]
 func (ct *cChat) GetChatInfo(c *gin.Context) {
-	
+	// query chat id
 	chatID := c.Query("chat_id")
-    if chatID == "" {
-        response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Chat ID is required")
-        return
-    }
-
-    p := model.InputGetChatInfor{
-        ChatID: chatID,
-    }
-
+	if chatID == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Chat ID is required")
+		return
+	}
+	// get user id from token
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	// create model input
+	p := model.InputGetChatInfor{
+		ChatID: chatID,
+		UserID: userIDReq,
+	}
+	// call to service
 	outputData, err := service.ChatService().GetChatInfo(c, &p)
 	if err != nil {
 		response.ErrorResponse(c, response.ErrCodeGetChatInfo, err.Error())
 		return
 	}
 
+	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
+}
+
+// @Summary      Get list of chat
+// @Description  Get list chat from user
+// @Tags         Chat
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer token"
+// @Param        limit query string true "limit number of chat"
+// @Param        page query string true "page number"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/chat/get-list-chat-for-user [get]
+func (ct *cChat) GetListChatForUser(c *gin.Context) {
+	// query limit and page
+	limit := c.Query("limit")
+	page := c.Query("page")
+	if limit == "" || page == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Limit and page are required")
+		return
+	}
+	// get user id from token
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	if userIDReq == "" {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, "User ID is required")
+		return
+	}
+	// convert limit and page from string to int
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid limit value")
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid page value")
+		return
+	}
+	// create model input
+	p := &model.InputGetChatForUser{
+		UserID: userIDReq,
+		Limit:  limitInt,
+		Page:   pageInt,
+	}
+	// call to service
+	outputData, _, err := service.ChatService().GetListChatForUser(c, p)
+	if err != nil {
+		global.Logger.Error("Error getting list chat", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeGetListChat, err.Error())
+		return
+	}
 	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
 }

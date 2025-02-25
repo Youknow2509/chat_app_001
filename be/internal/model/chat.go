@@ -65,6 +65,7 @@ type DelChatInput struct {
 
 // InputGetChatInfor
 type InputGetChatInfor struct {
+	UserID string `json:"user_id"`
 	ChatID string `json:"chat_id"`
 }
 
@@ -77,6 +78,7 @@ type InputGetChatForUser struct {
 
 // input get user in chat
 type InputGetUserInChat struct {
+	UserId string `json:"user_id"`
 	ChatID string `json:"chat_id"`
 	Page   int    `json:"page"`
 	Limit  int    `json:"limit"`

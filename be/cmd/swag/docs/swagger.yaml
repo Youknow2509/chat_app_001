@@ -224,6 +224,41 @@ paths:
       summary: Get chat information
       tags:
       - Chat
+  /v1/chat/get-list-chat-for-user:
+    get:
+      consumes:
+      - application/json
+      description: Get list chat from user
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: limit number of chat
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get list of chat
+      tags:
+      - Chat
   /v1/token/create_refresh_token:
     post:
       consumes:
