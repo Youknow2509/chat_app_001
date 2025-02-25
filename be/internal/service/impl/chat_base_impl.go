@@ -42,7 +42,7 @@ func (s *sChatBase) GetChatInfo(ctx context.Context, in *model.InputGetChatInfor
 	}
 	// 2. check role user or user access in chat info
 	cUserInChat, err := s.r.CheckUserInChat(ctx, database.CheckUserInChatParams{
-		ID:    in.ChatID,
+		ID:     in.ChatID,
 		UserID: in.UserID,
 	})
 	if err != nil {
@@ -91,7 +91,12 @@ func (s *sChatBase) GetChatInfo(ctx context.Context, in *model.InputGetChatInfor
 		}
 		// 4. Set data to cache
 		go func() {
-			err = global.Rdb.Set(ctx, keyCache, out, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
+			cacheData, err := json.Marshal(out)
+			if err != nil {
+				fmt.Printf("Err marshal data %s", out)
+				return
+			}
+			err = global.Rdb.Set(ctx, keyCache, cacheData, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
 			if err != nil {
 				fmt.Println("set failed:: ", err)
 			}
@@ -157,7 +162,12 @@ func (s *sChatBase) GetListChatForUser(ctx context.Context, in *model.InputGetCh
 		}
 		// 5. set data to cache
 		go func() {
-			err = global.Rdb.Set(ctx, keyCache, out, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
+			cacheData, err := json.Marshal(out)
+			if err != nil {
+				fmt.Printf("Err marshal data %s", cacheData)
+				return
+			}
+			err = global.Rdb.Set(ctx, keyCache, cacheData, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
 			if err != nil {
 				fmt.Println("set failed:: ", err)
 			}
@@ -180,7 +190,21 @@ func (s *sChatBase) GetUserInChat(ctx context.Context, in *model.InputGetUserInC
 		global.Logger.Error("Chat group is not exist")
 		return nil, nil
 	}
-	// 2. check datastore in cache
+	// 2. check user exists in chat
+	cUserInChat, err := s.r.CheckUserInChat(ctx, database.CheckUserInChatParams{
+		ID:     in.ChatID,
+		UserID: in.UserId,
+	})
+	if err != nil {
+		fmt.Printf("Err check user in chat %s %s", in.ChatID, in.UserId)
+        global.Logger.Error("Err check user in chat", zap.Error(err))
+        return nil, err
+	}
+	if cUserInChat < 1 {
+		global.Logger.Error("User is not in chat")
+		return nil, fmt.Errorf("user is not in chat")
+	}
+	// 3. check datastore in cache
 	keyCache := fmt.Sprintf("listuser::chat%s::l%s::p%s", in.ChatID, strconv.Itoa(in.Limit), strconv.Itoa(in.Page))
 	dataUserInChatCache, err := global.Rdb.Get(ctx, keyCache).Result()
 	// Check handle get otp in redis - TODO handle utils...
@@ -200,7 +224,7 @@ func (s *sChatBase) GetUserInChat(ctx context.Context, in *model.InputGetUserInC
 		}
 		return out, nil
 	} else {
-		// 3. get user in chat
+		// 4. get user in chat
 		dataUserInChat, err := s.r.GetUsersInChat(ctx, database.GetUsersInChatParams{
 			ChatID: in.ChatID,
 			Limit:  int32(in.Limit),
@@ -211,17 +235,29 @@ func (s *sChatBase) GetUserInChat(ctx context.Context, in *model.InputGetUserInC
 			global.Logger.Error("Err get user in chat", zap.Error(err))
 			return nil, err
 		}
-		// 4. set data to output
-		for _, v := range dataUserInChat {
-			out.ListUserID = append(out.ListUserID, v.UserID)
+		// 5. set data to output
+		listUserId := make([]string, len(dataUserInChat))
+		for index, v := range dataUserInChat {
+			// out.ListUserID = append(out.ListUserID, v.UserID)
+			listUserId[index] = v.UserID
 		}
-		out.ChatID = in.ChatID
-		// 5. save to cache
-		err = global.Rdb.Set(ctx, keyCache, out, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
-		if err != nil {
-			fmt.Println("set failed:: ", err)
-			return nil, err
+		out = &model.GetUserInChatOutput{
+			ChatID:     in.ChatID,
+			ListUserID: listUserId,
 		}
+		// 6. save to cache
+		go func() {
+			cacheData, err := json.Marshal(out)
+			if err != nil {
+				fmt.Printf("Err marshal data %s", out)
+				return
+			}
+			err = global.Rdb.Set(ctx, keyCache, cacheData, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
+			if err != nil {
+				fmt.Println("set failed:: ", err)
+				return
+			}
+		}()
 	}
 
 	return out, nil
@@ -254,20 +290,20 @@ func (s *sChatBase) AddMemberToChat(ctx context.Context, in *model.AddMemberToCh
 		listMemNow = append(listMemNow, in.UserAddID)
 		codeRes, out, err := s.CreateChatGroup(ctx, &model.CreateChatGroupInput{
 			UserIDCreate: in.AdminChatID,
-			GroupName:   chatInfo.GroupName.String,
-			ListId:  listMemNow,
+			GroupName:    chatInfo.GroupName.String,
+			ListId:       listMemNow,
 		})
 		if err != nil {
 			global.Logger.Error("Err create chat group", zap.Error(err))
 			return codeRes, nil, err
 		}
 		fmt.Printf("Create chat group %s from %s success", out.ChatId, in.AdminChatID)
-		
+
 		return response.ErrCodeSuccess, &model.AddMemberToChatOutput{
-			ChatID: out.ChatId,
-			TypeAdd: "group",
+			ChatID:   out.ChatId,
+			TypeAdd:  "group",
 			ChatName: out.Name,
-            Avatar:  chatInfo.ChatAvatar.String,
+			Avatar:   chatInfo.ChatAvatar.String,
 		}, nil
 	} else {
 		// 3. handle add new member to group chat
@@ -291,10 +327,10 @@ func (s *sChatBase) AddMemberToChat(ctx context.Context, in *model.AddMemberToCh
 		}
 	}()
 	return response.ErrCodeSuccess, &model.AddMemberToChatOutput{
-		ChatID: in.ChatID,
-		TypeAdd: "private",
+		ChatID:   in.ChatID,
+		TypeAdd:  "private",
 		ChatName: chatInfo.GroupName.String,
-		Avatar:  chatInfo.ChatAvatar.String,
+		Avatar:   chatInfo.ChatAvatar.String,
 	}, nil
 }
 
