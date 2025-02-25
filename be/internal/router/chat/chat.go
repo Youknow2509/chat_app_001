@@ -40,6 +40,6 @@ func (cb *ChatBaseRouter) InitChatBaseRouter(Router *gin.RouterGroup) {
 		chatRouterPrivate.POST("upgrade-chat-info")
 		chatRouterPrivate.POST("change-admin-group-chat", chatController.Chat.ChangeAdminGroupChat)
 		chatRouterPrivate.POST("del-men-from-chat")
-		chatRouterPrivate.POST("del-chat")
+		chatRouterPrivate.POST("del-chat", chatController.Chat.DelChat)
 	}
 }

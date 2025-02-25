@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"example.com/be/global"
 	"example.com/be/internal/database"
@@ -71,7 +72,51 @@ func (s *sChatAdmin) ChangeAdminGroupChat(ctx context.Context, in *model.ChangeA
 
 // DelChat implements service.IChatServiceAdmin.
 func (s *sChatAdmin) DelChat(ctx context.Context, in *model.DelChatInput) (codeResult int, err error) {
-	panic("unimplemented") // TODO: cmp
+	// 1. check user admin group chat
+	cAdminGroupChat, err := s.r.CheckAdminGroupChat(ctx, database.CheckAdminGroupChatParams{
+		ChatID: in.ChatID,
+		UserID: in.AdminChatID,
+	})
+	if err != nil {
+		global.Logger.Error("Err checking admin group chat", zap.Error(err))
+		return response.ErrCodeDelChat, err
+	}
+	if cAdminGroupChat < 1 {
+		global.Logger.Error("User not admin group chat", zap.Error(err))
+		return response.ErrCodeDelChat, fmt.Errorf("user admin %s is not admin group chat or group chat %s don't exist", in.AdminChatID, in.ChatID)
+	}
+	// 2. check chat
+	cChat, err := s.r.GetGroupInfo(ctx, in.ChatID)
+	if err != nil {
+		global.Logger.Error("Err getting group info", zap.Error(err))
+		return response.ErrCodeDelChat, err
+	}
+	if cChat.Groupid == "" {
+		global.Logger.Error("Chat not found", zap.Error(err))
+		return response.ErrCodeDelChat, fmt.Errorf("chat %s not found", in.ChatID)
+	}
+	// 3. delete menber in chat	
+	go func ()  {
+		listIDMenber := strings.Split(cChat.ListMem.String, ",")
+		for _, menberID := range listIDMenber {
+			err = s.r.DeleteMemberFromChat(context.Background(), database.DeleteMemberFromChatParams{
+				ChatID: in.ChatID,
+				UserID: menberID,
+			})
+			if err != nil {
+				fmt.Printf("Err deleting member %s from chat %s: %v\n", menberID, in.ChatID, err)
+			}
+		}
+	}()
+	// 4. delete chat
+	go func() {
+		err = s.r.DeleteChat(ctx, in.ChatID)
+		if err != nil {
+			fmt.Printf("Err deleting chat %s: %v\n", in.ChatID, err)
+		}
+	}()
+	// TODO 5. delete cache chat
+	return response.ErrCodeSuccess, nil
 }
 
 // DelMenForChat implements service.IChatServiceAdmin.

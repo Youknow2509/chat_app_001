@@ -212,6 +212,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/chat/del-chat": {
+            "post": {
+                "description": "Delete chat by admin group chat",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Delete chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DelChatInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/chat/get-chat-info": {
             "get": {
                 "description": "Get chat information by chat id",
@@ -702,6 +749,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user2": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DelChatInput": {
+            "type": "object",
+            "properties": {
+                "admin_chat_id": {
+                    "type": "string"
+                },
+                "chat_id": {
                     "type": "string"
                 }
             }
