@@ -9,6 +9,15 @@ definitions:
       user_add_id:
         type: string
     type: object
+  model.ChangeAdminGroupChatInput:
+    properties:
+      group_chat_id:
+        type: string
+      new_admin_id:
+        type: string
+      old_admin_id:
+        type: string
+    type: object
   model.CreateChatGroupInput:
     properties:
       group_name:
@@ -129,6 +138,37 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Add member to chat
+      tags:
+      - Chat
+  /v1/chat/change-admin-group-chat:
+    post:
+      consumes:
+      - application/json
+      description: Change admin chat status from old admin to new admin
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChangeAdminGroupChatInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Change admin chat status
       tags:
       - Chat
   /v1/chat/create-chat-group:

@@ -59,6 +59,11 @@ UPDATE chat_members
 SET role = 'admin'
 WHERE chat_id = ? AND user_id = ?;
 
+-- name: ChangeToMember :exec
+UPDATE chat_members
+SET role ='member'
+WHERE chat_id = ? AND user_id = ?;
+
 -- name: DeleteMemberFromChat :exec
 DELETE FROM chat_members
 WHERE chat_id = ? AND user_id = ?;
@@ -71,6 +76,11 @@ WHERE id = ?;
 SELECT COUNT(*)
 FROM chat_members
 WHERE chat_id = ? AND user_id = ? AND role = 'admin';
+
+-- name: CheckUserInGroupChat :one
+SELECT COUNT(*)
+FROM chat_members
+WHERE chat_id = ? AND user_id = ? AND role = 'member';
 
 -- name: GetChatListForUser :many
 SELECT

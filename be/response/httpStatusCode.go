@@ -71,11 +71,17 @@ const (
 	ErrCodeChatPrivateExists = 110008
 	ErrCodeCreateChatGroupSuccess = 110009
 	ErrCodeCheckUserInChat = 110010
+	ErrCodeChangeAdminChat = 110011
+	ErrCodeDelMenFromChat = 110012
+	ErrCodeDelChat = 110013
 ) 
 
 // message
 var msg = map[int]string{
 
+	ErrCodeDelMenFromChat: "delete member from chat failed",
+	ErrCodeDelChat: "del chat failed",
+	ErrCodeChangeAdminChat: "change admin chat failed",
 	ErrCodeInvalidInput: "invalid input",
 	ErrCodeCheckUserInChat: "check user in chat failed",
 	ErrCodeCreateChatGroupSuccess: "create chat group success",

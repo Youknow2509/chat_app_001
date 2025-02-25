@@ -41,6 +41,22 @@ func (q *Queries) ChangeGroupAdmin(ctx context.Context, arg ChangeGroupAdminPara
 	return err
 }
 
+const changeToMember = `-- name: ChangeToMember :exec
+UPDATE chat_members
+SET role ='member'
+WHERE chat_id = ? AND user_id = ?
+`
+
+type ChangeToMemberParams struct {
+	ChatID string
+	UserID string
+}
+
+func (q *Queries) ChangeToMember(ctx context.Context, arg ChangeToMemberParams) error {
+	_, err := q.db.ExecContext(ctx, changeToMember, arg.ChatID, arg.UserID)
+	return err
+}
+
 const checkAdminGroupChat = `-- name: CheckAdminGroupChat :one
 SELECT COUNT(*)
 FROM chat_members
@@ -96,6 +112,24 @@ type CheckUserInChatParams struct {
 
 func (q *Queries) CheckUserInChat(ctx context.Context, arg CheckUserInChatParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, checkUserInChat, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const checkUserInGroupChat = `-- name: CheckUserInGroupChat :one
+SELECT COUNT(*)
+FROM chat_members
+WHERE chat_id = ? AND user_id = ? AND role = 'member'
+`
+
+type CheckUserInGroupChatParams struct {
+	ChatID string
+	UserID string
+}
+
+func (q *Queries) CheckUserInGroupChat(ctx context.Context, arg CheckUserInGroupChatParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkUserInGroupChat, arg.ChatID, arg.UserID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
