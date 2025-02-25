@@ -372,3 +372,44 @@ func (ct *cChat) DelChat(c *gin.Context) {
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
+
+// @Summary      Delete member from chat
+// @Description  Delete member from chat by admin group chat
+// @Tags         Chat
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer token"
+// @Param        payload body model.DelMenForChatInput true "payload"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/chat/del-men-from-chat [post]
+func (ct *cChat) DelMemberForChat(c *gin.Context) {
+	// get body input
+	var parameters *model.DelMenForChatInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding input", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+		return
+	}
+	// get user id from token
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	parameters.AdminChatID = userIDReq
+	// call to service
+	codeRes, err := service.ChatServiceAdmin().DelMenForChat(c, parameters)
+	if err != nil {
+		global.Logger.Error("Error deleting member from chat", zap.Error(err))
+		response.ErrorResponse(c, codeRes, err.Error())
+		return
+	}
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}

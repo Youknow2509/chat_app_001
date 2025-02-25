@@ -43,6 +43,15 @@ definitions:
       chat_id:
         type: string
     type: object
+  model.DelMenForChatInput:
+    properties:
+      admin_chat_id:
+        type: string
+      chat_id:
+        type: string
+      user_del_id:
+        type: string
+    type: object
   model.JwtInput:
     properties:
       data:
@@ -270,6 +279,37 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Delete chat
+      tags:
+      - Chat
+  /v1/chat/del-men-from-chat:
+    post:
+      consumes:
+      - application/json
+      description: Delete member from chat by admin group chat
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.DelMenForChatInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Delete member from chat
       tags:
       - Chat
   /v1/chat/get-chat-info:

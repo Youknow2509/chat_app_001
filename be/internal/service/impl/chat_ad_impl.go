@@ -9,6 +9,7 @@ import (
 	"example.com/be/internal/database"
 	"example.com/be/internal/model"
 	"example.com/be/internal/service"
+	"example.com/be/internal/utils"
 	"example.com/be/response"
 	"go.uber.org/zap"
 )
@@ -121,7 +122,51 @@ func (s *sChatAdmin) DelChat(ctx context.Context, in *model.DelChatInput) (codeR
 
 // DelMenForChat implements service.IChatServiceAdmin.
 func (s *sChatAdmin) DelMenForChat(ctx context.Context, in *model.DelMenForChatInput) (codeResult int, err error) {
-	panic("unimplemented") // TODO: cmp
+	// 1. check user admin group chat
+	cAdminGroupChat, err := s.r.CheckAdminGroupChat(ctx, database.CheckAdminGroupChatParams{
+		ChatID: in.ChatID,
+		UserID: in.AdminChatID,
+	})
+	if err != nil {
+		global.Logger.Error("Err checking admin group chat", zap.Error(err))
+		return response.ErrCodeDelMenFromChat, err
+	}
+	if cAdminGroupChat < 1 {
+		global.Logger.Error("User not admin group chat", zap.Error(err))
+		return response.ErrCodeDelMenFromChat, fmt.Errorf("user admin %s is not admin group chat or group chat %s don't exist", in.AdminChatID, in.ChatID)
+	}
+	// 2. check user in chat
+	cUserInChat, err := s.r.CheckUserInGroupChat(ctx, database.CheckUserInGroupChatParams{
+		ChatID: in.ChatID,
+		UserID: in.UserDelID,
+	})
+	if err != nil {
+		global.Logger.Error("Err checking user in group chat", zap.Error(err))
+		return response.ErrCodeDelMenFromChat, err
+	}
+	if cUserInChat < 1 {
+		global.Logger.Error("User not in group chat", zap.Error(err))
+		return response.ErrCodeDelMenFromChat, fmt.Errorf("user %s is not in group chat", in.UserDelID)
+	}
+	// 3. delete member in chat
+	go func() {
+		err = s.r.DeleteMemberFromChat(ctx, database.DeleteMemberFromChatParams{
+			ChatID: in.ChatID,
+			UserID: in.UserDelID,
+		})
+		if err != nil {
+			fmt.Printf("Err deleting member %s from chat %s: %v\n", in.UserDelID, in.ChatID, err)
+		}
+	}()
+	// 4. delete cache chat
+	go func() {
+		key := fmt.Sprintf("listchat::user%s::", in.UserDelID)
+		err = utils.DeleteCacheWithKeyPrefix(key)
+		if err != nil {
+			fmt.Printf("Err deleting cache chat %s: %v\n", in.ChatID, err)
+		}
+	}()
+	return response.ErrCodeSuccess, nil
 }
 
 // UpgradeChatInfo implements service.IChatServiceAdmin.
