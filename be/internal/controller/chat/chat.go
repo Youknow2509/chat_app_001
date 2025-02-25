@@ -1,11 +1,15 @@
 package chat
 
 import (
+	"fmt"
+
+	"example.com/be/global"
 	"example.com/be/internal/model"
 	"example.com/be/internal/service"
 	"example.com/be/internal/utils/context"
 	"example.com/be/response"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 var Chat = new(cChat)
@@ -79,6 +83,46 @@ func (ct *cChat) CreateChatPrivate(c *gin.Context) {
 	}
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
+}
+
+// Add member to chat
+// @Summary      Add member to chat
+// @Description  Add member to chat by admin group member
+// @Tags         Chat
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer token"
+// @Param        payload body model.AddMemberToChatInput true "payload"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/chat/add-member-to-chat [post]
+func (ct *cChat) AddMemberToChat(c *gin.Context) {
+	var parameters *model.AddMemberToChatInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+		return
+	}
+	// get user id from token
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	parameters.AdminChatID = userIDReq
+	// call to service 
+	codeResult, out, err := service.ChatService().AddMemberToChat(c, parameters)
+	if err != nil {
+		global.Logger.Error("Error adding member to chat", zap.Error(err))
+		response.ErrorResponse(c, codeResult, err.Error())
+		return
+	}
+	if out.TypeAdd == "group" {
+		global.Logger.Info(fmt.Sprintf("Created new group chat with id: %s", out.ChatID))
+		response.SuccessResponse(c, response.ErrCodeCreateChatGroupSuccess, out)
+		return
+	}
+
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
 // Get chat info

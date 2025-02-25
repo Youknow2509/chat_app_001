@@ -14,7 +14,7 @@ type (
 		GetChatInfo(ctx context.Context, in *model.InputGetChatInfor) (out *model.ChatInfoOutput, err error)
 		GetListChatForUser(ctx context.Context, in *model.InputGetChatForUser) (out []*model.OutGetListChatForUser, codeResult int, err error)
 		GetUserInChat(ctx context.Context, in *model.InputGetUserInChat) (out *model.GetUserInChatOutput, err error)
-		AddMemberToChat(ctx context.Context, in *model.AddMemberToChatInput) (codeResult int, err error)
+		AddMemberToChat(ctx context.Context, in *model.AddMemberToChatInput) (codeResult int, out *model.AddMemberToChatOutput, err error)
 	}
 
 	IChatServiceAdmin interface {

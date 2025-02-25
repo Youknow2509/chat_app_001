@@ -1,5 +1,14 @@
 basePath: /
 definitions:
+  model.AddMemberToChatInput:
+    properties:
+      admin_chat_id:
+        type: string
+      chat_id:
+        type: string
+      user_add_id:
+        type: string
+    type: object
   model.CreateChatGroupInput:
     properties:
       group_name:
@@ -91,6 +100,37 @@ info:
   title: API Documentation Chat App
   version: 1.0.0
 paths:
+  /v1/chat/add-member-to-chat:
+    post:
+      consumes:
+      - application/json
+      description: Add member to chat by admin group member
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddMemberToChatInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Add member to chat
+      tags:
+      - Chat
   /v1/chat/create-chat-group:
     post:
       consumes:

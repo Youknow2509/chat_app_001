@@ -15,19 +15,19 @@ func (cb *ChatBaseRouter) InitChatBaseRouter(Router *gin.RouterGroup) {
 	chatRouterPublic := Router.Group("/chat")
 	chatRouterPublic.Use(middlewares.AuthenMiddleware())
 	{
-		// TODO: handle add controller
+		// TODO: handle get only data from user have access
 		chatRouterPublic.GET("get-chat-info", chatController.Chat.GetChatInfo)
 		chatRouterPublic.GET("get-list-chat-for-user")
 		chatRouterPublic.GET("get-user-in-chat")
 	}
 	// mprivate router
-	chatRouterMPrivate := Router.Group("/chat") // TODO: handle middleware routes
+	chatRouterMPrivate := Router.Group("/chat")
 	chatRouterMPrivate.Use(middlewares.AuthenMiddleware())
 	chatRouterMPrivate.Use(middlewares.TokenAuthMiddleware())
 	{
 		chatRouterMPrivate.POST("create-chat-group", chatController.Chat.CreateChatGroup)
 		chatRouterMPrivate.POST("create-chat-private", chatController.Chat.CreateChatPrivate)
-		chatRouterMPrivate.POST("add-member-to-chat")
+		chatRouterMPrivate.POST("add-member-to-chat", chatController.Chat.AddMemberToChat)
 	}
 
 	// private router

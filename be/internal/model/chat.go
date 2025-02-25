@@ -94,6 +94,13 @@ type OutGetListChatForUser struct {
 type OutputCreateChatGroup struct {
 	ChatId string `json:"chat_id"`
 	Avatar string `json:"avatar"`
-	Name  string `json:"name"`
+	Name   string `json:"name"`
 }
 
+// out put add member to chat
+type AddMemberToChatOutput struct {
+	TypeAdd  string `json:"type_add"`
+	ChatID   string `json:"chat_id"`
+	ChatName string `json:"chat_name"`
+	Avatar   string `json:"avatar"`
+}

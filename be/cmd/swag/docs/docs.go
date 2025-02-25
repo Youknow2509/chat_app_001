@@ -24,6 +24,53 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/chat/add-member-to-chat": {
+            "post": {
+                "description": "Add member to chat by admin group member",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Add member to chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddMemberToChatInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/chat/create-chat-group": {
             "post": {
                 "description": "Create a chat group with user after auth, user create is admin and others users are members",
@@ -445,6 +492,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.AddMemberToChatInput": {
+            "type": "object",
+            "properties": {
+                "admin_chat_id": {
+                    "type": "string"
+                },
+                "chat_id": {
+                    "type": "string"
+                },
+                "user_add_id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.CreateChatGroupInput": {
             "type": "object",
             "properties": {

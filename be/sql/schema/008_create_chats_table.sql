@@ -16,6 +16,7 @@ CREATE INDEX idx_chats_id ON chats (id);
 
 -- +goose StatementBegin
 CREATE INDEX idx_chats_group_name ON chats (group_name);
+-- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
