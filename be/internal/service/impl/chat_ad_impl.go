@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -171,7 +172,40 @@ func (s *sChatAdmin) DelMenForChat(ctx context.Context, in *model.DelMenForChatI
 
 // UpgradeChatInfo implements service.IChatServiceAdmin.
 func (s *sChatAdmin) UpgradeChatInfo(ctx context.Context, in *model.UpgradeChatInfoInput) (codeResult int, err error) {
-	panic("unimplemented") // TODO: cmp
+	// 1. check user admin permissions
+	cAdminGroupChat, err := s.r.CheckAdminGroupChat(ctx, database.CheckAdminGroupChatParams{
+		ChatID: in.GroupChatID,
+		UserID: in.UserAdminID,
+	})
+	if err != nil {
+		global.Logger.Error("Err checking admin group chat", zap.Error(err))
+		return response.ErrCodeUpgradeChatInfo, err
+	}
+	if cAdminGroupChat < 1 {
+		global.Logger.Error("User not admin group chat", zap.Error(err))
+		return response.ErrCodeUpgradeChatInfo, fmt.Errorf("user admin %s is not admin group chat or group chat %s don't exist", in.UserAdminID, in.GroupChatID)
+	}
+	// 2. UpdateGroupChat 
+	go func() {
+		err = s.r.UpdateGroupChat(ctx, database.UpdateGroupChatParams{
+			GroupName: sql.NullString{String: in.GroupNameUpdate, Valid: true},
+			GroupAvatar: sql.NullString{String: in.GroupAvatar, Valid: true},
+			ID: in.GroupChatID,
+        })
+		if err != nil {
+			fmt.Printf("Err updating group chat %s: %v\n", in.GroupChatID, err)
+		}
+	}()
+
+	// 3. delete cache chat info
+	go func() {
+		key := fmt.Sprintf("chatinfo::%s", in.GroupChatID)
+		err = global.Rdb.Del(context.Background(), key).Err()
+		if err != nil {
+			fmt.Printf("Err deleting cache chat info %s: %v\n", in.GroupChatID, err)
+		}
+	}()
+	return response.ErrCodeSuccess, nil
 }
 
 // init chat admin service impl IChatServiceAdmin

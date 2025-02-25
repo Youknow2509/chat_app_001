@@ -74,11 +74,14 @@ const (
 	ErrCodeChangeAdminChat = 110011
 	ErrCodeDelMenFromChat = 110012
 	ErrCodeDelChat = 110013
+	ErrCodeUpgradeChatInfo = 110014
+
 ) 
 
 // message
 var msg = map[int]string{
 
+	ErrCodeUpgradeChatInfo: "upgrade chat info failed",
 	ErrCodeDelMenFromChat: "delete member from chat failed",
 	ErrCodeDelChat: "del chat failed",
 	ErrCodeChangeAdminChat: "change admin chat failed",

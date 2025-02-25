@@ -41,6 +41,7 @@ type UpgradeChatInfoInput struct {
 	GroupChatID     string `json:"group_chat_id"`
 	GroupNameUpdate string `json:"group_name_update"`
 	GroupAvatar     string `json:"group_avatar"`
+	UserAdminID     string `json:"user_admin_id"`
 }
 
 // ChangeAdminGroupChat input

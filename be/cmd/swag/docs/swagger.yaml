@@ -80,6 +80,17 @@ definitions:
       token:
         type: string
     type: object
+  model.UpgradeChatInfoInput:
+    properties:
+      group_avatar:
+        type: string
+      group_chat_id:
+        type: string
+      group_name_update:
+        type: string
+      user_admin_id:
+        type: string
+    type: object
   model.VerifyInput:
     properties:
       verify_code:
@@ -415,6 +426,37 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Hanlde get infomation user in chat
+      tags:
+      - Chat
+  /v1/chat/upgrade-chat-info:
+    post:
+      consumes:
+      - application/json
+      description: Update chat info by admin group chat
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpgradeChatInfoInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Update chat info
       tags:
       - Chat
   /v1/token/create_refresh_token:

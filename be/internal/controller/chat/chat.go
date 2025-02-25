@@ -413,3 +413,45 @@ func (ct *cChat) DelMemberForChat(c *gin.Context) {
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
+
+// @Summary      Update chat info
+// @Description  Update chat info by admin group chat
+// @Tags         Chat
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer token"
+// @Param        payload body model.UpgradeChatInfoInput true "payload"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/chat/upgrade-chat-info [post]
+func (ct *cChat) UpdateChatInfo(c *gin.Context) {
+	// get body input
+	var parameters *model.UpgradeChatInfoInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding input", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+		return
+	}
+	// get user id from token
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	parameters.UserAdminID = userIDReq
+	// call to service
+	codeRes, err := service.ChatServiceAdmin().UpgradeChatInfo(c, parameters)
+	if err != nil {
+		global.Logger.Error("Error updating chat info", zap.Error(err))
+		response.ErrorResponse(c, codeRes, err.Error())
+		return
+	}
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}
+

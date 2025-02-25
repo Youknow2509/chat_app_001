@@ -462,6 +462,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/chat/upgrade-chat-info": {
+            "post": {
+                "description": "Update chat info by admin group chat",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Update chat info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpgradeChatInfoInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/token/create_refresh_token": {
             "post": {
                 "description": "Testing create a new refresh JWT token",
@@ -865,6 +912,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UpgradeChatInfoInput": {
+            "type": "object",
+            "properties": {
+                "group_avatar": {
+                    "type": "string"
+                },
+                "group_chat_id": {
+                    "type": "string"
+                },
+                "group_name_update": {
+                    "type": "string"
+                },
+                "user_admin_id": {
                     "type": "string"
                 }
             }
