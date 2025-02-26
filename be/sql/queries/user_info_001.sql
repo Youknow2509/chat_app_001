@@ -67,10 +67,16 @@ INSERT INTO `user_info` (
     user_gender, user_birthday, user_email)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
--- name: EditUserByUserId :execresult
+-- name: EditUserByUserId :exec
 UPDATE `user_info`
 SET user_nickname = ?, user_avatar = ?, user_mobile = ?,
     user_gender = ?, user_birthday = ?, user_email = ?, 
+    updated_at = NOW()
+WHERE user_id = ?;
+
+-- name: EditUserByUserIdForUser :exec
+UPDATE `user_info`
+SET user_nickname =?, user_avatar = ?, user_mobile = ?,
     updated_at = NOW()
 WHERE user_id = ?;
 

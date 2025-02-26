@@ -6,6 +6,7 @@ CREATE TABLE friend_requests (
   to_user CHAR(36),
   status VARCHAR(20),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_from_user_info FOREIGN KEY (from_user) REFERENCES user_info (user_id) ON DELETE CASCADE,
   CONSTRAINT fk_to_user_info FOREIGN KEY (to_user) REFERENCES user_info (user_id) ON DELETE CASCADE
 );

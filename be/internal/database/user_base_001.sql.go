@@ -49,6 +49,33 @@ func (q *Queries) CheckUserBaseExists(ctx context.Context, userAccount string) (
 	return count, err
 }
 
+const checkUserBaseExistsWithID = `-- name: CheckUserBaseExistsWithID :one
+SELECT COUNT(*)
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_id = ?
+`
+
+func (q *Queries) CheckUserBaseExistsWithID(ctx context.Context, userID string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkUserBaseExistsWithID, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getIDUserWithEmail = `-- name: GetIDUserWithEmail :one
+SELECT user_id
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_account = ?
+LIMIT 1
+`
+
+func (q *Queries) GetIDUserWithEmail(ctx context.Context, userAccount string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getIDUserWithEmail, userAccount)
+	var user_id string
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
 const getOneUserInfo = `-- name: GetOneUserInfo :one
 SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token
 FROM ` + "`" + `user_base` + "`" + `

@@ -44,7 +44,7 @@ func (q *Queries) AddUserHaveUserId(ctx context.Context, arg AddUserHaveUserIdPa
 	)
 }
 
-const editUserByUserId = `-- name: EditUserByUserId :execresult
+const editUserByUserId = `-- name: EditUserByUserId :exec
 UPDATE ` + "`" + `user_info` + "`" + `
 SET user_nickname = ?, user_avatar = ?, user_mobile = ?,
     user_gender = ?, user_birthday = ?, user_email = ?, 
@@ -62,8 +62,8 @@ type EditUserByUserIdParams struct {
 	UserID       string
 }
 
-func (q *Queries) EditUserByUserId(ctx context.Context, arg EditUserByUserIdParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, editUserByUserId,
+func (q *Queries) EditUserByUserId(ctx context.Context, arg EditUserByUserIdParams) error {
+	_, err := q.db.ExecContext(ctx, editUserByUserId,
 		arg.UserNickname,
 		arg.UserAvatar,
 		arg.UserMobile,
@@ -72,6 +72,31 @@ func (q *Queries) EditUserByUserId(ctx context.Context, arg EditUserByUserIdPara
 		arg.UserEmail,
 		arg.UserID,
 	)
+	return err
+}
+
+const editUserByUserIdForUser = `-- name: EditUserByUserIdForUser :exec
+UPDATE ` + "`" + `user_info` + "`" + `
+SET user_nickname =?, user_avatar = ?, user_mobile = ?,
+    updated_at = NOW()
+WHERE user_id = ?
+`
+
+type EditUserByUserIdForUserParams struct {
+	UserNickname sql.NullString
+	UserAvatar   sql.NullString
+	UserMobile   sql.NullString
+	UserID       string
+}
+
+func (q *Queries) EditUserByUserIdForUser(ctx context.Context, arg EditUserByUserIdForUserParams) error {
+	_, err := q.db.ExecContext(ctx, editUserByUserIdForUser,
+		arg.UserNickname,
+		arg.UserAvatar,
+		arg.UserMobile,
+		arg.UserID,
+	)
+	return err
 }
 
 const findUserWithMail = `-- name: FindUserWithMail :many

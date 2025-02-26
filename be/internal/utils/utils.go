@@ -65,3 +65,9 @@ func DeleteCacheWithKeyPrefix(prefix string) error {
 
     return nil
 }
+
+// create key block friend add request
+func GetBlockFriendRequestKey(from, to string) string {
+	key := fmt.Sprintf("friend_requested::from::%s::to::%s", from, to)
+    return key
+}

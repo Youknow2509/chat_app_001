@@ -9,10 +9,21 @@ SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token,
 FROM `user_base`
 WHERE user_account = ?;
 
+-- name: GetIDUserWithEmail :one
+SELECT user_id
+FROM `user_base`
+WHERE user_account = ?
+LIMIT 1;
+
 -- name: CheckUserBaseExists :one
 SELECT COUNT(*)
 FROM `user_base`
 WHERE user_account = ?;
+
+-- name: CheckUserBaseExistsWithID :one
+SELECT COUNT(*)
+FROM `user_base`
+WHERE user_id = ?;
 
 -- name: AddUserBaseWithUUID :execresult
 INSERT INTO `user_base` (

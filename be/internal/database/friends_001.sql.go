@@ -10,6 +10,78 @@ import (
 	"database/sql"
 )
 
+const acceptFriendRequest = `-- name: AcceptFriendRequest :exec
+UPDATE friend_requests
+SET status = "accepted" AND updated_at = now()
+WHERE id = ?
+`
+
+func (q *Queries) AcceptFriendRequest(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, acceptFriendRequest, id)
+	return err
+}
+
+const addFriend = `-- name: AddFriend :exec
+INSERT INTO friends (user_id, friend_id)
+VALUES (?, ?)
+`
+
+type AddFriendParams struct {
+	UserID   sql.NullString
+	FriendID sql.NullString
+}
+
+func (q *Queries) AddFriend(ctx context.Context, arg AddFriendParams) error {
+	_, err := q.db.ExecContext(ctx, addFriend, arg.UserID, arg.FriendID)
+	return err
+}
+
+const checkFriendRequestExists = `-- name: CheckFriendRequestExists :one
+SELECT COUNT(*) 
+FROM friend_requests
+WHERE id = ?
+`
+
+func (q *Queries) CheckFriendRequestExists(ctx context.Context, id string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkFriendRequestExists, id)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const declineFriendRequest = `-- name: DeclineFriendRequest :exec
+UPDATE friend_requests
+SET status = "declined" AND updated_at = now()
+WHERE id = ?
+`
+
+func (q *Queries) DeclineFriendRequest(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, declineFriendRequest, id)
+	return err
+}
+
+const deleteFriend = `-- name: DeleteFriend :exec
+DELETE FROM friends
+WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)
+`
+
+type DeleteFriendParams struct {
+	UserID     sql.NullString
+	FriendID   sql.NullString
+	UserID_2   sql.NullString
+	FriendID_2 sql.NullString
+}
+
+func (q *Queries) DeleteFriend(ctx context.Context, arg DeleteFriendParams) error {
+	_, err := q.db.ExecContext(ctx, deleteFriend,
+		arg.UserID,
+		arg.FriendID,
+		arg.UserID_2,
+		arg.FriendID_2,
+	)
+	return err
+}
+
 const deleteFriendRequest = `-- name: DeleteFriendRequest :exec
 DELETE FROM friend_requests
 WHERE id = ?
@@ -18,6 +90,32 @@ WHERE id = ?
 func (q *Queries) DeleteFriendRequest(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, deleteFriendRequest, id)
 	return err
+}
+
+const getFriendID = `-- name: GetFriendID :one
+SELECT user_id
+FROM friends
+WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)
+LIMIT 1
+`
+
+type GetFriendIDParams struct {
+	UserID     sql.NullString
+	FriendID   sql.NullString
+	UserID_2   sql.NullString
+	FriendID_2 sql.NullString
+}
+
+func (q *Queries) GetFriendID(ctx context.Context, arg GetFriendIDParams) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, getFriendID,
+		arg.UserID,
+		arg.FriendID,
+		arg.UserID_2,
+		arg.FriendID_2,
+	)
+	var user_id sql.NullString
+	err := row.Scan(&user_id)
+	return user_id, err
 }
 
 const getFriendRequestCount = `-- name: GetFriendRequestCount :one
@@ -36,6 +134,27 @@ func (q *Queries) GetFriendRequestCount(ctx context.Context, arg GetFriendReques
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getFriendRequestInfo = `-- name: GetFriendRequestInfo :one
+SELECT id, from_user, to_user, status, created_at, updated_at 
+FROM friend_requests
+WHERE id = ?
+LIMIT 1
+`
+
+func (q *Queries) GetFriendRequestInfo(ctx context.Context, id string) (FriendRequest, error) {
+	row := q.db.QueryRowContext(ctx, getFriendRequestInfo, id)
+	var i FriendRequest
+	err := row.Scan(
+		&i.ID,
+		&i.FromUser,
+		&i.ToUser,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const getFriendRequestUserReceive = `-- name: GetFriendRequestUserReceive :many
@@ -210,8 +329,8 @@ func (q *Queries) GetFriendUser(ctx context.Context, arg GetFriendUserParams) ([
 }
 
 const insertFriendRequest = `-- name: InsertFriendRequest :exec
-INSERT INTO friend_requests (id, from_user, to_user, status, created_at)
-VALUES (?, ?, ?, 'pending', now())
+INSERT INTO friend_requests (id, from_user, to_user, status, created_at, updated_at)
+VALUES (?, ?, ?, 'pending', now(), now())
 `
 
 type InsertFriendRequestParams struct {

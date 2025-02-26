@@ -136,6 +136,7 @@ type FriendRequest struct {
 	ToUser    sql.NullString
 	Status    sql.NullString
 	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
 }
 
 type Notification struct {
