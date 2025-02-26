@@ -1,11 +1,16 @@
 
+-- name: CheckFriendRequestExists :one
+SELECT COUNT(*)
+FROM friend_requests
+WHERE (from_user = ? AND to_user = ?) OR (from_user = ? AND to_user = ?);
+
 -- name: GetFriendID :one
 SELECT user_id
 FROM friends
 WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)
 LIMIT 1;
 
--- name: CheckFriendRequestExists :one
+-- name: CheckFriendRequestExistsWithID :one
 SELECT COUNT(*) 
 FROM friend_requests
 WHERE id = ?;
@@ -42,12 +47,12 @@ WHERE id = ?;
 
 -- name: AcceptFriendRequest :exec
 UPDATE friend_requests
-SET status = "accepted" AND updated_at = now()
+SET status = 'accepted', updated_at = now()
 WHERE id = ?;
 
 -- name: DeclineFriendRequest :exec
 UPDATE friend_requests
-SET status = "declined" AND updated_at = now()
+SET status = 'declined', updated_at = now()
 WHERE id = ?;
 
 -- name: AddFriend :exec

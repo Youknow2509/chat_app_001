@@ -186,3 +186,81 @@ func (cU *cUser) EndFriendRequest(c *gin.Context) {
 	}
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
+
+// @Summary      Accept friend request
+// @Description  Accept friend request from another user
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        body body  model.AcceptFriendRequestInput  true  "Accept friend request"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/accept_friend_request [post]
+func (cU *cUser) AcceptFriendRequest(c *gin.Context) {
+	var parameters model.AcceptFriendRequestInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding data", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	parameters.UserAcceptID = userIDReq
+	// call to service
+	codeRes, err := service.UserInfo().AcceptFriendRequest(c.Request.Context(), &parameters)
+	if err != nil {
+		global.Logger.Error("Error accepting friend request", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
+		return
+	}
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}
+
+// @Summary      Reject friend request
+// @Description  Reject friend request from another user
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        body body  model.RejectFriendRequestInput  true  "request id"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/reject_friend_request [post]
+func (cU *cUser) RejectFriendRequest(c *gin.Context) {
+	var parameters model.RejectFriendRequestInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding data", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	parameters.UserAcceptID = userIDReq
+	// call to service
+	codeRes, err := service.UserInfo().RejectFriendRequest(c.Request.Context(), &parameters)
+	if err != nil {
+		global.Logger.Error("Error rejecting friend request", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
+		return
+	}
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}

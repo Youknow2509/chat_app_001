@@ -35,7 +35,7 @@ func (s *sUserInfo) GetListFriendRequest(ctx context.Context, in *model.GetFrien
 	}
 	if cUserReq < 1 {
 		global.Logger.Error("User is not exist")
-		return nil, fmt.Errorf("User is not exist")
+		return nil, fmt.Errorf("user is not exist")
 	}
 	// 2. get friend request
 	listFriendUser, err := s.r.GetFriendRequestUserReceive(ctx, database.GetFriendRequestUserReceiveParams{
@@ -95,7 +95,7 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 	}
 	// 2. update status request accept
 	go func() {
-		err = s.r.AcceptFriendRequest(context.Background(), in.RequestID)
+		err := s.r.AcceptFriendRequest(context.Background(), in.RequestID)
 		if err != nil {
 			fmt.Println("Err when accepting friend request")
 		}
@@ -125,6 +125,7 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 			fmt.Printf("Err when deleting cache friend request from user %s\n", cInfoRequest.ToUser.String)
 		}
 	}()
+	// TODO: send notification when accept friend request to user send
 	return response.ErrCodeSuccess, nil
 }
 
@@ -148,13 +149,29 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 	}
 	if iUserFriend.UserID == "" {
 		global.Logger.Error("Friend not found")
-		return response.ErrCodeUserNotFound, fmt.Errorf("Friend not found")
+		return response.ErrCodeUserNotFound, fmt.Errorf("friend not found")
 	}
 	if iUserFriend.UserID == in.UserID {
 		global.Logger.Error("Can not add friend yourself")
-		return response.ErrCodeUserBlockAddFriendRequest, fmt.Errorf("Can not add friend yourself")
+		return response.ErrCodeUserBlockAddFriendRequest, fmt.Errorf("can not add friend yourself")
 	}
-	// 3. check block cache
+	// 3. check request exist
+	cReq, err := s.r.CheckFriendRequestExists(ctx, database.CheckFriendRequestExistsParams{
+		FromUser: sql.NullString{String: in.UserID, Valid: true},
+		ToUser:   sql.NullString{String: iUserFriend.UserID, Valid: true},
+		// 
+		FromUser_2: sql.NullString{String: iUserFriend.UserID, Valid: true},
+		ToUser_2: sql.NullString{String: in.UserID, Valid: true},
+	})
+	if err != nil {
+		global.Logger.Error("Err check friend request exists", zap.Error(err))
+		return response.ErrCodeCheckFriendRequest, err
+	}
+	if cReq > 0 {
+		global.Logger.Error("Friend request exists")
+		return response.ErrCodeUserBlockAddFriendRequest, fmt.Errorf("friend request exists")
+	}
+	// 4. check block cache
 	key := utils.GetBlockFriendRequestKey(in.UserID, iUserFriend.UserID)
 	err = global.Rdb.Get(ctx, key).Err()
 	switch {
@@ -164,7 +181,7 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 		fmt.Println("get failed:: ", err)
 		return response.ErrCodeUserBlockAddFriendRequest, err
 	}
-	// 4. create friend request
+	// 5. create friend request
 	go func() {
 		err = s.r.InsertFriendRequest(context.Background(), database.InsertFriendRequestParams{
 			ID: uuid.New().String(),
@@ -175,7 +192,7 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 			fmt.Println("Err when creating friend request")
 		}
 	}()
-	// 5. delete cache list friend request
+	// 6. delete cache list friend request
 	go func() {
 		key1 := fmt.Sprintf("list_friend_request::to::%s", in.UserID)
 		key2 := fmt.Sprintf("list_friend_request::to::%s", iUserFriend.UserID)

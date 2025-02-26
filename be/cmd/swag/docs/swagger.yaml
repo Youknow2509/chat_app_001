@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  model.AcceptFriendRequestInput:
+    properties:
+      request_id:
+        type: string
+      user_accept_id:
+        type: string
+    type: object
   model.AddMemberToChatInput:
     properties:
       admin_chat_id:
@@ -86,6 +93,13 @@ definitions:
         type: string
       verify_type:
         type: integer
+    type: object
+  model.RejectFriendRequestInput:
+    properties:
+      request_id:
+        type: string
+      user_accept_id:
+        type: string
     type: object
   model.UpdatePasswordInput:
     properties:
@@ -560,6 +574,37 @@ paths:
       summary: Validate token for access token and refresh token
       tags:
       - Token
+  /v1/user/accept_friend_request:
+    post:
+      consumes:
+      - application/json
+      description: Accept friend request from another user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Accept friend request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AcceptFriendRequestInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Accept friend request
+      tags:
+      - User Info
   /v1/user/create_friend_request:
     post:
       consumes:
@@ -730,6 +775,37 @@ paths:
       summary: Register a new account
       tags:
       - accounts management
+  /v1/user/reject_friend_request:
+    post:
+      consumes:
+      - application/json
+      description: Reject friend request from another user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request id
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.RejectFriendRequestInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Reject friend request
+      tags:
+      - User Info
   /v1/user/update_user_info:
     post:
       consumes:

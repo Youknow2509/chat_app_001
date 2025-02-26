@@ -33,8 +33,8 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouterPrivate.POST("/create_friend_request", userInfoController.User.CreateFriendRequest)
 		userRouterPrivate.POST("/end_friend_request", userInfoController.User.EndFriendRequest)
 		userRouterPrivate.POST("/delete_friend")
-		userRouterPrivate.POST("/accept_friend_request")
-		userRouterPrivate.POST("/reject_friend_request")
+		userRouterPrivate.POST("/accept_friend_request", userInfoController.User.AcceptFriendRequest)
+		userRouterPrivate.POST("/reject_friend_request", userInfoController.User.RejectFriendRequest)
 		userRouterPrivate.GET("/get_list_friend_request")
 		//
 		userRouterPrivate.POST("/update_password")

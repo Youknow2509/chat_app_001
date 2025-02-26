@@ -12,7 +12,7 @@ import (
 
 const acceptFriendRequest = `-- name: AcceptFriendRequest :exec
 UPDATE friend_requests
-SET status = "accepted" AND updated_at = now()
+SET status = 'accepted', updated_at = now()
 WHERE id = ?
 `
 
@@ -37,13 +37,38 @@ func (q *Queries) AddFriend(ctx context.Context, arg AddFriendParams) error {
 }
 
 const checkFriendRequestExists = `-- name: CheckFriendRequestExists :one
+SELECT COUNT(*)
+FROM friend_requests
+WHERE (from_user = ? AND to_user = ?) OR (from_user = ? AND to_user = ?)
+`
+
+type CheckFriendRequestExistsParams struct {
+	FromUser   sql.NullString
+	ToUser     sql.NullString
+	FromUser_2 sql.NullString
+	ToUser_2   sql.NullString
+}
+
+func (q *Queries) CheckFriendRequestExists(ctx context.Context, arg CheckFriendRequestExistsParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkFriendRequestExists,
+		arg.FromUser,
+		arg.ToUser,
+		arg.FromUser_2,
+		arg.ToUser_2,
+	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const checkFriendRequestExistsWithID = `-- name: CheckFriendRequestExistsWithID :one
 SELECT COUNT(*) 
 FROM friend_requests
 WHERE id = ?
 `
 
-func (q *Queries) CheckFriendRequestExists(ctx context.Context, id string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, checkFriendRequestExists, id)
+func (q *Queries) CheckFriendRequestExistsWithID(ctx context.Context, id string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkFriendRequestExistsWithID, id)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -51,7 +76,7 @@ func (q *Queries) CheckFriendRequestExists(ctx context.Context, id string) (int6
 
 const declineFriendRequest = `-- name: DeclineFriendRequest :exec
 UPDATE friend_requests
-SET status = "declined" AND updated_at = now()
+SET status = 'declined', updated_at = now()
 WHERE id = ?
 `
 

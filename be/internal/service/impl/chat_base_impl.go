@@ -93,7 +93,7 @@ func (s *sChatBase) GetChatInfo(ctx context.Context, in *model.InputGetChatInfor
 		go func() {
 			cacheData, err := json.Marshal(out)
 			if err != nil {
-				fmt.Printf("Err marshal data %s", out)
+				fmt.Printf("err marshal data %s\n", out)
 				return
 			}
 			err = global.Rdb.Set(ctx, keyCache, cacheData, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
