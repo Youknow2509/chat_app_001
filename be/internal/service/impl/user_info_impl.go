@@ -93,14 +93,19 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 		global.Logger.Error("Friend request not found")
 		return response.ErrCodeFrinedRequestNotFound, fmt.Errorf("friend request not found")
 	}
-	// 2. update status request accept
+	// 2. check user accept
+	if cInfoRequest.ToUser.String != in.UserAcceptID {
+		global.Logger.Error("User accept not match")
+		return response.ErrCodeUserNotFound, fmt.Errorf("user accept not match")
+	}
+	// 3. update status request accept
 	go func() {
 		err := s.r.AcceptFriendRequest(context.Background(), in.RequestID)
 		if err != nil {
 			fmt.Println("Err when accepting friend request")
 		}
 	}()
-	// 3. add friend
+	// 4. add friend
 	go func() {
 		err := s.r.AddFriend(context.Background(), database.AddFriendParams{
 			UserID:   sql.NullString{String: cInfoRequest.FromUser.String, Valid: true},
@@ -110,7 +115,7 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 			fmt.Println("Err when adding friend")
 		}
 	}()
-	// 4. delete cache list friend request
+	// 5. delete cache list friend request
 	go func() {
 		key1 := fmt.Sprintf("list_friend_request::to::%s", cInfoRequest.FromUser.String)
 		key2 := fmt.Sprintf("list_friend_request::to::%s", cInfoRequest.ToUser.String)
@@ -159,9 +164,9 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 	cReq, err := s.r.CheckFriendRequestExists(ctx, database.CheckFriendRequestExistsParams{
 		FromUser: sql.NullString{String: in.UserID, Valid: true},
 		ToUser:   sql.NullString{String: iUserFriend.UserID, Valid: true},
-		// 
+		//
 		FromUser_2: sql.NullString{String: iUserFriend.UserID, Valid: true},
-		ToUser_2: sql.NullString{String: in.UserID, Valid: true},
+		ToUser_2:   sql.NullString{String: in.UserID, Valid: true},
 	})
 	if err != nil {
 		global.Logger.Error("Err check friend request exists", zap.Error(err))
@@ -184,9 +189,9 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 	// 5. create friend request
 	go func() {
 		err = s.r.InsertFriendRequest(context.Background(), database.InsertFriendRequestParams{
-			ID: uuid.New().String(),
+			ID:       uuid.New().String(),
 			FromUser: sql.NullString{String: in.UserID, Valid: true},
-			ToUser: sql.NullString{String: iUserFriend.UserID, Valid: true},
+			ToUser:   sql.NullString{String: iUserFriend.UserID, Valid: true},
 		})
 		if err != nil {
 			fmt.Println("Err when creating friend request")
@@ -216,8 +221,8 @@ func (s *sUserInfo) DeleteFriend(ctx context.Context, in *model.DeleteFriendInpu
 	idFriend, err := s.r.GetIDUserWithEmail(ctx, in.FriendEmail)
 	if err != nil {
 		global.Logger.Error("Err get user with id", zap.Error(err))
-        return response.ErrCodeUserNotFound, err
-    }
+		return response.ErrCodeUserNotFound, err
+	}
 	if idFriend == "" {
 		global.Logger.Error("Friend not found")
 		return response.ErrCodeUserNotFound, fmt.Errorf("friend not found")
@@ -225,17 +230,17 @@ func (s *sUserInfo) DeleteFriend(ctx context.Context, in *model.DeleteFriendInpu
 	// 2. delete friend
 	go func() {
 		err = s.r.DeleteFriend(context.Background(), database.DeleteFriendParams{
-			UserID:  sql.NullString{String: in.UserID, Valid: true},
+			UserID:   sql.NullString{String: in.UserID, Valid: true},
 			FriendID: sql.NullString{String: idFriend, Valid: true},
 			//
-			UserID_2: sql.NullString{String: idFriend, Valid: true},
+			UserID_2:   sql.NullString{String: idFriend, Valid: true},
 			FriendID_2: sql.NullString{String: in.UserID, Valid: true},
 		})
 		if err != nil {
 			fmt.Println("Err when deleting friend")
 		}
 	}()
-	
+
 	return response.ErrCodeSuccess, nil
 }
 
@@ -380,14 +385,19 @@ func (s *sUserInfo) RejectFriendRequest(ctx context.Context, in *model.RejectFri
 		global.Logger.Error("Friend request not found")
 		return response.ErrCodeFrinedRequestNotFound, fmt.Errorf("friend request not found")
 	}
-	// 2. reject request
+	// 2. check user rejects
+	if cInfoRequest.ToUser.String != in.UserAcceptID {
+		global.Logger.Error("User reject not match")
+		return response.ErrCodeUserNotFound, fmt.Errorf("user reject not match")
+	}
+	// 3. reject request
 	go func() {
 		err = s.r.DeclineFriendRequest(context.Background(), in.RequestID)
 		if err != nil {
 			fmt.Println("Err when rejecting friend request")
 		}
 	}()
-	// 3. delete cache list friend request
+	// 4. delete cache list friend request
 	go func() {
 		key1 := fmt.Sprintf("list_friend_request::to::%s", cInfoRequest.FromUser.String)
 		key2 := fmt.Sprintf("list_friend_request::to::%s", cInfoRequest.ToUser.String)
@@ -402,7 +412,7 @@ func (s *sUserInfo) RejectFriendRequest(ctx context.Context, in *model.RejectFri
 			fmt.Printf("Err when deleting cache friend request from user %s\n", cInfoRequest.ToUser.String)
 		}
 	}()
-	// 4. write cache block spam request in cache
+	// 5. write cache block spam request in cache
 	go func() {
 		// key := fmt.Sprintf("friend_requested::from::%s::to::%s", cInfoRequest.FromUser.String, cInfoRequest.ToUser.String)
 		key := utils.GetBlockFriendRequestKey(cInfoRequest.FromUser.String, cInfoRequest.ToUser.String)

@@ -66,6 +66,13 @@ definitions:
       user_del_id:
         type: string
     type: object
+  model.DeleteFriendInput:
+    properties:
+      friend_email:
+        type: string
+      user_id:
+        type: string
+    type: object
   model.EndFriendRequestInput:
     properties:
       request_id:
@@ -636,6 +643,37 @@ paths:
       summary: Create friend request
       tags:
       - User Info
+  /v1/user/delete_friend:
+    post:
+      consumes:
+      - application/json
+      description: Delete friend user information from the service
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: delete friend user information
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteFriendInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Delete friend user
+      tags:
+      - User Info
   /v1/user/end_friend_request:
     post:
       consumes:
@@ -695,6 +733,41 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Find user
+      tags:
+      - User Info
+  /v1/user/get_list_friend_request:
+    get:
+      consumes:
+      - application/json
+      description: Get list friend request of user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Limit number
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get list friend request
       tags:
       - User Info
   /v1/user/get_user_info:

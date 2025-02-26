@@ -1,6 +1,8 @@
 package user
 
 import (
+	"strconv"
+
 	"example.com/be/global"
 	"example.com/be/internal/model"
 	"example.com/be/internal/service"
@@ -263,4 +265,99 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 		return
 	}
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}
+
+// @Summary      Delete friend user 
+// @Description  Delete friend user information from the service
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        body body  model.DeleteFriendInput  true  "delete friend user information"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/delete_friend [post]
+func (cU *cUser) DeleteFriend(c *gin.Context) {
+	var parameters model.DeleteFriendInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding data", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	parameters.UserID = userIDReq
+	// call to service
+	codeRes, err := service.UserInfo().DeleteFriend(c.Request.Context(), &parameters)
+	if err != nil {
+		global.Logger.Error("Error deleting friend", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeDeleteFriend, err.Error())
+		return
+	}
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}
+
+// @Summary      Get list friend request
+// @Description  Get list friend request of user
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        limit  query  int  true  "Limit number"
+// @Param        page  query  int  true  "Page number"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/get_list_friend_request [get]
+func (cU *cUser) GetListFriendRequet(c *gin.Context) {
+	// query limit and page
+	limit := c.Query("limit")
+	page := c.Query("page")
+	if limit == "" || page == "" {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Limit and page are required")
+		return
+	}
+	// convert string to int
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		global.Logger.Error("Error converting limit to int", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		global.Logger.Error("Error converting page to int", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	// create input model
+	input := &model.GetFriendRequestInput{
+        UserID: userIDReq,
+        Limit:  limitInt,
+        Page:   pageInt,
+    }
+    // call to service
+    listFriendRequest, err := service.UserInfo().GetListFriendRequest(c.Request.Context(), input)
+    if err != nil {
+        global.Logger.Error("Error getting list friend request", zap.Error(err))
+        response.ErrorResponse(c, response.ErrCodeGetListFriendRequest, err.Error())
+        return
+    }
+
+	response.SuccessResponse(c, response.ErrCodeSuccess, listFriendRequest)
 }
