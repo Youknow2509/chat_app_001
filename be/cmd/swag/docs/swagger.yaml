@@ -537,6 +537,31 @@ paths:
       summary: Validate token for access token and refresh token
       tags:
       - Token
+  /v1/user/get_user_info:
+    get:
+      consumes:
+      - application/json
+      description: Get user information after login
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get user info
+      tags:
+      - User Info
   /v1/user/login:
     post:
       consumes:

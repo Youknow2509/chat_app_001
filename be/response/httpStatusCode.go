@@ -80,11 +80,13 @@ const (
 	ErrCodeCheckFriendRequest        = 120000
 	ErrCodeFrinedRequestNotFound     = 120001
 	ErrCodeUserBlockAddFriendRequest = 120002
+	ErrCodeGetUserInfo               = 120003
 )
 
 // message
 var msg = map[int]string{
 
+	ErrCodeGetUserInfo:              "get user info failed",
 	ErrCodeFrinedRequestNotFound:    "frined request not found",
 	ErrCodeCheckFriendRequest:       "check friend request failed",
 	ErrCodeUpgradeChatInfo:          "upgrade chat info failed",
