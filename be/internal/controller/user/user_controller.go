@@ -147,3 +147,42 @@ func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 	}
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
+
+// @Summary      End friend request
+// @Description  End friend request to another user
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        body body  model.EndFriendRequestInput  true  "End friend request"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/end_friend_request [post]
+func (cU *cUser) EndFriendRequest(c *gin.Context) {
+	var parameters model.EndFriendRequestInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding data", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	parameters.UserID = userIDReq
+	// call to service
+	codeRes, err := service.UserInfo().EndFriendRequest(c.Request.Context(), &parameters)
+	if err != nil {
+		global.Logger.Error("Error ending friend request", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
+		return
+	}
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}

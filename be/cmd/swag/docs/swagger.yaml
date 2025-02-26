@@ -59,6 +59,13 @@ definitions:
       user_del_id:
         type: string
     type: object
+  model.EndFriendRequestInput:
+    properties:
+      request_id:
+        type: string
+      user_id:
+        type: string
+    type: object
   model.JwtInput:
     properties:
       data:
@@ -582,6 +589,37 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Create friend request
+      tags:
+      - User Info
+  /v1/user/end_friend_request:
+    post:
+      consumes:
+      - application/json
+      description: End friend request to another user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: End friend request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.EndFriendRequestInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: End friend request
       tags:
       - User Info
   /v1/user/find_user:

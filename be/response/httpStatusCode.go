@@ -85,11 +85,12 @@ const (
 	ErrCodeFindUser                  = 120004
 	ErrCodeUpdateUserInfo            = 120005
 	ErrCodeCreateFriendRequest	   = 120006
+	ErrCodeEndFriendRequest		  = 120007
 )
 
 // message
 var msg = map[int]string{
-
+	ErrCodeEndFriendRequest:         "end friend request failed",
 	ErrCodeCreateFriendRequest:      "create friend request failed",
 	ErrCodeUpdateUserInfo:           "update user info failed",
 	ErrCodeFindUser:                 "find user failed",

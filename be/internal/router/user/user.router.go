@@ -18,7 +18,7 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouterPublic.POST("/login", account.Login.Login)
 		userRouterPublic.POST("/verify_account", account.Login.VerifyOTP)
 		userRouterPublic.POST("/upgrade_password_register", account.Login.UpgradePasswordRegister)
-		userRouterPublic.POST("logout") // TODO
+		userRouterPublic.POST("/logout") // TODO
 	}
 
 	// private router
@@ -31,7 +31,7 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouterPrivate.GET("/find_user", userInfoController.User.FindUser)
 		userRouterPrivate.POST("/update_user_info", userInfoController.User.UpdateUserInfo)
 		userRouterPrivate.POST("/create_friend_request", userInfoController.User.CreateFriendRequest)
-		userRouterPrivate.POST("/end_friend_request")
+		userRouterPrivate.POST("/end_friend_request", userInfoController.User.EndFriendRequest)
 		userRouterPrivate.POST("/delete_friend")
 		userRouterPrivate.POST("/accept_friend_request")
 		userRouterPrivate.POST("/reject_friend_request")

@@ -676,6 +676,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/user/end_friend_request": {
+            "post": {
+                "description": "End friend request to another user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "End friend request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "End friend request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.EndFriendRequestInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/find_user": {
             "get": {
                 "description": "Find a user by mail address",
@@ -1056,6 +1103,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_del_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.EndFriendRequestInput": {
+            "type": "object",
+            "properties": {
+                "request_id": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
