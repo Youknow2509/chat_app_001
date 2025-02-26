@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_message"
+            android:icon="@drawable/message"
+            android:title="Message" />
+<!--        <item-->
+<!--            android:id="@+id/call"-->
+<!--            android:icon="@drawable/call"-->
+<!--            android:title="Call" />-->
+<!--        <item-->
+<!--            android:id="@+id/contact"-->
+<!--            android:icon="@drawable/user"-->
+<!--            android:title="Contact" />-->
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/settings"
+            android:title="Settings" />
+    </group>
+</menu>

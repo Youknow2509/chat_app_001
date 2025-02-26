@@ -1,0 +1,330 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/setting"
+    tools:context=".fragments.Setting"
+    android:background="#000000">
+
+    <!-- Header with back button and title -->
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="144dp"
+        android:orientation="horizontal"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tlt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="Settings"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Main content container -->
+    <LinearLayout
+        android:id="@+id/main_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:paddingTop="14dp"
+        android:background="@drawable/cr16bffffff"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/nav_view">
+
+        <!-- Profile Section -->
+        <LinearLayout
+            android:id="@+id/profile_section"
+            android:layout_width="363dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/rounded_image"
+                android:clipToOutline="true"
+                android:layout_marginTop="8dp"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_launcher" />
+
+            <LinearLayout
+                android:id="@+id/profile_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="14dp"
+                android:layout_marginStart="18dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/profile_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Khiem Vip Pro"
+                    android:textColor="#000D07"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/profile_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Never give up 💪"
+                    android:textColor="#797C7B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/qr_code_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginVertical="18dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/qr_code" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="29dp"
+            android:background="#747575" />
+
+        <!-- Account Section -->
+        <LinearLayout
+            android:id="@+id/account_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="30dp">
+
+            <FrameLayout
+                android:layout_width="50dp"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ellipse_1182" />
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/keys" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/account_details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:id="@+id/account_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Account"
+                    android:textColor="#000D07"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/account_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Privacy, security, change number"
+                    android:textColor="#797C7B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Chat Section -->
+        <LinearLayout
+            android:id="@+id/chat_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="30dp">
+
+            <FrameLayout
+                android:layout_width="50dp"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ellipse_1182" />
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/message" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/chat_details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:id="@+id/chat_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chat"
+                    android:textColor="#000D07"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/chat_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chat history, theme, wallpapers"
+                    android:textColor="#797C7B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Notifications Section -->
+        <LinearLayout
+            android:id="@+id/notifications_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="30dp">
+
+            <FrameLayout
+                android:layout_width="50dp"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ellipse_1182" />
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/notification" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/notifications_details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:id="@+id/notifications_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notifications"
+                    android:textColor="#000D07"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/notifications_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Messages, group and others"
+                    android:textColor="#797C7B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Help Section -->
+        <LinearLayout
+            android:id="@+id/help_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="30dp">
+
+            <FrameLayout
+                android:layout_width="50dp"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ellipse_1182" />
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/message" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/help_details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:id="@+id/help_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Help"
+                    android:textColor="#000D07"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/help_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Help center, contact us, privacy policy"
+                    android:textColor="#797C7B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Bottom navigation view -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

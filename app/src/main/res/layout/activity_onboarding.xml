@@ -1,0 +1,238 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.OnboardingActivity"
+    android:background="#1A1A1A">
+
+    <!-- Header: Logo Chatbox -->
+    <RelativeLayout
+        android:layout_width="377dp"
+        android:layout_height="27dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/logo_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@id/logo_icon"
+            android:text="Chatbox"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/ellipse_122"
+        android:layout_width="350dp"
+        android:layout_height="488dp"
+        android:alpha="0.3"
+        android:background="@drawable/ellipse_122"
+        android:rotation="35"
+        android:translationY="20dp"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="408dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="140dp"
+        android:gravity="start"
+        android:maxLines="5"
+        android:paddingHorizontal="20dp"
+        android:text="@string/title_text"
+        android:textColor="#FFFFFF"
+        android:textSize="50sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="start"
+        android:paddingHorizontal="20dp"
+        android:text="Our chat app is the perfect way to stay\nconnected with friends and family."
+        android:textColor="#B9C1BE"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_text" />
+
+    <LinearLayout
+        android:id="@+id/social_icons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="88dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/description">
+
+        <!-- Ảnh 1 -->
+        <FrameLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginHorizontal="15dp">
+
+            <!-- Ảnh nền -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ellipse_1191" />
+
+            <!-- Ảnh icon phía trên -->
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:src="@drawable/facebook_f_logo_blue_logo_wine" />
+        </FrameLayout>
+
+        <!-- Ảnh 2 -->
+        <FrameLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginHorizontal="15dp">
+
+            <!-- Ảnh nền -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ellipse_1192" />
+
+            <!-- Ảnh icon phía trên -->
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:src="@drawable/google_pay_logo_wine__1_" />
+        </FrameLayout>
+
+        <!-- Ảnh 3 -->
+        <FrameLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginHorizontal="15dp">
+
+            <!-- Ảnh nền -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ellipse_1193" />
+
+            <!-- Ảnh icon phía trên -->
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:src="@drawable/apple_inc__logo_wine__1_" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="404dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="28dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/social_icons">
+
+        <LinearLayout
+            android:id="@+id/abcsada"
+            android:layout_width="145dp"
+            android:layout_height="2dp"
+            android:layout_marginEnd="10dp"
+            android:background="#CDD1D0"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/ra34oo64tmag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="OR"
+            android:textColor="#D6E4DF"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/r1k1kx785gn8"
+            android:layout_width="145dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="10dp"
+            android:background="#CDD1D0"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_signup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="68dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/cr16bfffff"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingHorizontal="40dp"
+        android:paddingVertical="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/social_icons"
+        app:layout_constraintVertical_bias="0.0">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign up with mail"
+            android:textColor="#000D07"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/login_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        android:text="Existing account? Log in"
+        android:textColor="#B9C1BE"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

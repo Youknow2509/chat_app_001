@@ -1,0 +1,41 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- Logo -->
+        <ImageView
+            android:id="@+id/rs00a9u9z4pt"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="fitXY" />
+
+        <!-- Khoảng cách giữa logo và chữ -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+
+        <!-- Chữ Chatbox -->
+        <TextView
+            android:id="@+id/rtubgfb6ttx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chatbox"
+            android:textColor="#001815"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:gravity="center"/>
+    </LinearLayout>
+</LinearLayout>

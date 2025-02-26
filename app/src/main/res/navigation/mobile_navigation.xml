@@ -1,0 +1,18 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_message">
+
+    <!-- Message Fragment -->
+    <fragment
+        android:id="@+id/nav_message"
+        android:name="com.example.chatapp.fragments.Message"
+        tools:layout="@layout/fragment_message" />
+
+    <!-- Settings Fragment -->
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.chatapp.fragments.Setting"
+        tools:layout="@layout/fragment_setting" />
+</navigation>
