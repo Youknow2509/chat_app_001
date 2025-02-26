@@ -27,10 +27,10 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 	userRouterPrivate.Use(middlewares.TokenAuthMiddleware())
 	{
 		// TODO
-		userRouterPrivate.GET("/get_user_info", userInfoController.User.GetUserInfoController)
-		userRouterPrivate.GET("/find_user")
-		userRouterPrivate.POST("/update_user_info")
-		userRouterPrivate.POST("/create_friend_request")
+		userRouterPrivate.GET("/get_user_info", userInfoController.User.GetUserInfo)
+		userRouterPrivate.GET("/find_user", userInfoController.User.FindUser)
+		userRouterPrivate.POST("/update_user_info", userInfoController.User.UpdateUserInfo)
+		userRouterPrivate.POST("/create_friend_request", userInfoController.User.CreateFriendRequest)
 		userRouterPrivate.POST("/end_friend_request")
 		userRouterPrivate.POST("/delete_friend")
 		userRouterPrivate.POST("/accept_friend_request")

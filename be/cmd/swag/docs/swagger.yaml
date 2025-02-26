@@ -36,6 +36,13 @@ definitions:
       user2:
         type: string
     type: object
+  model.CreateFriendRequestInput:
+    properties:
+      email_friend:
+        type: string
+      user_id:
+        type: string
+    type: object
   model.DelChatInput:
     properties:
       admin_chat_id:
@@ -78,6 +85,15 @@ definitions:
       password:
         type: string
       token:
+        type: string
+    type: object
+  model.UpdateUserInfoInput:
+    properties:
+      user_avatar:
+        type: string
+      user_id:
+        type: string
+      user_nickname:
         type: string
     type: object
   model.UpgradeChatInfoInput:
@@ -537,6 +553,67 @@ paths:
       summary: Validate token for access token and refresh token
       tags:
       - Token
+  /v1/user/create_friend_request:
+    post:
+      consumes:
+      - application/json
+      description: Create friend request to another user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create friend request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateFriendRequestInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Create friend request
+      tags:
+      - User Info
+  /v1/user/find_user:
+    get:
+      consumes:
+      - application/json
+      description: Find a user by mail address
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Email address
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Find user
+      tags:
+      - User Info
   /v1/user/get_user_info:
     get:
       consumes:
@@ -615,6 +692,37 @@ paths:
       summary: Register a new account
       tags:
       - accounts management
+  /v1/user/update_user_info:
+    post:
+      consumes:
+      - application/json
+      description: Update nick name, ... information user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Update user info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserInfoInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Update user info
+      tags:
+      - User Info
   /v1/user/upgrade_password_register:
     post:
       consumes:

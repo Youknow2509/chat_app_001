@@ -15,6 +15,7 @@ import (
 	"example.com/be/internal/service"
 	"example.com/be/internal/utils"
 	"example.com/be/response"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )
@@ -137,7 +138,7 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 	}
 	if cUserSend < 1 {
 		global.Logger.Error("User is not exist")
-		return response.ErrCodeUserNotFound, fmt.Errorf("User is not exist")
+		return response.ErrCodeUserNotFound, fmt.Errorf("user is not exist")
 	}
 	// 2. check friend exist with email address
 	iUserFriend, err := s.r.GetOneUserInfo(ctx, in.EmailFriend)
@@ -149,18 +150,26 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 		global.Logger.Error("Friend not found")
 		return response.ErrCodeUserNotFound, fmt.Errorf("Friend not found")
 	}
+	if iUserFriend.UserID == in.UserID {
+		global.Logger.Error("Can not add friend yourself")
+		return response.ErrCodeUserBlockAddFriendRequest, fmt.Errorf("Can not add friend yourself")
+	}
 	// 3. check block cache
 	key := utils.GetBlockFriendRequestKey(in.UserID, iUserFriend.UserID)
 	err = global.Rdb.Get(ctx, key).Err()
-	if err != nil {
-		global.Logger.Info("User is blocked")
-		return response.ErrCodeUserBlockAddFriendRequest, fmt.Errorf("user is blocked")
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return response.ErrCodeUserBlockAddFriendRequest, err
 	}
 	// 4. create friend request
 	go func() {
-		err = s.r.AddFriend(context.Background(), database.AddFriendParams{
-			UserID:   sql.NullString{String: in.UserID, Valid: true},
-			FriendID: sql.NullString{String: iUserFriend.UserID, Valid: true},
+		err = s.r.InsertFriendRequest(context.Background(), database.InsertFriendRequestParams{
+			ID: uuid.New().String(),
+			FromUser: sql.NullString{String: in.UserID, Valid: true},
+			ToUser: sql.NullString{String: iUserFriend.UserID, Valid: true},
 		})
 		if err != nil {
 			fmt.Println("Err when creating friend request")

@@ -623,6 +623,98 @@
                 }
             }
         },
+        "/v1/user/create_friend_request": {
+            "post": {
+                "description": "Create friend request to another user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Create friend request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create friend request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateFriendRequestInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/find_user": {
+            "get": {
+                "description": "Find a user by mail address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Find user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Email address",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/get_user_info": {
             "get": {
                 "description": "Get user information after login",
@@ -722,6 +814,53 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.RegisterInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/update_user_info": {
+            "post": {
+                "description": "Update nick name, ... information user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Update user info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Update user info",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateUserInfoInput"
                         }
                     }
                 ],
@@ -879,6 +1018,17 @@
                 }
             }
         },
+        "model.CreateFriendRequestInput": {
+            "type": "object",
+            "properties": {
+                "email_friend": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.DelChatInput": {
             "type": "object",
             "properties": {
@@ -944,6 +1094,20 @@
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UpdateUserInfoInput": {
+            "type": "object",
+            "properties": {
+                "user_avatar": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "user_nickname": {
                     "type": "string"
                 }
             }

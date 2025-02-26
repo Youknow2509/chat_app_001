@@ -13,6 +13,7 @@ const (
 	ErrCodeUnmarshalData = 40001 // Unmarshal data failed
 
 	ErrCodeInvalidInput = 40002 // Invalid input
+	ErrCodeBadRequest   = 40003 // Bad request
 
 	// Register Code
 	ErrCodeUserHasExist            = 50001 // User has exist
@@ -81,11 +82,18 @@ const (
 	ErrCodeFrinedRequestNotFound     = 120001
 	ErrCodeUserBlockAddFriendRequest = 120002
 	ErrCodeGetUserInfo               = 120003
+	ErrCodeFindUser                  = 120004
+	ErrCodeUpdateUserInfo            = 120005
+	ErrCodeCreateFriendRequest	   = 120006
 )
 
 // message
 var msg = map[int]string{
 
+	ErrCodeCreateFriendRequest:      "create friend request failed",
+	ErrCodeUpdateUserInfo:           "update user info failed",
+	ErrCodeFindUser:                 "find user failed",
+	ErrCodeBadRequest:               "bad request",
 	ErrCodeGetUserInfo:              "get user info failed",
 	ErrCodeFrinedRequestNotFound:    "frined request not found",
 	ErrCodeCheckFriendRequest:       "check friend request failed",
