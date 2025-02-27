@@ -15,6 +15,8 @@ import (
 	"example.com/be/internal/service"
 	"example.com/be/internal/utils"
 	"example.com/be/internal/utils/crypto"
+	"example.com/be/internal/utils/notify"
+	"example.com/be/internal/utils/notify/impl"
 	"example.com/be/response"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -168,7 +170,20 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 			fmt.Printf("Err when deleting cache friend request from user %s\n", cInfoRequest.ToUser.String)
 		}
 	}()
-	// TODO: send notification when accept friend request to user send
+	// 6. notify to user
+	go func ()  {
+        notify.InitINotify(impl.GetNotifyImpl())
+        iNotify := notify.GetINotify()
+        err := iNotify.SendKafkaNotificationUser(
+            cInfoRequest.ToUser.String,
+            "Accept friend request "  + cInfoRequest.FromUser.String,
+            "Accept friend request",
+            "",
+        )
+        if err != nil {
+            fmt.Println("Err when sending notification")
+        }
+    }()
 	return response.ErrCodeSuccess, nil
 }
 
@@ -250,6 +265,20 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 			fmt.Printf("Err when deleting cache friend request from user %s\n", iUserFriend.UserID)
 		}
 	}()
+	// 7. notify to user
+	go func ()  {
+        notify.InitINotify(impl.GetNotifyImpl())
+        iNotify := notify.GetINotify()
+        err := iNotify.SendKafkaNotificationUser(
+            iUserFriend.UserID,
+			"Friend request from " + in.UserID,
+			"Friend request",
+			"",
+        )
+        if err != nil {
+            fmt.Println("Err when sending notification")
+        }
+    }()
 	return response.ErrCodeSuccess, nil
 }
 

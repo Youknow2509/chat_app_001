@@ -24,7 +24,8 @@ const (
 // kafka
 const (
 	KEY_OTP_VERIFY = "otp_verify"
-
+	KEY_KAFKA_NOTIFY = "device_notify"
 	TOPIC_SERVICE_SEND_MAIL_OTP = "go-service-send-mail-otp"
+	TOPIC_SERVICE_NOTIFICATION = "user-request-notification"
 	TCP_KAFKA = "localhost:9094"
 )
