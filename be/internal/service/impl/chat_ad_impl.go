@@ -3,21 +3,99 @@ package impl
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"example.com/be/global"
+	"example.com/be/internal/consts"
 	"example.com/be/internal/database"
 	"example.com/be/internal/model"
 	"example.com/be/internal/service"
 	"example.com/be/internal/utils"
 	"example.com/be/response"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )
 
 // type chat admin impl
 type sChatAdmin struct {
 	r *database.Queries
+}
+
+// GetUserInChatAdmin implements service.IChatServiceAdmin.
+func (s *sChatAdmin) GetUserInChatAdmin(ctx context.Context, in *model.InputGetUserInChatAdmin) (out *model.GetUserInChatOutput, err error) {
+	// 1. Check chat group is exist
+	chatGroupInfo, err := s.r.GetGroupInfo(ctx, in.ChatID)
+	if err != nil {
+		fmt.Printf("Err get chat info %s", in.ChatID)
+		global.Logger.Error("Err get chat info", zap.Error(err))
+		return nil, err
+	}
+	if chatGroupInfo.Groupid == "" {
+		global.Logger.Error("Chat group is not exist")
+		return nil, nil
+	}
+	// 2. check datastore in cache
+	keyCache := fmt.Sprintf("listuser::chat%s::l%s::p%s", in.ChatID, strconv.Itoa(in.Limit), strconv.Itoa(in.Page))
+	dataUserInChatCache, err := global.Rdb.Get(ctx, keyCache).Result()
+	// Check handle get otp in redis - TODO handle utils...
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return nil, err
+	}
+	if dataUserInChatCache != "" {
+		err = json.Unmarshal([]byte(dataUserInChatCache), &out)
+		if err != nil {
+			fmt.Printf("Err unmarshal data %s", dataUserInChatCache)
+			global.Logger.Error("Err unmarshal data", zap.Error(err))
+			return nil, err
+		}
+		return out, nil
+	} else {
+		// 3. get user in chat
+		dataUserInChat, err := s.r.GetUsersInChat(ctx, database.GetUsersInChatParams{
+			ChatID: in.ChatID,
+			Limit:  int32(in.Limit),
+			Offset: int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+		})
+		if err != nil {
+			fmt.Printf("Err get user in chat %s", in.ChatID)
+			global.Logger.Error("Err get user in chat", zap.Error(err))
+			return nil, err
+		}
+		// 4. set data to output
+		listUserId := make([]string, len(dataUserInChat))
+		for index, v := range dataUserInChat {
+			// out.ListUserID = append(out.ListUserID, v.UserID)
+			listUserId[index] = v.UserID
+		}
+		out = &model.GetUserInChatOutput{
+			ChatID:     in.ChatID,
+			ListUserID: listUserId,
+		}
+		// 6. save to cache
+		go func() {
+			cacheData, err := json.Marshal(out)
+			if err != nil {
+				fmt.Printf("Err marshal data %s", out)
+				return
+			}
+			err = global.Rdb.Set(ctx, keyCache, cacheData, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
+			if err != nil {
+				fmt.Println("set failed:: ", err)
+				return
+			}
+		}()
+	}
+
+	return out, nil
 }
 
 // ChangeAdminGroupChat implements service.IChatServiceAdmin.
@@ -33,8 +111,8 @@ func (s *sChatAdmin) ChangeAdminGroupChat(ctx context.Context, in *model.ChangeA
 	}
 	if cAdminGroupChat < 1 {
 		global.Logger.Error("User not admin group chat", zap.Error(err))
-        return response.ErrCodeChangeAdminChat, fmt.Errorf("user admin %s is not admin group chat or group chat %s don't exist", in.OldAdminID, in.GroupChatID)
-    }
+		return response.ErrCodeChangeAdminChat, fmt.Errorf("user admin %s is not admin group chat or group chat %s don't exist", in.OldAdminID, in.GroupChatID)
+	}
 	// 2. check user admin new in chat
 	cUserNewAdmin, err := s.r.CheckUserInGroupChat(ctx, database.CheckUserInGroupChatParams{
 		ChatID: in.GroupChatID,
@@ -58,7 +136,7 @@ func (s *sChatAdmin) ChangeAdminGroupChat(ctx context.Context, in *model.ChangeA
 			fmt.Printf("Err changing admin group chat: %v\n", err)
 		}
 	}()
-	
+
 	// 4. change admin to user
 	go func() {
 		err = s.r.ChangeToMember(ctx, database.ChangeToMemberParams{
@@ -97,8 +175,8 @@ func (s *sChatAdmin) DelChat(ctx context.Context, in *model.DelChatInput) (codeR
 		global.Logger.Error("Chat not found", zap.Error(err))
 		return response.ErrCodeDelChat, fmt.Errorf("chat %s not found", in.ChatID)
 	}
-	// 3. delete menber in chat	
-	go func ()  {
+	// 3. delete menber in chat
+	go func() {
 		listIDMenber := strings.Split(cChat.ListMem.String, ",")
 		for _, menberID := range listIDMenber {
 			err = s.r.DeleteMemberFromChat(context.Background(), database.DeleteMemberFromChatParams{
@@ -185,13 +263,13 @@ func (s *sChatAdmin) UpgradeChatInfo(ctx context.Context, in *model.UpgradeChatI
 		global.Logger.Error("User not admin group chat", zap.Error(err))
 		return response.ErrCodeUpgradeChatInfo, fmt.Errorf("user admin %s is not admin group chat or group chat %s don't exist", in.UserAdminID, in.GroupChatID)
 	}
-	// 2. UpdateGroupChat 
+	// 2. UpdateGroupChat
 	go func() {
 		err = s.r.UpdateGroupChat(ctx, database.UpdateGroupChatParams{
-			GroupName: sql.NullString{String: in.GroupNameUpdate, Valid: true},
+			GroupName:   sql.NullString{String: in.GroupNameUpdate, Valid: true},
 			GroupAvatar: sql.NullString{String: in.GroupAvatar, Valid: true},
-			ID: in.GroupChatID,
-        })
+			ID:          in.GroupChatID,
+		})
 		if err != nil {
 			fmt.Printf("Err updating group chat %s: %v\n", in.GroupChatID, err)
 		}

@@ -48,5 +48,4 @@ func SetPoolC() {
 	// sqlDb.SetMaxOpenConns(m.MaxOpenConns)                      // Gioi han so luong ket noi toi da
 	// sqlDb.SetConnMaxLifetime(time.Duration(m.ConnMaxLifetime)) // Gioi han thoi gian toi da cua ket noi
 
-	// TODO
 }

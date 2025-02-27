@@ -18,6 +18,7 @@ type (
 	}
 
 	IChatServiceAdmin interface {
+		GetUserInChatAdmin(ctx context.Context, in *model.InputGetUserInChatAdmin) (out *model.GetUserInChatOutput, err error)
 		UpgradeChatInfo(ctx context.Context, in *model.UpgradeChatInfoInput) (codeResult int, err error)
 		ChangeAdminGroupChat(ctx context.Context, in *model.ChangeAdminGroupChatInput) (codeResult int, err error)
 		DelMenForChat(ctx context.Context, in *model.DelMenForChatInput) (codeResult int, err error)

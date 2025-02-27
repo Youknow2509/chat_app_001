@@ -85,6 +85,14 @@ type InputGetUserInChat struct {
 	Limit  int    `json:"limit"`
 }
 
+// input get user in chat
+type InputGetUserInChatAdmin struct {
+	ChatID string `json:"chat_id"`
+	Page   int    `json:"page"`
+	Limit  int    `json:"limit"`
+}
+
+
 // Out get list chat for user
 type OutGetListChatForUser struct {
 	ChatID   string `json:"chat_id"`

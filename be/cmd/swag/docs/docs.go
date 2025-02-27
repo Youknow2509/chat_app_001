@@ -509,6 +509,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/mservice/get-user-in-chat": {
+            "get": {
+                "description": "Get information user in chat with chat id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Microservice"
+                ],
+                "summary": "Hanlde get infomation user in chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token microservice (Eg: Bearer 123456)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Chat ID",
+                        "name": "chat_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit number of chat",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/token/create_refresh_token": {
             "post": {
                 "description": "Testing create a new refresh JWT token",
