@@ -361,3 +361,43 @@ func (cU *cUser) GetListFriendRequet(c *gin.Context) {
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, listFriendRequest)
 }
+
+// @Summary      Update password user for user 
+// @Description  Update password user for user
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        body body  model.UserChangePasswordInput  true  "Update password user for user"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/update_password [post]
+func (cU *cUser) UpdatePassword(c *gin.Context) {
+	var parameters model.UserChangePasswordInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding data", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+    // get id user from token
+    userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+    parameters.UserID = userIDReq
+    // call to service
+	codeRes, err := service.UserInfo().UpdatePasswordForUserRequest(c.Request.Context(), &parameters)
+	if err != nil {
+		global.Logger.Error("Error updating password", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUpdatePassword, err.Error())
+		return
+	}
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}

@@ -1,3 +1,13 @@
+-- name: GetPasswordSalt :one
+SELECT user_password, user_salt
+FROM `user_base`
+WHERE user_account = ?;
+
+-- name: GetPasswordSaltWithUserID :one
+SELECT user_password, user_salt
+FROM `user_base`
+WHERE user_id = ?;
+
 -- name: GetOneUserInfo :one
 SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token
 FROM `user_base`

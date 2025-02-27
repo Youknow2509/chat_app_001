@@ -128,6 +128,42 @@ func (q *Queries) GetOneUserInfoAdmin(ctx context.Context, userAccount string) (
 	return i, err
 }
 
+const getPasswordSalt = `-- name: GetPasswordSalt :one
+SELECT user_password, user_salt
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_account = ?
+`
+
+type GetPasswordSaltRow struct {
+	UserPassword string
+	UserSalt     string
+}
+
+func (q *Queries) GetPasswordSalt(ctx context.Context, userAccount string) (GetPasswordSaltRow, error) {
+	row := q.db.QueryRowContext(ctx, getPasswordSalt, userAccount)
+	var i GetPasswordSaltRow
+	err := row.Scan(&i.UserPassword, &i.UserSalt)
+	return i, err
+}
+
+const getPasswordSaltWithUserID = `-- name: GetPasswordSaltWithUserID :one
+SELECT user_password, user_salt
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_id = ?
+`
+
+type GetPasswordSaltWithUserIDRow struct {
+	UserPassword string
+	UserSalt     string
+}
+
+func (q *Queries) GetPasswordSaltWithUserID(ctx context.Context, userID string) (GetPasswordSaltWithUserIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getPasswordSaltWithUserID, userID)
+	var i GetPasswordSaltWithUserIDRow
+	err := row.Scan(&i.UserPassword, &i.UserSalt)
+	return i, err
+}
+
 const isRefreshTokenUser = `-- name: IsRefreshTokenUser :one
 SELECT user_is_refresh_token
 FROM ` + "`" + `user_base` + "`" + `

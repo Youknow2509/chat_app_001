@@ -75,3 +75,10 @@ type GetFriendRequestInput struct {
 	Limit  int    `json:"limit"`
 	Page   int    `json:"page"`
 }
+
+// User Change Password input request
+type UserChangePasswordInput struct {
+	UserID      string `json:"user_id"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}

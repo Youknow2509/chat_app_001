@@ -14,6 +14,7 @@ import (
 	"example.com/be/internal/model"
 	"example.com/be/internal/service"
 	"example.com/be/internal/utils"
+	"example.com/be/internal/utils/crypto"
 	"example.com/be/response"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -23,6 +24,43 @@ import (
 // struct
 type sUserInfo struct {
 	r *database.Queries
+}
+
+// UpdatePasswordForUserRequest implements service.IUserInfo.
+func (s *sUserInfo) UpdatePasswordForUserRequest(ctx context.Context, in *model.UserChangePasswordInput) (codeResult int, err error) {
+	// 1. check user exist
+	cUserReq, err := s.r.CheckUserBaseExistsWithID(ctx, in.UserID)
+	if err != nil {
+		global.Logger.Error("Err get user with id", zap.Error(err))
+		return response.ErrCodeUserNotFound, err
+	}
+	if cUserReq < 1 {
+		global.Logger.Error("User is not exist")
+		return response.ErrCodeUserNotFound, fmt.Errorf("user is not exist")
+	}
+	// 2. get password old
+	iPasswordSalt, err := s.r.GetPasswordSaltWithUserID(ctx, in.UserID)
+	if err != nil {
+		global.Logger.Error("Err get password salt", zap.Error(err))
+		return response.ErrCodeGetPasswordSalt, err
+	}
+	passwordSendHash := crypto.HashPasswordWithSalt(in.OldPassword, iPasswordSalt.UserSalt)
+	if passwordSendHash != iPasswordSalt.UserPassword {
+		global.Logger.Error("Old password is not correct")
+		return response.ErrCodePasswordIncorrect, errors.New("old password is not correct")
+	}
+	// 3. update password
+	go func() {
+		passworkNewHash := crypto.HashPasswordWithSalt(in.NewPassword, iPasswordSalt.UserSalt)
+        err = s.r.UpdatePasswordWithUserID(context.Background(), database.UpdatePasswordWithUserIDParams{
+            UserID: in.UserID,
+            UserPassword: passworkNewHash,
+        })
+        if err != nil {
+            fmt.Printf("Err when updating password for user %s \n", in.UserID)
+        }
+	}()
+	return response.ErrCodeSuccess, nil
 }
 
 // GetListFriendRequest implements service.IUserInfo.

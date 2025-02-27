@@ -36,6 +36,6 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouterPrivate.POST("/reject_friend_request", userInfoController.User.RejectFriendRequest)
 		userRouterPrivate.GET("/get_list_friend_request", userInfoController.User.GetListFriendRequet)
 		//
-		userRouterPrivate.POST("/update_password") // TODO
+		userRouterPrivate.POST("/update_password", userInfoController.User.UpdatePassword)
 	}
 }
