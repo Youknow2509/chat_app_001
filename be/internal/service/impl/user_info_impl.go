@@ -86,7 +86,7 @@ func (s *sUserInfo) GetListFriendRequest(ctx context.Context, in *model.GetFrien
 		return nil, err
 	}
 	// 3. write output
-	out = make([]model.GetListFriendRequestOutput, len(listFriendUser))
+	out = make([]model.GetListFriendRequestOutput, 0, len(listFriendUser))
 	for _, item := range listFriendUser {
 		var createdAt string
 		if item.CreatedAt.Valid {
