@@ -26,7 +26,7 @@ public class SignInActivity extends AppCompatActivity {
         String email = binding.editTextTextEmailAddress.getText().toString().trim();
         String password = binding.editTextTextPassword.getText().toString().trim();
 
-        if ("demo".equals(email) && "demo".equals(password)) {
+        if ("".equals(email) && "".equals(password)) {
             Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
             startActivity(intent);
             finish();

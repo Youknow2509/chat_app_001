@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -50,4 +49,14 @@ dependencies {
 
     // Customs
     implementation("com.makeramen:roundedimageview:2.3.0")
+    implementation("com.github.NaikSoftware:StompProtocolAndroid:1.6.6")
+    implementation("com.squareup.okhttp3:okhttp:3.12.1")
+//    implementation("com.android.support:recyclerview-v7:28.0.0")
+    // RxJava
+    implementation("io.reactivex.rxjava2:rxjava:2.2.5")
+    implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.5.0")
+    implementation("com.squareup.retrofit2:adapter-rxjava2:2.5.0")
+    implementation("com.squareup.retrofit2:retrofit:2.5.0")
+
 }

@@ -1,8 +1,11 @@
 package com.example.chatapp.activities;
 
+import static android.content.ContentValues.TAG;
+
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,6 +17,7 @@ import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.User;
 import com.example.chatapp.utilities.Constants;
 import com.example.chatapp.utilities.PreferenceManager;
+import com.example.chatapp.utilities.StompClientManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +26,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.HashMap;
+
+import ua.naiksoftware.stomp.Stomp;
+import ua.naiksoftware.stomp.StompClient;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -35,10 +42,13 @@ public class ChatActivity extends AppCompatActivity {
     private Boolean isReceiverAvailable = false;
 
     private String id_client_test = "0";
+    private StompClient mStompClient = StompClientManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        mStompClient.send("/app/chats", "Hello from Android!").subscribe();
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();
@@ -50,11 +60,13 @@ public class ChatActivity extends AppCompatActivity {
     private void init() {
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatMessages = new ArrayList<>();
+
         chatAdapter = new ChatAdapter(
                 chatMessages,
                 receiverUser.image,
                 preferenceManager.getString(Constants.KEY_USER_ID)
         );
+
         binding.chatRecycleView.setAdapter(chatAdapter);
         addSampleMessages();
     }
