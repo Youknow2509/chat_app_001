@@ -9,6 +9,18 @@ type Config struct {
 	SendGrid SendGridSetting `mapstructure:"send_grid"`
 	RabbitMQ RabbitMQSetting `mapstructure:"rabbitmq"`
 	Jwt      JwtSetting      `mapstructure:"jwt"`
+	Kafka    KafkaSetting    `mapstructure:"kafka"`
+}
+
+// kafka settings
+type KafkaSetting struct {
+	//	kafak:
+	//	  host: 127.0.0.1
+	//	  port_internal: 9092
+	//	  port_external: 9094
+	Host         string `mapstructure:"host"`
+	PortInternal int    `mapstructure:"port_internal"`
+	PortExternal int    `mapstructure:"port_external"`
 }
 
 // rabbit mq struct settings

@@ -43,9 +43,10 @@ func (s *sUserLogin) blockToken(cUserID string) {
 		}
 		for _, accessToken := range listAccessTokenValid {
 			if global.Rdb.Del(context.Background(), accessToken.CacheKey).Err() != nil {
-				fmt.Printf("Err when deleting cache access token %s\n", accessToken.CacheKey)
+				global.Logger.Error(fmt.Sprintf("Err when deleting cache access token %s\n", accessToken.CacheKey))
 			}
 		}
+		global.Logger.Info(fmt.Sprintf("Deleted all access tokens with user ID %s\n", cUserID))
 	}()
 	// block refresh token
 	go func() {
@@ -59,11 +60,14 @@ func (s *sUserLogin) blockToken(cUserID string) {
 				global.Logger.Error("Err when blocking refresh token with user ID ", zap.String("userID", cUserID))
 			}
 		}
+		global.Logger.Info(fmt.Sprintf("Blocked all refresh tokens with user ID %s\n", cUserID))
 	}()
 	// block user refresh token
 	go func() {
 		if s.r.RefreshTokenUserOff(context.Background(), cUserID) != nil {
 			global.Logger.Error("Err off refresh token user ", zap.String("idUser", cUserID))
+		} else {
+			global.Logger.Info("Off refresh token user " + cUserID)
 		}
 	}()
 }
@@ -123,10 +127,10 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 		// 5. Save handle forpassword in cache
 		go func() {
 			if global.Rdb.Set(
-				ctx, 
-				key, 
-				newPassword, 
-				time.Duration(consts.TIME_BLOCK_FORGOT_PASSWORD_REQUEST) * time.Hour,
+				ctx,
+				key,
+				newPassword,
+				time.Duration(consts.TIME_BLOCK_FORGOT_PASSWORD_REQUEST)*time.Hour,
 			).Err() != nil {
 				fmt.Printf("Err when saving cache for forgot password: %v\n", err)
 			} else {

@@ -4,13 +4,15 @@ import (
 	"fmt"
 
 	"example.com/be/global"
+	"example.com/be/internal/consts"
 	"github.com/gin-gonic/gin"
 )
 
 // Run all initialization
 func Run() *gin.Engine {
 	// load configuration
-	LoadConfig()
+	// LoadConfig() // Enable when dev
+	LoadConfigProd() // Enable when deloy 
 	fmt.Println("@@@ Loader configuration")
 
 	// initialize logger
@@ -33,6 +35,9 @@ func Run() *gin.Engine {
 	// connect to redis
 	InitRedis()
 	global.Logger.Info("Redis initialized")
+
+	// fix kafka TCP
+	consts.TCP_KAFKA = fmt.Sprintf("%s:%d", global.Config.Kafka.Host, global.Config.Kafka.PortExternal)
 
 	// connect to Router
 	r := InitRouter()

@@ -18,7 +18,7 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouterPublic.POST("/login", account.Login.Login)
 		userRouterPublic.POST("/verify_account", account.Login.VerifyOTP)
 		userRouterPublic.POST("/upgrade_password_register", account.Login.UpgradePasswordRegister)
-		userRouterPublic.POST("/logout") // TODO
+		userRouterPublic.POST("/logout", account.Login.Logout) // TODO
 		userRouterPublic.POST("/refresh_token", account.Login.RefreshToken) 
 		userRouterPublic.POST("/forgot_password", account.Login.ForgotPassword)
 	}

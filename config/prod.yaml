@@ -1,0 +1,55 @@
+server:
+  port: 8082
+  mode: "dev" # prod
+
+mysql:
+  host: mysql
+  port: 3306
+  username: root
+  password: root123
+  dbname: go_back_end
+  maxIdleConns: 10
+  maxOpenConns: 100
+  connMaxLifetime: 3600
+
+logger:
+  level: debug
+  file_log_name: "./storages/log/dev.001.log"
+  max_size: 500
+  max_backups: 3
+  max_age: 30
+  compress: true
+
+redis:
+  host: redis
+  port: 6379
+  password: 
+  db: 0
+  pool_size: 10
+
+kafka:
+  host: kafka-0
+  port_internal: 9092
+  port_external: 9094
+
+kafka_ui:
+  host: 127.0.0.1
+  port: 8083
+
+smtp:
+  host: smtp.gmail.com
+  port: 587
+  username: 
+  password: 
+
+send_grid:
+  api_key: ""
+
+rabbitmq:
+  url_rb_d: ""
+
+jwt:
+  token_hour_lifespan: 1
+  jwt_expiration: 8h
+  api_secret: "xxx.yyy.zzz"
+  jwt_refresh_expired: 7 # days

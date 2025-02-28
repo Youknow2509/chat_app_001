@@ -26,6 +26,7 @@ func InitRedis() {
 	// Check connection
 	_, err := rdb.Ping(ctx).Result()
 	if err != nil {
+		fmt.Printf("connection failed to | address:: %s | Password:: %s | Database:: %d", r.Host + ":" + strconv.Itoa(r.Port), r.Password, r.Database)
 		global.Logger.Error("Failed to connect to Redis, error: ", zap.Error(err))
 		panic(err)
 	}

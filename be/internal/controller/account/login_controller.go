@@ -188,3 +188,17 @@ func (cU *cUserLogin) ForgotPassword(c *gin.Context) {
 
     response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
+
+// @Summary      Logout
+// @Description  Logout
+// @Tags         accounts management
+// @Accept       json
+// @Produce      json
+// @Param        payload body model.RefreshTokenInput true "payload"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/logout [post]
+func (cU *cUserLogin) Logout(c *gin.Context) {
+	// TODO: implement logout
+    response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}

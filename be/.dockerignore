@@ -1,0 +1,6 @@
+sql/
+test/
+environment/
+*.git
+*.md
+**/*.log

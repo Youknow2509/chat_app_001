@@ -27,8 +27,8 @@ redis:
   db: 0
   pool_size: 10
 
-kafak:
-  host: 127.0.0.1
+kafka:
+  host: localhost
   port_internal: 9092
   port_external: 9094
 

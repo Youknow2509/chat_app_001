@@ -24,8 +24,11 @@ func InitMysqlC() {
 	var s = fmt.Sprintf(dsn, m.Username, m.Password, m.Host, m.Port, m.Dbname)
 
 	db, err := sql.Open("mysql", s)
-
-	checkErrorPanicC(err, "SQLC connection failed")
+	if err != nil {
+		global.Logger.Error("SQLC connection failed to " + s + ": " + err.Error())
+		panic(err)
+	}
+	// checkErrorPanicC(err, "SQLC connection failed")
 
 	global.Logger.Info("SQLC connection successful")
 	global.Mdbc = db

@@ -15,6 +15,7 @@ Chat APP
  - /validateToken <- true  [cmp]
  - /validateRefreshToken <- true [cmp]
  - /refreshToken
+ - /logout 
 2. User service /user
  - /getUserInfo (dùng token) -> get full
  - /findUser/{email} (dùng token) -> tên, email, ảnh

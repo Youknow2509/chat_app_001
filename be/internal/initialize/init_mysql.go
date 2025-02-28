@@ -30,8 +30,12 @@ func InitMysql() {
 	db, err := gorm.Open(mysql.Open(s), &gorm.Config{
 		// SkipDefaultTransaction: false,
 	})
+	if err != nil {
+		global.Logger.Error("MySQL connection failed to " + s + ": " + err.Error())
+		panic(err)
+	}
 
-	checkErrorPanic(err, "MySQL connection failed")
+	// checkErrorPanic(err, "MySQL connection failed")
 
 	global.Logger.Info("MySQL connection successful")
 	global.Mdb = db

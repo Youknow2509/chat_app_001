@@ -48,8 +48,13 @@ gradle
 ./back_end/environment/volume_docker/
 ./back_end/environment/data/
 ./back_end/environment/init/
+environment/data/
+environment/init/
 
 # Enviroment key and config
 **/.env
+
+# log
+**/*.log
 
 

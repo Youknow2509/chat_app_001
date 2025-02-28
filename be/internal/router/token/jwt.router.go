@@ -19,10 +19,6 @@ func (jtk *JwtTokenRouter) InitTokenRouter(Router *gin.RouterGroup) {
 		jwtRouterPublic.POST("/create_refresh_token", tokenController.Jwt.CreateRefreshToken)
 		// token validate
 		jwtRouterPublic.POST("/valid_token", tokenController.Jwt.JwtValidToken)
-		// token refresh
-		jwtRouterPublic.POST("/refreshToken") // TODO
-		// handle logout 
-		jwtRouterPublic.POST("/logout") // TODO
 	}
 
 	// private router

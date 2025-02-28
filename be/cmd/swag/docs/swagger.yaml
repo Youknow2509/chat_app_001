@@ -902,6 +902,32 @@ paths:
       summary: Login user
       tags:
       - accounts management
+  /v1/user/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.RefreshTokenInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Logout
+      tags:
+      - accounts management
   /v1/user/refresh_token:
     post:
       consumes:
