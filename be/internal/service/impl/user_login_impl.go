@@ -24,6 +24,7 @@ import (
 	"example.com/be/response"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 // struct
@@ -31,11 +32,205 @@ type sUserLogin struct {
 	r *database.Queries
 }
 
+// help function block token user with id
+func (s *sUserLogin) blockToken(cUserID string) {
+	// block access tokens
+	go func() {
+		listAccessTokenValid, err := s.r.GetValidAccessTokensWithUserID(context.Background(), cUserID)
+		if err != nil {
+			global.Logger.Error("Err when getting valid access tokens with user ID ", zap.String("userID", cUserID))
+			return
+		}
+		for _, accessToken := range listAccessTokenValid {
+			if global.Rdb.Del(context.Background(), accessToken.CacheKey).Err() != nil {
+				fmt.Printf("Err when deleting cache access token %s\n", accessToken.CacheKey)
+			}
+		}
+	}()
+	// block refresh token
+	go func() {
+		listRefreshTokenValid, err := s.r.GetValidRefreshTokensByUserID(context.Background(), cUserID)
+		if err != nil {
+			global.Logger.Error("Err when getting valid refresh tokens with user ID ", zap.String("userID", cUserID))
+			return
+		}
+		for _, refreshToken := range listRefreshTokenValid {
+			if s.r.ExecTokenUsedWithID(context.Background(), refreshToken) != nil {
+				global.Logger.Error("Err when blocking refresh token with user ID ", zap.String("userID", cUserID))
+			}
+		}
+	}()
+	// block user refresh token
+	go func() {
+		if s.r.RefreshTokenUserOff(context.Background(), cUserID) != nil {
+			global.Logger.Error("Err off refresh token user ", zap.String("idUser", cUserID))
+		}
+	}()
+}
+
 // new sUserLogin implementation interface for IUserLogin
 func NewSUserLogin(r *database.Queries) service.IUserLogin {
 	return &sUserLogin{
 		r: r,
 	}
+}
+
+// ForgotPassword implements service.IUserLogin.
+func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResult int, err error) {
+	// 1. check cache sended password
+	key := utils.GetForgetPasswordRequestKey(email)
+	dataCache, err := global.Rdb.Get(ctx, key).Result()
+	// Check handle get otp in redis - TODO handle utils...
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return response.ErrCodeGetCache, err
+	}
+	if dataCache != "" {
+		// TODO: check spam forgot password
+		return response.ErrCodeSuccess, nil
+	} else {
+		// 2. Check email exists in user_base
+		cUserID, err := s.r.GetIDUserWithEmail(ctx, email)
+		if err != nil {
+			return response.ErrCodeUserNotFound, err
+		}
+		if cUserID == "" {
+			global.Logger.Error("user not found with email ", zap.String("email", email))
+			return response.ErrCodeUserNotFound, errors.New("user not found")
+		}
+		// 3. Create new password
+		salt, err := crypto.GenerateSalt(16)
+		if err != nil {
+			return response.ErrCodeGeneratorSalt, err
+		}
+		newPassword := random.GeneratePassword(10)
+		newPassworkHash := crypto.HashPasswordWithSalt(newPassword, salt)
+		// 4. Update password in user_base
+		go func() {
+			err_p := s.r.UpdatePasswordAndSaltWithUserID(context.Background(), database.UpdatePasswordAndSaltWithUserIDParams{
+				UserPassword: newPassworkHash,
+				UserSalt:     salt,
+				UserID:       cUserID,
+			})
+			if err_p != nil {
+				fmt.Printf("Err when updating password for user %s: %v\n", cUserID, err_p)
+			}
+		}()
+		// 5. Send password to email
+		go func() {
+			email_to := email
+			err_s := sendto.NewKafkaSendTo().SendKafkaEmailOTP(consts.EMAIL_HOST, email_to, consts.SEND_EMAIL_OTP, newPassword)
+			if err_s != nil {
+				global.Logger.Error("Err when sending mail new password to ", zap.String("email", email_to))
+			}
+		}()
+		// 6. Block all all token login
+		go func() {
+			s.blockToken(cUserID)
+		}()
+		return response.ErrCodeSuccess, nil
+	}
+}
+
+// Logout implements service.IUserLogin.
+func (s *sUserLogin) Logout(ctx context.Context, in *model.LogoutInput) (codeResult int, err error) {
+	panic("unimplemented") // TODO: implement
+}
+
+// RefreshToken implements service.IUserLogin.
+func (s *sUserLogin) RefreshToken(ctx context.Context, in *model.RefreshTokenInput) (codeResult int, out model.LoginOutput, err error) {
+	// 1. validate access token
+	_, err = auth.ValidateTokenSubject(in.AccessToken)
+	err = utils.HandleTokenJwtErrWhenRefresh(err)
+	if err != nil {
+		global.Logger.Error(fmt.Sprintf("Validate access token failed: %v", err))
+		return response.ErrCodeAuthFailed, out, err
+	}
+	// get info user use block 
+	iUser, _ := s.r.GetMailUserWithAccessToken(ctx, in.AccessToken)
+	// 2. validate refresh token
+	_, err = auth.ValidateTokenSubject(in.RefreshToken)
+	if err != nil {
+		global.Logger.Error(fmt.Sprintf("Validate refresh token failed: %v", err))
+		// block user access
+		go s.blockToken(iUser.UserID)
+		return response.ErrCodeAuthFailed, out, err
+	}
+	// 3. check refresh token in db and update status token
+	ciRTK, err := s.r.GetRefreshToken(ctx, in.RefreshToken)
+	if err != nil {
+		return response.ErrCodeAuthFailed, out, err
+	}
+	if ciRTK.IsUsed == 0 { // token is used
+		// block user access
+		go s.blockToken(iUser.UserID)
+		return response.ErrCodeAuthFailed, out, errors.New("refresh token is used")
+	}
+	// 4. create new access token
+	subToken := utils.GenerateCliTokenUUID(ciRTK.UserID)
+	accessTokenNew, err := auth.CreateToken(subToken)
+	if err != nil {
+		return response.ErrCodeAuthFailed, out, err
+	}
+	// 5. create new refresh token
+	uuidRefreshToken := uuid.New().String()
+	refreshTokenNew, err := auth.CreateRefreshToken(uuidRefreshToken)
+	if err != nil {
+		return response.ErrCodeAuthFailed, out, err
+	}
+	// 6. save new refresh token in db and change status old refresh token
+	timeExRefreshtoken, err := time.ParseDuration(global.Config.Jwt.JWT_REFRESH_EXPIRED)
+	if global.Config.Jwt.JWT_REFRESH_EXPIRED == "" || err != nil {
+		timeExRefreshtoken = time.Hour * 24 * 7
+	}
+	go func() {
+		err1 := s.r.ExecTokenUsedWithID(context.Background(), ciRTK.ID)
+		if err1 != nil {
+			log.Println("Exec token used failed: ", err)
+		}
+		//
+		err2 := s.r.InsertRefreshToken(ctx, database.InsertRefreshTokenParams{
+			ID:           uuidRefreshToken,
+			UserID:       ciRTK.UserID,
+			RefreshToken: refreshTokenNew,
+			ExpiresAt:    time.Now().Add(timeExRefreshtoken),
+		})
+		if err2 != nil {
+			log.Println("Insert refresh token failed: ", err)
+		}
+	}()
+	// 7. save new access token in db and write to redis
+	timeExAccesstoken, err := time.ParseDuration(global.Config.Jwt.JWT_EXPIRATION)
+	if global.Config.Jwt.JWT_EXPIRATION == "" || err != nil {
+		timeExAccesstoken = time.Hour * 7
+	}
+	go func() {
+		err1 := s.r.InsertAccessToken(context.Background(), database.InsertAccessTokenParams{
+			ID:          uuid.New().String(),
+			UserID:      ciRTK.UserID,
+			CacheKey:    subToken,
+			AccessToken: accessTokenNew,
+			ExpiresAt:   time.Now().Add(timeExAccesstoken),
+		})
+		if err1 != nil {
+			log.Println("Insert token failed: ", err)
+		}
+		//
+		err2 := global.Rdb.Set(ctx, subToken, ciRTK.UserID, timeExAccesstoken).Err()
+		if err2 != nil {
+			log.Println("Set redis failed: ", err)
+		}
+	}()
+	// Create output
+	out = model.LoginOutput{
+		Token:        accessTokenNew,
+		RefreshToken: refreshTokenNew,
+		Message:      "success",
+	}
+	return response.ErrCodeSuccess, out, nil
 }
 
 // Login implements service.IUserLogin.

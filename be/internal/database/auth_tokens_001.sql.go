@@ -174,6 +174,83 @@ func (q *Queries) GetAccessTokenByUserID(ctx context.Context, userID string) ([]
 	return items, nil
 }
 
+const getMailUserWithAccessToken = `-- name: GetMailUserWithAccessToken :one
+SELECT 
+    ub.user_id,
+    ub.user_account
+FROM auth_tokens at JOIN user_base ub 
+    ON at.user_id = ub.user_id
+WHERE at.access_token = ?
+LIMIT 1
+`
+
+type GetMailUserWithAccessTokenRow struct {
+	UserID      string
+	UserAccount string
+}
+
+func (q *Queries) GetMailUserWithAccessToken(ctx context.Context, accessToken string) (GetMailUserWithAccessTokenRow, error) {
+	row := q.db.QueryRowContext(ctx, getMailUserWithAccessToken, accessToken)
+	var i GetMailUserWithAccessTokenRow
+	err := row.Scan(&i.UserID, &i.UserAccount)
+	return i, err
+}
+
+const getUserIDWithAccessToken = `-- name: GetUserIDWithAccessToken :one
+SELECT 
+    id,
+    user_id
+FROM auth_tokens WHERE access_token = ? LIMIT 1
+`
+
+type GetUserIDWithAccessTokenRow struct {
+	ID     string
+	UserID string
+}
+
+func (q *Queries) GetUserIDWithAccessToken(ctx context.Context, accessToken string) (GetUserIDWithAccessTokenRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserIDWithAccessToken, accessToken)
+	var i GetUserIDWithAccessTokenRow
+	err := row.Scan(&i.ID, &i.UserID)
+	return i, err
+}
+
+const getValidAccessTokensWithUserID = `-- name: GetValidAccessTokensWithUserID :many
+SELECT 
+    id,
+    cache_key
+FROM auth_tokens
+WHERE expires_at > CURRENT_TIMESTAMP AND user_id = ?
+`
+
+type GetValidAccessTokensWithUserIDRow struct {
+	ID       string
+	CacheKey string
+}
+
+func (q *Queries) GetValidAccessTokensWithUserID(ctx context.Context, userID string) ([]GetValidAccessTokensWithUserIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getValidAccessTokensWithUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetValidAccessTokensWithUserIDRow
+	for rows.Next() {
+		var i GetValidAccessTokensWithUserIDRow
+		if err := rows.Scan(&i.ID, &i.CacheKey); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertAccessToken = `-- name: InsertAccessToken :exec
 INSERT INTO auth_tokens (
     id, 

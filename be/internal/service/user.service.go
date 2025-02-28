@@ -13,6 +13,9 @@ type (
 		Register(ctx context.Context, in *model.RegisterInput) (codeResult int, err error)
 		VerifyOTP(ctx context.Context, in *model.VerifyInput) (out model.VerifyOTPOutput, err error)
 		UpdatePasswordRegister(ctx context.Context, in *model.UpdatePasswordInput) (userId int, err error)
+		Logout(ctx context.Context, in *model.LogoutInput) (codeResult int, err error)
+		RefreshToken(ctx context.Context, in *model.RefreshTokenInput) (codeResult int, out model.LoginOutput, err error)
+		ForgotPassword(ctx context.Context, email string) (codeResult int, err error)
 	}
 
 	IUserInfo interface { // handle with token

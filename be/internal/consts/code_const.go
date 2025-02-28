@@ -25,7 +25,12 @@ const (
 const (
 	KEY_OTP_VERIFY = "otp_verify"
 	KEY_KAFKA_NOTIFY = "device_notify"
+	KEY_NEW_PASSWORD_OTP = "new_password_user"
+
 	TOPIC_SERVICE_SEND_MAIL_OTP = "go-service-send-mail-otp"
 	TOPIC_SERVICE_NOTIFICATION = "user-request-notification"
+	TOPIC_SERVICE_SEND_NEW_PASSWORD = "go-service-send-mail-new-password"
+
+
 	TCP_KAFKA = "localhost:9094"
 )

@@ -8,6 +8,21 @@ SELECT
     expires_at
 FROM auth_tokens WHERE access_token = ? LIMIT 1;
 
+-- name: GetUserIDWithAccessToken :one
+SELECT 
+    id,
+    user_id
+FROM auth_tokens WHERE access_token = ? LIMIT 1;
+
+-- name: GetMailUserWithAccessToken :one
+SELECT 
+    ub.user_id,
+    ub.user_account
+FROM auth_tokens at JOIN user_base ub 
+    ON at.user_id = ub.user_id
+WHERE at.access_token = ?
+LIMIT 1;
+
 -- name: GetAccessTokenByUserID :many
 SELECT 
     id,
@@ -38,6 +53,13 @@ INSERT INTO auth_tokens (
     expires_at
 )
 VALUES (?, ?, ?, ?, now(), ?);
+
+-- name: GetValidAccessTokensWithUserID :many
+SELECT 
+    id,
+    cache_key
+FROM auth_tokens
+WHERE expires_at > CURRENT_TIMESTAMP AND user_id = ?;
 
 -- name: DeleteAccessToken :exec
 DELETE FROM auth_tokens WHERE access_token = ?;

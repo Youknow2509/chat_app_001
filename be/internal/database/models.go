@@ -151,8 +151,11 @@ type RefreshToken struct {
 	ID           string
 	UserID       string
 	RefreshToken string
-	CreatedAt    sql.NullTime
-	ExpiresAt    time.Time
+	// True 0, False 1
+	IsUsed    int32
+	ExpiresAt time.Time
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
 }
 
 type UserBase struct {

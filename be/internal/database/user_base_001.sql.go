@@ -76,6 +76,20 @@ func (q *Queries) GetIDUserWithEmail(ctx context.Context, userAccount string) (s
 	return user_id, err
 }
 
+const getMailWithIDUser = `-- name: GetMailWithIDUser :one
+SELECT user_account
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_id = ?
+LIMIT 1
+`
+
+func (q *Queries) GetMailWithIDUser(ctx context.Context, userID string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getMailWithIDUser, userID)
+	var user_account string
+	err := row.Scan(&user_account)
+	return user_account, err
+}
+
 const getOneUserInfo = `-- name: GetOneUserInfo :one
 SELECT user_id, user_account, user_password, user_salt, user_is_refresh_token
 FROM ` + "`" + `user_base` + "`" + `
@@ -237,6 +251,22 @@ WHERE user_account = ?
 
 func (q *Queries) RefreshTokenUserOn(ctx context.Context, userAccount string) error {
 	_, err := q.db.ExecContext(ctx, refreshTokenUserOn, userAccount)
+	return err
+}
+
+const updatePasswordAndSaltWithUserID = `-- name: UpdatePasswordAndSaltWithUserID :exec
+UPDATE ` + "`" + `user_base` + "`" + `
+SET user_password = ?, user_salt = ? WHERE user_id = ?
+`
+
+type UpdatePasswordAndSaltWithUserIDParams struct {
+	UserPassword string
+	UserSalt     string
+	UserID       string
+}
+
+func (q *Queries) UpdatePasswordAndSaltWithUserID(ctx context.Context, arg UpdatePasswordAndSaltWithUserIDParams) error {
+	_, err := q.db.ExecContext(ctx, updatePasswordAndSaltWithUserID, arg.UserPassword, arg.UserSalt, arg.UserID)
 	return err
 }
 

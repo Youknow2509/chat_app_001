@@ -1,3 +1,10 @@
+
+-- name: GetMailWithIDUser :one
+SELECT user_account
+FROM `user_base`
+WHERE user_id = ?
+LIMIT 1;
+
 -- name: GetPasswordSalt :one
 SELECT user_password, user_salt
 FROM `user_base`
@@ -47,6 +54,10 @@ INSERT INTO `user_base` (
 -- name: UpdatePasswordWithUserID :exec
 UPDATE `user_base` 
 SET user_password = ? WHERE user_id = ?;
+
+-- name: UpdatePasswordAndSaltWithUserID :exec
+UPDATE `user_base`
+SET user_password = ?, user_salt = ? WHERE user_id = ?;
 
 -- name: LoginUserBase :exec
 UPDATE `user_base`

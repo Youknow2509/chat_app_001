@@ -47,13 +47,37 @@ func (q *Queries) DeleteRefreshTokenByUserID(ctx context.Context, userID string)
 	return err
 }
 
+const execTokenUsed = `-- name: ExecTokenUsed :exec
+UPDATE refresh_tokens
+SET is_used = 0
+WHERE refresh_token = ?
+`
+
+func (q *Queries) ExecTokenUsed(ctx context.Context, refreshToken string) error {
+	_, err := q.db.ExecContext(ctx, execTokenUsed, refreshToken)
+	return err
+}
+
+const execTokenUsedWithID = `-- name: ExecTokenUsedWithID :exec
+UPDATE refresh_tokens
+SET is_used = 0
+WHERE id = ?
+`
+
+func (q *Queries) ExecTokenUsedWithID(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, execTokenUsedWithID, id)
+	return err
+}
+
 const getRefreshToken = `-- name: GetRefreshToken :one
 SELECT 
     id,
     refresh_token,
     user_id,
+    is_used,
     expires_at,
-    created_at
+    created_at,
+    updated_at
 FROM refresh_tokens WHERE refresh_token = ?
 `
 
@@ -61,8 +85,10 @@ type GetRefreshTokenRow struct {
 	ID           string
 	RefreshToken string
 	UserID       string
+	IsUsed       int32
 	ExpiresAt    time.Time
 	CreatedAt    sql.NullTime
+	UpdatedAt    sql.NullTime
 }
 
 func (q *Queries) GetRefreshToken(ctx context.Context, refreshToken string) (GetRefreshTokenRow, error) {
@@ -72,80 +98,120 @@ func (q *Queries) GetRefreshToken(ctx context.Context, refreshToken string) (Get
 		&i.ID,
 		&i.RefreshToken,
 		&i.UserID,
+		&i.IsUsed,
 		&i.ExpiresAt,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getRefreshTokenByID = `-- name: GetRefreshTokenByID :one
-SELECT 
-    id,
-    refresh_token,
-    user_id,
-    expires_at,
-    created_at
+SELECT id, user_id, refresh_token, is_used, expires_at, created_at, updated_at
 FROM refresh_tokens WHERE id = ?
 `
 
-type GetRefreshTokenByIDRow struct {
-	ID           string
-	RefreshToken string
-	UserID       string
-	ExpiresAt    time.Time
-	CreatedAt    sql.NullTime
-}
-
-func (q *Queries) GetRefreshTokenByID(ctx context.Context, id string) (GetRefreshTokenByIDRow, error) {
+func (q *Queries) GetRefreshTokenByID(ctx context.Context, id string) (RefreshToken, error) {
 	row := q.db.QueryRowContext(ctx, getRefreshTokenByID, id)
-	var i GetRefreshTokenByIDRow
+	var i RefreshToken
 	err := row.Scan(
 		&i.ID,
-		&i.RefreshToken,
 		&i.UserID,
+		&i.RefreshToken,
+		&i.IsUsed,
 		&i.ExpiresAt,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getRefreshTokenByUserID = `-- name: GetRefreshTokenByUserID :many
-SELECT 
-    id,
-    refresh_token,
-    user_id,
-    expires_at,
-    created_at
+SELECT id, user_id, refresh_token, is_used, expires_at, created_at, updated_at
 FROM refresh_tokens WHERE user_id = ?
 `
 
-type GetRefreshTokenByUserIDRow struct {
-	ID           string
-	RefreshToken string
-	UserID       string
-	ExpiresAt    time.Time
-	CreatedAt    sql.NullTime
-}
-
-func (q *Queries) GetRefreshTokenByUserID(ctx context.Context, userID string) ([]GetRefreshTokenByUserIDRow, error) {
+func (q *Queries) GetRefreshTokenByUserID(ctx context.Context, userID string) ([]RefreshToken, error) {
 	rows, err := q.db.QueryContext(ctx, getRefreshTokenByUserID, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetRefreshTokenByUserIDRow
+	var items []RefreshToken
 	for rows.Next() {
-		var i GetRefreshTokenByUserIDRow
+		var i RefreshToken
 		if err := rows.Scan(
 			&i.ID,
-			&i.RefreshToken,
 			&i.UserID,
+			&i.RefreshToken,
+			&i.IsUsed,
 			&i.ExpiresAt,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getStatusRefreshToken = `-- name: GetStatusRefreshToken :one
+SELECT is_used
+FROM refresh_tokens 
+WHERE refresh_token = ?
+LIMIT 1
+`
+
+func (q *Queries) GetStatusRefreshToken(ctx context.Context, refreshToken string) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getStatusRefreshToken, refreshToken)
+	var is_used int32
+	err := row.Scan(&is_used)
+	return is_used, err
+}
+
+const getStatusRefreshTokenWithID = `-- name: GetStatusRefreshTokenWithID :one
+SELECT is_used
+FROM refresh_tokens 
+WHERE id = ?
+LIMIT 1
+`
+
+func (q *Queries) GetStatusRefreshTokenWithID(ctx context.Context, id string) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getStatusRefreshTokenWithID, id)
+	var is_used int32
+	err := row.Scan(&is_used)
+	return is_used, err
+}
+
+const getValidRefreshTokensByUserID = `-- name: GetValidRefreshTokensByUserID :many
+SELECT 
+    id
+FROM refresh_tokens
+WHERE expires_at > CURRENT_TIMESTAMP 
+    AND is_used = 1
+    AND user_id = ?
+`
+
+func (q *Queries) GetValidRefreshTokensByUserID(ctx context.Context, userID string) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getValidRefreshTokensByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -162,8 +228,9 @@ INSERT INTO refresh_tokens (
     refresh_token,
     user_id,
     expires_at,
-    created_at
-) VALUES (?, ?, ?, ?, now())
+    created_at,
+    updated_at
+) VALUES (?, ?, ?, ?, now(), now())
 `
 
 type InsertRefreshTokenParams struct {

@@ -71,3 +71,21 @@ func GetBlockFriendRequestKey(from, to string) string {
 	key := fmt.Sprintf("friend_requested::from::%s::to::%s", from, to)
     return key
 }
+
+// handle token err 
+func HandleTokenJwtErrWhenRefresh(err error) error {
+	// expired token
+	if strings.Contains(err.Error(), "token is expired") {
+		fmt.Println("Token is expired")
+		return nil
+	}
+	
+	return err
+}
+
+/**
+ * Get key forget password request
+ */
+func GetForgetPasswordRequestKey(email string) string {
+	return fmt.Sprintf("forget_password::%s", email)
+}

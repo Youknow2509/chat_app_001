@@ -45,6 +45,7 @@ const (
 	ErrCodeAddUserInfo  = 90001
 	ErrCodeUserNotFound = 90002
 	ErrCodeDeleteCache  = 90003
+	ErrCodeGetCache     = 90004
 
 	// two factor authentication code
 	ErrCodeTwoFactorAuthSetupFailed = 9002
@@ -95,6 +96,7 @@ const (
 
 // message
 var msg = map[int]string{
+	ErrCodeGetCache:                 "get cache failed",
 	ErrCodeUpdatePassword:           "update password failed",
 	ErrCodePasswordIncorrect:        "password incorrect",
 	ErrCodeGetPasswordSalt:          "get password salt failed",

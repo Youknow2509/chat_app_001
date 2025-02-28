@@ -12,6 +12,11 @@ import (
 type kafka_send_mail struct {
 }
 
+// SendKafkaMailNewPassword implements ISendTo.
+func (k *kafka_send_mail) SendKafkaMailNewPassword(from string, to string, type_send int, data string) error {
+	panic("unimplemented")
+}
+
 // SendKafkaEmailOTP implements ISendTo.
 func (k *kafka_send_mail) SendKafkaEmailOTP(from string, to string, type_send int, data string) error {
 	body := make(map[string]interface{})
@@ -22,10 +27,10 @@ func (k *kafka_send_mail) SendKafkaEmailOTP(from string, to string, type_send in
 	body["data"] = data
 	// requestBody
 	requestBody, _ := json.Marshal(body)
-	
+
 	// create message in kafaka
 	msg := kafka.Message{
-		Key:   []byte(consts.KEY_OTP_VERIFY),
+		Key:   []byte(consts.KEY_NEW_PASSWORD_OTP),
 		Value: []byte(requestBody),
 		Time:  time.Now(),
 	}
