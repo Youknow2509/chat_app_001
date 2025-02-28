@@ -72,15 +72,17 @@ func GetBlockFriendRequestKey(from, to string) string {
     return key
 }
 
-// handle token err 
+// HandleTokenJwtErrWhenRefresh handles JWT token errors during refresh
 func HandleTokenJwtErrWhenRefresh(err error) error {
-	// expired token
-	if strings.Contains(err.Error(), "token is expired") {
-		fmt.Println("Token is expired")
-		return nil
-	}
-	
-	return err
+    if err == nil {
+        return nil
+    }
+
+    if strings.Contains(err.Error(), "token is expired") {
+        return nil
+    }
+
+    return err
 }
 
 /**

@@ -118,16 +118,31 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 			if err_p != nil {
 				fmt.Printf("Err when updating password for user %s: %v\n", cUserID, err_p)
 			}
+			global.Logger.Info("Created new password for user " + cUserID)
 		}()
-		// 5. Send password to email
+		// 5. Save handle forpassword in cache
+		go func() {
+			if global.Rdb.Set(
+				ctx, 
+				key, 
+				newPassword, 
+				time.Duration(consts.TIME_BLOCK_FORGOT_PASSWORD_REQUEST) * time.Hour,
+			).Err() != nil {
+				fmt.Printf("Err when saving cache for forgot password: %v\n", err)
+			} else {
+				global.Logger.Info("Saved handle for forgot password in cache with key " + key)
+			}
+		}()
+		// 6. Send password to email
 		go func() {
 			email_to := email
-			err_s := sendto.NewKafkaSendTo().SendKafkaEmailOTP(consts.EMAIL_HOST, email_to, consts.SEND_EMAIL_OTP, newPassword)
+			err_s := sendto.NewKafkaSendTo().SendKafkaMailNewPassword(consts.EMAIL_HOST, email_to, consts.SEND_EMAIL_OTP, newPassword)
 			if err_s != nil {
 				global.Logger.Error("Err when sending mail new password to ", zap.String("email", email_to))
 			}
+			global.Logger.Info("Sented new password to email " + email_to)
 		}()
-		// 6. Block all all token login
+		// 7. Block all all token login
 		go func() {
 			s.blockToken(cUserID)
 		}()
@@ -149,7 +164,7 @@ func (s *sUserLogin) RefreshToken(ctx context.Context, in *model.RefreshTokenInp
 		global.Logger.Error(fmt.Sprintf("Validate access token failed: %v", err))
 		return response.ErrCodeAuthFailed, out, err
 	}
-	// get info user use block 
+	// get info user use block
 	iUser, _ := s.r.GetMailUserWithAccessToken(ctx, in.AccessToken)
 	// 2. validate refresh token
 	_, err = auth.ValidateTokenSubject(in.RefreshToken)

@@ -92,10 +92,14 @@ const (
 	ErrCodeGetPasswordSalt           = 120010
 	ErrCodePasswordIncorrect         = 120011
 	ErrCodeUpdatePassword            = 120012
+	ErrCodeRefreshTokenFail          = 120013
+	ErrCodeForgotPasswordFail        = 120014
 )
 
 // message
 var msg = map[int]string{
+	ErrCodeForgotPasswordFail:       "Forgot password fail",
+	ErrCodeRefreshTokenFail:         "RefreshTokenFail",
 	ErrCodeGetCache:                 "get cache failed",
 	ErrCodeUpdatePassword:           "update password failed",
 	ErrCodePasswordIncorrect:        "password incorrect",

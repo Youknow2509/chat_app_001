@@ -92,6 +92,13 @@ definitions:
       user_password:
         type: string
     type: object
+  model.RefreshTokenInput:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
   model.RegisterInput:
     properties:
       verify_key:
@@ -784,6 +791,31 @@ paths:
       summary: Find user
       tags:
       - User Info
+  /v1/user/forgot_password:
+    post:
+      consumes:
+      - application/json
+      description: Forgot Password
+      parameters:
+      - description: Mail address
+        in: query
+        name: mail
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Forgot Password
+      tags:
+      - accounts management
   /v1/user/get_list_friend_request:
     get:
       consumes:
@@ -868,6 +900,32 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Login user
+      tags:
+      - accounts management
+  /v1/user/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: Refresh token for user
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.RefreshTokenInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Refresh token
       tags:
       - accounts management
   /v1/user/register:

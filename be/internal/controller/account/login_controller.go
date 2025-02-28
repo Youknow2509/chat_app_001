@@ -122,3 +122,69 @@ func (cU *cUserLogin) UpgradePasswordRegister(c *gin.Context) {
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, out)
 }
+
+// @Summary      Refresh token
+// @Description  Refresh token for user
+// @Tags         accounts management
+// @Accept       json
+// @Produce      json
+// @Param        payload body model.RefreshTokenInput true "payload"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/refresh_token [post]
+func (cU *cUserLogin) RefreshToken(c *gin.Context) {
+	var parameters model.RefreshTokenInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+        response.ErrorResponse(c, response.ErrCodeBindVerifyInput, err.Error())
+        return
+    }
+	// call to service
+	codeRes, out, err := service.UserLogin().RefreshToken(c, &parameters)
+    if err != nil {
+        global.Logger.Error("Error refreshing token", zap.Error(err))
+        response.ErrorResponse(c, response.ErrCodeRefreshTokenFail, err.Error())
+        return
+    }
+
+	if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+        return
+	}
+	
+    response.SuccessResponse(c, response.ErrCodeSuccess, out)
+}
+
+
+// @Summary      Forgot Password
+// @Description  Forgot Password
+// @Tags         accounts management
+// @Accept       json
+// @Produce      json
+// @Param        mail query string true "Mail address"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/forgot_password [post]
+func (cU *cUserLogin) ForgotPassword(c *gin.Context) {
+	// query email address
+	mail := c.Query("mail")
+    if mail == "" {
+        response.ErrorResponse(c, response.ErrCodeBadRequest, "Email is required")
+        return
+    }
+
+    // call to service
+    codeRes, err := service.UserLogin().ForgotPassword(c, mail)
+    if err != nil {
+        global.Logger.Error("Error forgot password", zap.Error(err))
+        response.ErrorResponse(c, response.ErrCodeForgotPasswordFail, err.Error())
+        return
+    }
+
+    if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error forgot password", zap.Error(err))
+        response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+        return
+    }
+
+    response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}

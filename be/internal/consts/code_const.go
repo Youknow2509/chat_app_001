@@ -8,6 +8,7 @@ const (
 	TIME_2FA_OTP_REGISTER int = 10
 	TIME_SAVE_CACHE_OFTEN_USE int = 10
 	TIME_BLOCK_CREATE_FRIEND_REQUEST int = 7 // 7h
+	TIME_BLOCK_FORGOT_PASSWORD_REQUEST int = 12 // 12h
 
 	EMAIL_HOST = "lytranvinh.work@gmail.com"
 
