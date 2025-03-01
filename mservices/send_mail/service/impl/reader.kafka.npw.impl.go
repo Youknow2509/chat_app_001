@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"example.com/send_mail/global"
@@ -22,14 +21,14 @@ func (rki *ReaderKafkaNewPassWordImpl) ReadMessageAndHandle(ctx context.Context)
 	for {
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
-			log.Fatal("failed to read message:", err)
+			fmt.Println("failed to read message:", err)
 			break
 		}
 		
 		key := strings.TrimSpace(string(m.Key))
 		var value model.MessageMail
 		if err := json.Unmarshal(m.Value, &value); err != nil {
-			log.Fatal("failed to unmarshal message:", err)
+			fmt.Println("failed to unmarshal message:", err)
 			continue
 		}
 
@@ -39,15 +38,15 @@ func (rki *ReaderKafkaNewPassWordImpl) ReadMessageAndHandle(ctx context.Context)
 		implServiceSendMail := NewSendMailImpl()
 		service.NewSendMailService(implServiceSendMail)
 		sSendMail := service.GetSendMailService()
-		err = sSendMail.SendMailOTP(value)
+		err = sSendMail.SendMailNewPassword(value)
 		if err != nil {
-			log.Fatal("failed to send mail:", err)
+			fmt.Println("failed to send mail:", err)
 			continue
 		}
 	}
 	
 	if err := r.Close(); err != nil {
-		log.Fatal("failed to close reader:", err)
+		fmt.Println("failed to close reader:", err)
 	}
 }
 

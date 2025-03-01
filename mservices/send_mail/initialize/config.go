@@ -11,7 +11,7 @@ import (
 func LoadConfig() {
 	viper := viper.New()
 	viper.AddConfigPath("./config") // paht to config
-	viper.SetConfigName("prod")    // file name
+	viper.SetConfigName("prod")    // file name - TODO: deploy "prod"
 	viper.SetConfigType("yaml")     // type file
 
 	// read config
