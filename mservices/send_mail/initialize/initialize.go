@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"fmt"
+
 	"example.com/send_mail/global"
 	"example.com/send_mail/utils/kafka_reader"
 )
@@ -12,7 +13,7 @@ func Initialize() {
 	global.ReaderOTPAuth = kafkareader.GetKafkaReader(
 		global.Config.Kafka.TopicMailOTP, 
 		global.Config.Kafka.BootstraperSeverMail, 
-		"gr-01",
+		"mail-service-group",
 	)
 
 	fmt.Println("Initialize Service Reader Mail From Kafka Server is running")
@@ -21,13 +22,13 @@ func Initialize() {
 	global.ReaderNewPassword = kafkareader.GetKafkaReader(
 		global.Config.Kafka.TopicMailNewPassword,
 		global.Config.Kafka.BootstraperSeverMail,
-		"gr-02",
+		"mail-service-group",
 	)
 
 	// init reader notify user kafaka
 	global.ReaderNotifyUser = kafkareader.GetKafkaReader(
 		global.Config.Kafka.TopicNotifyUser,
 		global.Config.Kafka.BootstraperSeverMail,
-		"gr-03",
+		"mail-service-group",
 	)
 }

@@ -15,6 +15,6 @@ type SendGridSetting struct {
 type KafkaSetting struct {
 	BootstraperSeverMail string `mapstructure:"bootstrap_server_mail"`
 	TopicMailOTP         string `mapstructure:"topic_mail_otp"`
-	TopicNotifyUser      string `mapstructure:"topic_notify_user"`
-	TopicMailNewPassword string `mapstructure:"topic_new_password"`
+	TopicNotifyUser      string `mapstructure:"topic_notifications_user"`
+	TopicMailNewPassword string `mapstructure:"topic_mail_new_password"`
 }

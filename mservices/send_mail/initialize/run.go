@@ -2,10 +2,11 @@ package initialize
 
 import (
 	"fmt"
+	"sync"
 )
 
 // function run
-func Run() {
+func Run(wg *sync.WaitGroup) {
 	fmt.Println("Service is running")
 
 	// Load configuration
@@ -15,5 +16,5 @@ func Run() {
 	Initialize()
 	
 	// Read and process messages from Kafka
-	ReaderAndProcess()
+	ReaderAndProcess(wg)
 }
