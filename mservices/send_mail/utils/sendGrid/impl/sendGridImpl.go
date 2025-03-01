@@ -13,122 +13,87 @@ import (
 )
 
 const (
-	nameMailTemplate = "otp-auth.html"
+	nameMailOTPTemplate         = "otp-auth.html"
+	nameMailNewPasswordTemplate = "auth-new-password.html"
 )
 
-// struct
-type SendGridImpl struct {
-}
+type SendGridImpl struct{}
 
-// SendTemplateEmailOTP implements sendgrid.ISendMail.
-func (s *SendGridImpl) SendTemplateEmailOTP(from string, to string, data string) error {
-	// create data from template
-	dataTemplate := map[string]interface{}{
-		"otp": data,
-	}
-	// create mail html template
-	mailTemplateHtml, err := getMailTemplate(nameMailTemplate, dataTemplate)
-	if err != nil {
-		return err
-	}
-	// create mail
-	mail := &isendgrid.Mail{
-		From: isendgrid.EmailAddress{
-			Address: from,
-			Name:    "Ly Tran Vinh",
-		},
-		To:               to,
-		Subject:          "OTP Verification",
-		PlainTextContent: "",
-		HtmlContent:      mailTemplateHtml,
-	}
-	// send mail
-	err = sendMail(*mail)
+func (s *SendGridImpl) SendTemplateEmailNewPasswork(from, to, data string) error {
+	mailTemplateHtml, err := getMailTemplate(nameMailNewPasswordTemplate, map[string]interface{}{"new_password": data})
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return sendMail(isendgrid.Mail{
+		From:        isendgrid.EmailAddress{Address: from, Name: "Ly Tran Vinh"},
+		To:          to,
+		Subject:     "New Password",
+		HtmlContent: mailTemplateHtml,
+	})
 }
 
-// SendText implements sendgrid.ISendMail.
-func (s *SendGridImpl) SendText(from string, to string, data string) error {
-	mail := &isendgrid.Mail{
-		From: isendgrid.EmailAddress{
-			Address: from,
-			Name:    "Ly Tran Vinh",
-		},
+func (s *SendGridImpl) SendTemplateEmailOTP(from, to, data string) error {
+	mailTemplateHtml, err := getMailTemplate(nameMailOTPTemplate, map[string]interface{}{"otp": data})
+	if err != nil {
+		return err
+	}
+
+	return sendMail(isendgrid.Mail{
+		From:        isendgrid.EmailAddress{Address: from, Name: "Ly Tran Vinh"},
+		To:          to,
+		Subject:     "OTP Verification",
+		HtmlContent: mailTemplateHtml,
+	})
+}
+
+func (s *SendGridImpl) SendText(from, to, data string) error {
+	return sendMail(isendgrid.Mail{
+		From:             isendgrid.EmailAddress{Address: from, Name: "Ly Tran Vinh"},
 		To:               to,
 		Subject:          "OTP Verification",
 		PlainTextContent: fmt.Sprintf("Your OTP is: %s, Please enter it to verify your account.", data),
-		HtmlContent:      "",
-	}
-
-	err := sendMail(*mail)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
-// new SendGridImpl
 func NewSendGridImpl() isendgrid.ISendGridMail {
 	return &SendGridImpl{}
 }
 
-// Help get template email html
-func getMailTemplate(
-	nameMailTemplate string,
-	dataTemplate map[string]interface{},
-) (string, error) {
+func getMailTemplate(templateName string, data map[string]interface{}) (string, error) {
 	htmlTemplate := new(bytes.Buffer)
-
-	t := template.Must(
-		template.New(nameMailTemplate).ParseFiles("html-template/mail/" + nameMailTemplate))
-
-	err := t.Execute(htmlTemplate, dataTemplate)
+	t, err := template.New(templateName).ParseFiles("html-template/mail/" + templateName)
 	if err != nil {
+		return "", err
+	}
+
+	if err := t.Execute(htmlTemplate, data); err != nil {
 		return "", err
 	}
 	return htmlTemplate.String(), nil
 }
 
-// Build message in SendGrid
 func BuildMessageInSendGird(m isendgrid.Mail) *mail.SGMailV3 {
-	from := mail.NewEmail(m.From.Name, m.From.Address)
-
-	subject := m.Subject
-	to := mail.NewEmail("", m.To)
-	plainTextContent := m.PlainTextContent
-	htmlContent := m.HtmlContent
-
 	return mail.NewSingleEmail(
-		from,
-		subject,
-		to,
-		plainTextContent,
-		htmlContent,
+		mail.NewEmail(m.From.Name, m.From.Address),
+		m.Subject,
+		mail.NewEmail("", m.To),
+		m.PlainTextContent,
+		m.HtmlContent,
 	)
 }
 
-// help send
 func sendMail(m isendgrid.Mail) error {
-	message := BuildMessageInSendGird(m)
-
 	client := sendgrid.NewSendClient(global.Config.SendGrid.APIKey)
-
-	response, err := client.Send(message)
+	response, err := client.Send(BuildMessageInSendGird(m))
 	if err != nil {
 		log.Println("Error sending email: ", err)
 		return err
 	}
 
-	// check status code
 	if response.StatusCode != 202 {
 		log.Println("Email send failed:: ", response)
 		return fmt.Errorf("Email send failed:: %v", response)
 	}
-
 	return nil
 }

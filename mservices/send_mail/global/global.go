@@ -6,6 +6,8 @@ import (
 )
 
 var (
-	ReaderOTPAuth *kafka.Reader
-	Config        config.Config
+	ReaderOTPAuth     *kafka.Reader
+	ReaderNewPassword *kafka.Reader
+	ReaderNotifyUser  *kafka.Reader
+	Config            config.Config
 )
