@@ -1,6 +1,7 @@
-sql/
+**/*.sql
 test/
 environment/
 *.git
 *.md
 **/*.log
+Makefile

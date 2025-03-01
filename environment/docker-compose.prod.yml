@@ -14,7 +14,7 @@ services:
     networks:
       - go-chat-app-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
     networks:
       - go-chat-app-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -78,7 +78,7 @@ services:
     networks:
       - go-chat-app-network
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --list --bootstrap-server kafka-0:9091 || exit 1"]
+      test: [ "CMD-SHELL", "kafka-topics.sh --list --bootstrap-server kafka-0:9091 || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -102,7 +102,7 @@ services:
   back_end:
     build:
       context: ../be
-      dockerfile: ../be/Dockerfile
+      dockerfile: Dockerfile
     container_name: crm_chatapp_be
     ports:
       - "8082:8082"
@@ -115,6 +115,17 @@ services:
         condition: service_healthy
     networks:
       - go-chat-app-network
+      
+  msv_send_mail:
+    build:
+        context: ../mservices/send_mail
+        dockerfile: Dockerfile
+    container_name: crm_chatapp_msv_send_mail
+    depends_on:
+        kafka-0:
+            condition: service_healthy
+    networks:
+        - go-chat-app-network
 
 networks:
   go-chat-app-network:
