@@ -1,0 +1,8 @@
+sendgird:
+    api_key: ''
+kafka:
+    bootstrap_server_mail: 'localhost:9094'
+    tcp_address: 'localhost:9094' # same bootstrap_server_mail
+    topic_mail_otp: 'go-service-send-mail-otp'
+    topic_notifications_user: 'user-request-notification'
+    topic_mail_new_password: 'go-service-send-mail-new-password'
