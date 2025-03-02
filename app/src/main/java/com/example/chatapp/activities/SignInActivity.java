@@ -26,13 +26,16 @@ public class SignInActivity extends AppCompatActivity {
         String email = binding.editTextTextEmailAddress.getText().toString().trim();
         String password = binding.editTextTextPassword.getText().toString().trim();
 
-        if ("demo".equals(email) && "demo".equals(password)) {
-            Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
-            showToast("Email hoặc mật khẩu không đúng");
-        }
+//        if ("demo".equals(email) && "demo".equals(password)) {
+//            Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
+//            startActivity(intent);
+//            finish();
+//        } else {
+//            showToast("Email hoặc mật khẩu không đúng");
+//        }
+        Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void showToast(String message) {

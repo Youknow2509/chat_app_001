@@ -10,6 +10,18 @@
         android:name="com.example.chatapp.fragments.Message"
         tools:layout="@layout/fragment_message" />
 
+    <!-- Contact Fragment -->
+    <fragment
+        android:id="@+id/nav_contact"
+        android:name="com.example.chatapp.fragments.ContactFragment"
+        tools:layout="@layout/fragment_contact" />
+
+    <!-- Call Fragment -->
+    <fragment
+        android:id="@+id/nav_call"
+        android:name="com.example.chatapp.fragments.CallFragment"
+        tools:layout="@layout/fragment_call" />
+
     <!-- Settings Fragment -->
     <fragment
         android:id="@+id/nav_settings"

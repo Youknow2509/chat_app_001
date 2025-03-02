@@ -3,10 +3,9 @@ package com.example.chatapp.adapters;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.example.chatapp.databinding.ItemContainerReceivedGroupBinding;
 import com.example.chatapp.databinding.ItemContainerReceivedMessageBinding;
 import com.example.chatapp.databinding.ItemContainerSentMessageBinding;
 import com.example.chatapp.models.ChatMessage;
@@ -16,65 +15,77 @@ import java.util.List;
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<ChatMessage> chatMessages;
-    private Bitmap receiverProfileImage;
+    private final Bitmap receiverProfileImage;
     private final String senderId;
+    private final boolean isGroupChat;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
+    public static final int VIEW_TYPE_GROUP_RECEIVED = 3;
 
-    public void setReceiverProfileImage(Bitmap bitmap) {
-        receiverProfileImage = bitmap;
-    }
-
-    public ChatAdapter(List<ChatMessage> chatMessages, Bitmap receiverProfileImage, String senderId) {
+    public ChatAdapter(List<ChatMessage> chatMessages, Bitmap receiverProfileImage, String senderId, boolean isGroupChat) {
         this.chatMessages = chatMessages;
         this.receiverProfileImage = receiverProfileImage;
         this.senderId = senderId;
-    }
-
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_SENT) {
-            return new SentMessageViewHolder(
-                    ItemContainerSentMessageBinding.inflate(
-                            LayoutInflater.from(parent.getContext()),
-                            parent,
-                            false
-                    )
-            );
-        } else {
-            return new ReceiverMessageViewHolder(
-                    ItemContainerReceivedMessageBinding.inflate(
-                            LayoutInflater.from(parent.getContext()),
-                            parent,
-                            false
-                    )
-            );
-        }
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (getItemViewType(position) == VIEW_TYPE_SENT) {
-            ((SentMessageViewHolder) holder).setData(chatMessages.get(position));
-        } else {
-            ((ReceiverMessageViewHolder) holder).setData(chatMessages.get(position), receiverProfileImage);
-        }
-    }
-
-    @Override
-    public int getItemCount() {
-        return chatMessages.size();
+        this.isGroupChat = isGroupChat;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (chatMessages.get(position).senderId.equals("0")) {
+        ChatMessage message = chatMessages.get(position);
+        if (message.senderId.equals("0")) {
             return VIEW_TYPE_SENT;
+        } else if (isGroupChat) {
+            return VIEW_TYPE_GROUP_RECEIVED;
         } else {
             return VIEW_TYPE_RECEIVED;
         }
+    }
+
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+        switch (viewType) {
+            case VIEW_TYPE_SENT:
+                return new SentMessageViewHolder(
+                        ItemContainerSentMessageBinding.inflate(inflater, parent, false)
+                );
+
+            case VIEW_TYPE_GROUP_RECEIVED:
+                return new GroupMessageViewHolder(
+                        ItemContainerReceivedGroupBinding.inflate(inflater, parent, false)
+                );
+
+            case VIEW_TYPE_RECEIVED:
+            default:
+                return new ReceiverMessageViewHolder(
+                        ItemContainerReceivedMessageBinding.inflate(inflater, parent, false)
+                );
+        }
+    }
+
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        ChatMessage message = chatMessages.get(position);
+        int viewType = getItemViewType(position);
+
+        if (holder instanceof SentMessageViewHolder && viewType == VIEW_TYPE_SENT) {
+            ((SentMessageViewHolder) holder).setData(message);
+        } else if (holder instanceof GroupMessageViewHolder && viewType == VIEW_TYPE_GROUP_RECEIVED) {
+            ((GroupMessageViewHolder) holder).setData(message, receiverProfileImage);
+        } else if (holder instanceof ReceiverMessageViewHolder && viewType == VIEW_TYPE_RECEIVED) {
+            ((ReceiverMessageViewHolder) holder).setData(message, receiverProfileImage);
+        }
+    }
+
+
+    @Override
+    public int getItemCount() {
+        return chatMessages.size();
     }
 
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
@@ -106,6 +117,25 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (receiverProfileImage != null) {
                 binding.imageProfile.setImageBitmap(receiverProfileImage);
             }
+        }
+    }
+
+    static class GroupMessageViewHolder extends RecyclerView.ViewHolder {
+        private final ItemContainerReceivedGroupBinding binding;
+
+        GroupMessageViewHolder(ItemContainerReceivedGroupBinding itemContainerReceivedGroupBinding) {
+            super(itemContainerReceivedGroupBinding.getRoot());
+            binding = itemContainerReceivedGroupBinding;
+        }
+
+        void setData(ChatMessage chatMessage, Bitmap receiverProfileImage) {
+            binding.textNameOtherPerson.setText(chatMessage.conversionName);
+            binding.textMessage.setText(chatMessage.message);
+            binding.textDateTime.setText(chatMessage.dateTime);
+            if (receiverProfileImage != null) {
+                binding.imageProfile.setImageBitmap(receiverProfileImage);
+            }
+
         }
     }
 }

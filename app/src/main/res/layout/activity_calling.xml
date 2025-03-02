@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context=".activities.CallingActivity"
+    tools:ignore="MissingConstraints">
+
+    <FrameLayout
+        android:id="@+id/videoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"/>
+
+        <View
+            android:id="@+id/videoBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+
+    <TextureView
+        android:id="@+id/selfVideoThumbnail"
+        android:layout_width="100dp"
+        android:layout_height="140dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.MediumComponent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"/>
+
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/back_white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Tên người gọi -->
+    <TextView
+        android:id="@+id/textCallerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp"/>
+
+    <!-- Trạng thái cuộc gọi -->
+    <TextView
+        android:id="@+id/textCallStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calling..."
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/textCallerName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp"/>
+
+    <!-- Các nút điều khiển cuộc gọi -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="384dp"
+            android:layout_height="58dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="-16dp"
+            tools:layout_editor_absoluteY="633dp">
+
+            <!-- Bật/tắt micro -->
+            <ImageView
+                android:id="@+id/btnMute"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="16dp"
+                android:padding="12dp"
+                android:src="@drawable/mic__rec"
+                android:background="@drawable/ellipse_1192"/>
+
+            <!-- Bật/tắt camera -->
+            <ImageView
+                android:id="@+id/btnCamera"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="16dp"
+                android:padding="12dp"
+                android:src="@drawable/video_white"
+                android:background="@drawable/ellipse_1192" />
+
+            <!-- Kết thúc cuộc gọi -->
+            <ImageView
+                android:id="@+id/btnEndCall"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:padding="12dp"
+                android:src="@drawable/remove"
+                android:background="@drawable/ellipse_400"/>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

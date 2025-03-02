@@ -11,15 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import com.example.chatapp.databinding.ItemContainerUserBinding;
+import com.example.chatapp.databinding.ItemContainerChatUserBinding;
 import com.example.chatapp.listeners.UserListener;
 import com.example.chatapp.models.User;
 
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+public class UserChatAdapter extends RecyclerView.Adapter<UserChatAdapter.UserViewHolder> {
     private final List<User> users;
     private final UserListener userListener;
 
-    public UserAdapter(List<User> users, UserListener userListener) {
+    public UserChatAdapter(List<User> users, UserListener userListener) {
         this.users = users;
         this.userListener = userListener;
     }
@@ -27,7 +27,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemContainerUserBinding itemContainerUserBinding = ItemContainerUserBinding.inflate(
+        ItemContainerChatUserBinding itemContainerUserBinding = ItemContainerChatUserBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
@@ -46,28 +46,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     class UserViewHolder extends RecyclerView.ViewHolder {
-        ItemContainerUserBinding binding;
+        ItemContainerChatUserBinding binding;
 
-        UserViewHolder(ItemContainerUserBinding itemContainerUserBinding) {
+        UserViewHolder(ItemContainerChatUserBinding itemContainerUserBinding) {
             super(itemContainerUserBinding.getRoot());
             binding = itemContainerUserBinding;
         }
 
         void setUserData(User user) {
             binding.textName.setText(user.name);
-            binding.textDescription.setText(user.email);
+            binding.textEmail.setText(user.email);
             binding.imageProfile.setImageBitmap(user.image);
             binding.getRoot().setOnClickListener(v -> userListener.onUserClick(user));
         }
     }
-
-    public void updateList(List<User> newList) {
-        users.clear();
-        users.addAll(newList);
-        notifyDataSetChanged();
-    }
-
-
 
     private Bitmap getUserImage(String encodedImage) {
         byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
