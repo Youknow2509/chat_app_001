@@ -33,6 +33,7 @@ public class Constants {
     public static final String REMOTE_REGISTRATION_IDS = "registration_ids";
     public static final String KEY_GROUP = "group";
     public static final String KEY_GROUP_ID = "groupId";
+    public static final String KEY_IS_GROUP_CHAT = "isGroupChat";
 
     // Update this with your actual FCM server key
     private static final String FCM_SERVER_KEY = "";

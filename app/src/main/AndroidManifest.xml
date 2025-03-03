@@ -7,7 +7,13 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+
 
     <application
         android:allowBackup="true"
@@ -20,16 +26,14 @@
         android:theme="@style/Theme.ChatApp.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".activities.signupv2"
+            android:exported="false"
+            android:theme="@style/Theme.ChatApp.NoActionBar" />
+        <activity
             android:name=".activities.SearchingActivity"
             android:exported="false" />
         <activity
-            android:name=".adapters.GroupAdapter"
-            android:exported="false" />
-        <activity
             android:name=".activities.CallingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".adapters.ContactAdapter"
             android:exported="false" />
         <activity
             android:name=".activities.HomeActivity"
@@ -58,6 +62,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".firebase.MessagingService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="dataSync">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="chat_message" />
+
     </application>
 
 </manifest>
