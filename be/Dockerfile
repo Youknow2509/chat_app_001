@@ -5,6 +5,8 @@ WORKDIR /build
 
 COPY . .
 
+RUN go mod tiny
+
 RUN go mod download
 
 RUN go build -o crm.chatappbackend.com ./cmd/server
