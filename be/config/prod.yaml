@@ -30,7 +30,7 @@ redis:
 kafka:
   host: kafka-0
   port_internal: 9092
-  port_external: 9094
+  port_external: 9091 # because use network docker
 
 kafka_ui:
   host: 127.0.0.1
