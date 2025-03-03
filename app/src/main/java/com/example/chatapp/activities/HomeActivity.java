@@ -12,7 +12,11 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.chatapp.R;
+import com.example.chatapp.services.StompServiceHelper;
+import com.example.chatapp.utilities.StompClientManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import ua.naiksoftware.stomp.StompClient;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -22,6 +26,9 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        StompServiceHelper.getInstance().initialize(this);
+//        StompServiceHelper.getInstance().startAndBindService();
+
 
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
