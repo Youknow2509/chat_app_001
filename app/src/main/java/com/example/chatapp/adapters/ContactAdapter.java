@@ -1,25 +1,29 @@
 package com.example.chatapp.adapters;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import com.example.chatapp.activities.CallingActivity;
+import com.example.chatapp.databinding.ItemContactAdapterBinding;
 import com.example.chatapp.databinding.ItemContainerUserBinding;
 import com.example.chatapp.listeners.UserListener;
 import com.example.chatapp.models.User;
 
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.UserViewHolder> {
     private final List<User> users;
     private final UserListener userListener;
 
-    public UserAdapter(List<User> users, UserListener userListener) {
+    public ContactAdapter(List<User> users, UserListener userListener) {
         this.users = users;
         this.userListener = userListener;
     }
@@ -27,7 +31,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemContainerUserBinding itemContainerUserBinding = ItemContainerUserBinding.inflate(
+        ItemContactAdapterBinding itemContainerUserBinding = ItemContactAdapterBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
@@ -46,27 +50,34 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     class UserViewHolder extends RecyclerView.ViewHolder {
-        ItemContainerUserBinding binding;
+        ItemContactAdapterBinding binding;
 
-        UserViewHolder(ItemContainerUserBinding itemContainerUserBinding) {
+        UserViewHolder(ItemContactAdapterBinding itemContainerUserBinding) {
             super(itemContainerUserBinding.getRoot());
             binding = itemContainerUserBinding;
         }
 
         void setUserData(User user) {
             binding.textName.setText(user.name);
-            binding.textDescription.setText(user.email);
             binding.imageProfile.setImageBitmap(user.image);
-            binding.getRoot().setOnClickListener(v -> userListener.onUserClick(user));
+
+            // Xử lý sự kiện khi nhấn vào nút gọi thoại
+            binding.buttoncall.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), CallingActivity.class);
+                intent.putExtra("CALL_TYPE", "audio"); // Truyền kiểu cuộc gọi
+                intent.putExtra("USER_NAME", user.name);
+                v.getContext().startActivity(intent);
+            });
+
+            // Xử lý sự kiện khi nhấn vào nút gọi video
+            binding.buttonvideo.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), CallingActivity.class);
+                intent.putExtra("CALL_TYPE", "video"); // Truyền kiểu cuộc gọi
+                intent.putExtra("USER_NAME", user.name);
+                v.getContext().startActivity(intent);
+            });
         }
     }
-
-    public void updateList(List<User> newList) {
-        users.clear();
-        users.addAll(newList);
-        notifyDataSetChanged();
-    }
-
 
 
     private Bitmap getUserImage(String encodedImage) {

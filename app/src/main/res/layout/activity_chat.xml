@@ -7,7 +7,7 @@
     android:animateLayoutChanges="true"
     android:background="@color/primary"
     tools:context=".activities.ChatActivity">
-    
+
     <View
         android:id="@+id/viewBackground"
         android:layout_width="match_parent"
@@ -38,6 +38,21 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white"/>
 
+    <!-- Ảnh đại diện người nhận cuộc gọi -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageProfile"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="16dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintBottom_toBottomOf="@id/imageBack"
+        app:layout_constraintEnd_toStartOf="@id/imageInfo"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/imageBack"
+        app:layout_constraintTop_toTopOf="@id/imageBack"
+        app:layout_constraintVertical_bias="0.531" />
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imageInfo"
         android:layout_width="@dimen/_30sdp"
@@ -51,10 +66,40 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white"/>
 
+    <!-- Icon gọi thoại -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/btnAudioCall"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="8dp"
+        android:padding="5dp"
+        android:src="@drawable/call"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/textName"
+        app:layout_constraintEnd_toStartOf="@id/btnVideoCall"
+        app:layout_constraintHorizontal_bias="0.018"
+        app:layout_constraintStart_toEndOf="@id/textName"
+        app:layout_constraintTop_toTopOf="@id/textName"/>
+
+    <!-- Icon gọi video -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/btnVideoCall"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp"
+        android:padding="5dp"
+        android:src="@drawable/video_white"
+        android:tint="@color/white"
+        app:layout_constraintStart_toEndOf="@id/btnAudioCall"
+        app:layout_constraintEnd_toStartOf="@id/imageInfo"
+        app:layout_constraintBottom_toBottomOf="@id/btnAudioCall"
+        app:layout_constraintTop_toTopOf="@id/imageProfile"/>
+
+
     <TextView
         android:id="@+id/textName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="156dp"
+        android:layout_height="39dp"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_marginEnd="@dimen/_8sdp"
         android:ellipsize="end"
@@ -63,10 +108,12 @@
         android:textColor="@color/white"
         android:textSize="@dimen/_14ssp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/imageBack"
+        app:layout_constraintBottom_toBottomOf="@id/imageProfile"
         app:layout_constraintEnd_toStartOf="@id/imageInfo"
-        app:layout_constraintStart_toEndOf="@id/imageBack"
-        app:layout_constraintTop_toTopOf="@id/imageBack"/>
+        app:layout_constraintHorizontal_bias="0.018"
+        app:layout_constraintStart_toEndOf="@id/imageProfile"
+        app:layout_constraintTop_toTopOf="@id/imageProfile"
+        app:layout_constraintVertical_bias="0.384" />
 
     <View
         android:id="@+id/viewSupporter"

@@ -1,12 +1,14 @@
 package com.example.chatapp.activities;
 
-import static android.content.ContentValues.TAG;
+import static java.lang.Thread.sleep;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,25 +17,22 @@ import com.example.chatapp.adapters.ChatAdapter;
 import com.example.chatapp.databinding.ActivityChatBinding;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.User;
+import com.example.chatapp.models.Group;
 import com.example.chatapp.utilities.Constants;
 import com.example.chatapp.utilities.PreferenceManager;
-import com.example.chatapp.utilities.StompClientManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.HashMap;
-
-import ua.naiksoftware.stomp.Stomp;
-import ua.naiksoftware.stomp.StompClient;
 
 public class ChatActivity extends AppCompatActivity {
 
+
     private ActivityChatBinding binding;
     private User receiverUser;
+    private Group receiverGroup;
     private List<ChatMessage> chatMessages;
     private ChatAdapter chatAdapter;
 
@@ -42,17 +41,15 @@ public class ChatActivity extends AppCompatActivity {
     private Boolean isReceiverAvailable = false;
 
     private String id_client_test = "0";
-    private StompClient mStompClient = StompClientManager.getInstance();
+    private boolean isGroupChat = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        mStompClient.send("/app/chats", "Hello from Android!").subscribe();
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();
-        loadReceiverDetails();
+        loadChatDetails();
         binding.progressBar.setVisibility(View.GONE);
         init();
     }
@@ -60,62 +57,99 @@ public class ChatActivity extends AppCompatActivity {
     private void init() {
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatMessages = new ArrayList<>();
-
         chatAdapter = new ChatAdapter(
                 chatMessages,
-                receiverUser.image,
-                preferenceManager.getString(Constants.KEY_USER_ID)
+                isGroupChat ? null : receiverUser.image,
+                isGroupChat ? preferenceManager.getString(Constants.KEY_GROUP_ID) : preferenceManager.getString(Constants.KEY_USER_ID),
+                isGroupChat
         );
-
         binding.chatRecycleView.setAdapter(chatAdapter);
         addSampleMessages();
     }
 
+
     private Bitmap getBitmap(Bitmap bitmapImage) {
-        if (bitmapImage != null) {
-            return bitmapImage;
-        } else {
-            return null;
-        }
+        return bitmapImage != null ? bitmapImage : null;
     }
 
-    private void loadReceiverDetails() {
-        receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
-        assert receiverUser != null;
-        binding.textName.setText(receiverUser.name);  // Hiển thị tên người dùng
-        binding.imageInfo.setImageBitmap(getBitmap(receiverUser.image));  // Hiển thị ảnh người dùng
+    private void loadChatDetails() {
+        if (getIntent().hasExtra(Constants.KEY_GROUP)) {
+            receiverGroup = (Group) getIntent().getSerializableExtra(Constants.KEY_GROUP);
+            isGroupChat = true;
+            binding.textName.setText(receiverGroup.getName());
+        } else {
+            receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
+            assert receiverUser != null;
+            binding.textName.setText(receiverUser.name);
+            binding.imageInfo.setImageBitmap(getBitmap(receiverUser.image));
+        }
     }
 
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
+        binding.btnAudioCall.setOnClickListener(v -> initiateCall("audio"));
+        binding.btnVideoCall.setOnClickListener(v -> initiateCall("video"));
     }
+
+    private void initiateCall(String callType) {
+        if (!isReceiverAvailable) {
+            Intent intent = new Intent(ChatActivity.this, CallingActivity.class);
+            intent.putExtra("CALL_TYPE", callType);
+
+            if (isGroupChat) {
+                intent.putExtra("IS_GROUP_CALL", true);
+                intent.putExtra("GROUP_ID", receiverGroup.id);
+                intent.putExtra("GROUP_NAME", receiverGroup.name);
+            } else {
+                intent.putExtra("IS_GROUP_CALL", false);
+                intent.putExtra("USER_ID", receiverUser.id);
+                intent.putExtra("USER_NAME", receiverUser.name);
+            }
+
+            startActivity(intent);
+        } else {
+            showToast("User is not available for calling.");
+        }
+    }
+
 
     private void addSampleMessages() {
-        // Tin nhắn nhận
-        ChatMessage receivedMessage = new ChatMessage();
-        receivedMessage.message = "Hello, how are you?";
-        receivedMessage.senderId = receiverUser.id;
-        receivedMessage.receiverId = id_client_test;
-        receivedMessage.dateTime = getReadableDateTime(new Date());
-        chatMessages.add(receivedMessage);
+        if (isGroupChat) {
+            ChatMessage groupMessage1 = new ChatMessage();
+            groupMessage1.message = "Hey everyone!";
+            groupMessage1.senderId = "2";
+            groupMessage1.conversionName = "Alice";
+            groupMessage1.receiverId = receiverGroup.id;
+            groupMessage1.dateTime = getReadableDateTime(new Date());
+            chatMessages.add(groupMessage1);
 
-        // Tin nhắn gửi
-        ChatMessage sentMessage = new ChatMessage();
-        sentMessage.message = "I'm fine, thank you!";
-        sentMessage.senderId = id_client_test;
-        sentMessage.receiverId = receiverUser.id;
-        sentMessage.dateTime = getReadableDateTime(new Date());
-        chatMessages.add(sentMessage);
+            ChatMessage groupMessage2 = new ChatMessage();
+            groupMessage2.message = "Hello Alice!";
+            groupMessage2.senderId = "3";
+            groupMessage2.conversionName = "Bob";
+            groupMessage2.receiverId = receiverGroup.id;
+            groupMessage2.dateTime = getReadableDateTime(new Date());
+            chatMessages.add(groupMessage2);
+        } else {
+            ChatMessage receivedMessage = new ChatMessage();
+            receivedMessage.message = "Hello, how are you?";
+            receivedMessage.senderId = receiverUser.id;
+            receivedMessage.receiverId = id_client_test;
+            receivedMessage.dateTime = getReadableDateTime(new Date());
+            chatMessages.add(receivedMessage);
 
-        // Cập nhật RecyclerView
-        chatAdapter.notifyDataSetChanged();  // Đảm bảo cập nhật RecyclerView
+            ChatMessage sentMessage = new ChatMessage();
+            sentMessage.message = "I'm fine, thank you!";
+            sentMessage.senderId = id_client_test;
+            sentMessage.receiverId = receiverUser.id;
+            sentMessage.dateTime = getReadableDateTime(new Date());
+            chatMessages.add(sentMessage);
+        }
 
-        // Hiển thị RecyclerView sau khi tin nhắn được thêm vào
+        chatAdapter.notifyDataSetChanged();
         binding.chatRecycleView.setVisibility(View.VISIBLE);
     }
-
-
 
     private void sendMessage() {
         String messageText = binding.inputMessage.getText().toString();
@@ -123,25 +157,24 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
-        // Tạo đối tượng ChatMessage cho tin nhắn
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.senderId = id_client_test;
-        chatMessage.receiverId = receiverUser.id;
         chatMessage.message = messageText;
         chatMessage.dateTime = getReadableDateTime(new Date());
         chatMessage.dateObject = new Date();
 
-        // Thêm tin nhắn vào danh sách
-        chatMessages.add(chatMessage);
+        if (isGroupChat) {
+            chatMessage.receiverId = receiverGroup.id;
+            chatMessage.conversionName = "You";
+        } else {
+            chatMessage.receiverId = receiverUser.id;
+        }
 
-        // Cập nhật giao diện ngay lập tức
+        chatMessages.add(chatMessage);
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
         binding.chatRecycleView.smoothScrollToPosition(chatMessages.size() - 1);
-
-        // Xóa nội dung trong input
         binding.inputMessage.setText(null);
 
-        // Giả lập việc gửi thông báo (không dùng Firebase)
         if (!isReceiverAvailable) {
             showToast("Receiver is not available, message sent.");
         }

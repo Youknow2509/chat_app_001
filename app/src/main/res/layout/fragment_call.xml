@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/message"
-    tools:context=".fragments.Message"
+    android:id="@+id/contact"
+    tools:context=".fragments.CallFragment"
     android:background="#000000">
 
     <!-- Header with back button and title -->
@@ -30,6 +30,7 @@
             android:src="@drawable/ic_back"
             app:tint="@color/white"/>
 
+
         <TextView
             android:id="@+id/tlt"
             android:layout_width="0dp"
@@ -37,7 +38,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Message"
+            android:text="Call"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />
