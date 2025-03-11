@@ -5,10 +5,7 @@ import static java.lang.Thread.sleep;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +15,7 @@ import com.example.chatapp.databinding.ActivityChatBinding;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.User;
 import com.example.chatapp.models.Group;
-import com.example.chatapp.utilities.Constants;
+import com.example.chatapp.consts.Constants;
 import com.example.chatapp.utilities.PreferenceManager;
 
 import java.text.SimpleDateFormat;

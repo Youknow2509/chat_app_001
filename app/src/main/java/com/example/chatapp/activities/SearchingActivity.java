@@ -13,7 +13,7 @@ import com.example.chatapp.listeners.GroupListener;
 import com.example.chatapp.listeners.UserListener;
 import com.example.chatapp.models.User;
 import com.example.chatapp.models.Group;
-import com.example.chatapp.utilities.Constants;
+import com.example.chatapp.consts.Constants;
 
 import java.util.ArrayList;
 import java.util.List;

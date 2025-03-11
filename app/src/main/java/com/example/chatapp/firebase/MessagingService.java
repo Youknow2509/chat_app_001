@@ -23,8 +23,6 @@ import java.util.Random;
 
 import com.example.chatapp.R;
 import com.example.chatapp.activities.ChatActivity;
-import com.example.chatapp.models.User;
-import com.example.chatapp.utilities.Constants;
 
 public class MessagingService extends FirebaseMessagingService {
     private static final String TAG = "MessagingService";

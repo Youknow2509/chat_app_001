@@ -1,10 +1,10 @@
-package com.example.chatapp.utilities;
-
-import com.example.chatapp.adapters.GroupAdapter;
+package com.example.chatapp.consts;
 
 import java.util.HashMap;
 
 public class Constants {
+    public static final int NUMBER_OF_THREADS_Write_EXECUTOR_DATABASE = 4;
+    public static final String DATABASE_NAME = "chatAppDatabase";
     public static final String KEY_COLLECTION_USERS = "users";
     public static final String KEY_NAME = "name";
     public static final String KEY_EMAIL = "email";
