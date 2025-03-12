@@ -25,33 +25,31 @@ public class SignUpActivity extends AppCompatActivity {
     private void setListeners() {
         binding.back.setOnClickListener(v -> onBackPressed());
         binding.btnSignup.setOnClickListener(v -> {
-            if (isValidSignUp()) {
                 signUp();
-            }
         });
     }
 
     // Kiểm tra tính hợp lệ của email và mật khẩu
-    private Boolean isValidSignUp() {
-        String email = binding.editTextTextEmailAddress2.getText().toString().trim();
-        String password = binding.editTextTextPassword2.getText().toString().trim();
-        String confirmPassword = binding.editTextTextPassword3.getText().toString().trim();
-
-        if (email.isEmpty()) {
-            showToast("Please enter your email");
-            return false;
-        } else if (password.isEmpty()) {
-            showToast("Please enter your password");
-            return false;
-        } else if (confirmPassword.isEmpty()) {
-            showToast("Please confirm your password");
-            return false;
-        } else if (!password.equals(confirmPassword)) {
-            showToast("Password and Confirm Password must match");
-            return false;
-        }
-        return true;
-    }
+//    private Boolean isValidSignUp() {
+//        String email = binding.editTextTextEmailAddress2.getText().toString().trim();
+//        String password = binding.editTextTextPassword2.getText().toString().trim();
+//        String confirmPassword = binding.editTextTextPassword3.getText().toString().trim();
+//
+//        if (email.isEmpty()) {
+//            showToast("Please enter your email");
+//            return false;
+//        } else if (password.isEmpty()) {
+//            showToast("Please enter your password");
+//            return false;
+//        } else if (confirmPassword.isEmpty()) {
+//            showToast("Please confirm your password");
+//            return false;
+//        } else if (!password.equals(confirmPassword)) {
+//            showToast("Password and Confirm Password must match");
+//            return false;
+//        }
+//        return true;
+//    }
 
     // Xử lý đăng ký
     private void signUp() {

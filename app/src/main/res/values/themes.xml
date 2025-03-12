@@ -13,10 +13,18 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
     <style name="Theme.ChatApp.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="Theme.ChatApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <style name="Theme.ChatApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <!-- Base application theme. -->
+    <style name="Base.Theme.ChatApp.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
 </resources>

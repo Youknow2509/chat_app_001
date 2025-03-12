@@ -16,10 +16,10 @@ public class OnboardingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_onboarding);
 
         findViewById(R.id.btn_signup).setOnClickListener(v -> {
-            startActivity(new Intent(OnboardingActivity.this, SignUpActivity.class));
+            startActivity(new Intent(OnboardingActivity.this, signupv2.class));
         });
 
-        findViewById(R.id.login_text).setOnClickListener(v -> {
+        findViewById(R.id.btn_login).setOnClickListener(v -> {
             startActivity(new Intent(OnboardingActivity.this, SignInActivity.class));
         });
     }

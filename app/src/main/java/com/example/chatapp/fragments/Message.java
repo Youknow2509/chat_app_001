@@ -20,9 +20,8 @@ import com.example.chatapp.adapters.ChatListAdapter;
 import com.example.chatapp.models.ChatListItem;
 import com.example.chatapp.models.User;
 import com.example.chatapp.models.Group;
-import com.example.chatapp.utilities.Constants;
+import com.example.chatapp.consts.Constants;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 

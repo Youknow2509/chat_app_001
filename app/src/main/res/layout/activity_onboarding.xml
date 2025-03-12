@@ -195,7 +195,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/btn_signup"
+        android:id="@+id/btn_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
@@ -216,19 +216,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign up with mail"
+            android:text="Login with Email"
             android:textColor="#000D07"
             android:textSize="16sp"
             android:textStyle="bold" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/login_text"
+        android:id="@+id/btn_signup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
         android:gravity="center"
-        android:text="Existing account? Log in"
+        android:text="You don't have an account? Sign up"
         android:textColor="#B9C1BE"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"

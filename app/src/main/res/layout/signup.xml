@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.SignUpActivity"
+    tools:context=".activities.signupv2"
     android:background="#FFFFFF">
 
     <RelativeLayout
@@ -65,10 +65,10 @@
         tools:layout_editor_absoluteX="24dp">
 
         <TextView
-            android:id="@+id/lbl_email"
+            android:id="@+id/lblName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your email"
+            android:text="Your Name"
             android:textColor="#24786D"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -174,3 +174,4 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

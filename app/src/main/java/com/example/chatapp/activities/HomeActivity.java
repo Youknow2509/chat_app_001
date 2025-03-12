@@ -10,6 +10,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.chatapp.R;
 import com.example.chatapp.services.StompServiceHelper;
@@ -30,6 +31,15 @@ public class HomeActivity extends AppCompatActivity {
 //        StompServiceHelper.getInstance().startAndBindService();
 
 
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
+                        return;
+                    }
+                    String token = task.getResult();
+                    Log.d("FCM_DEBUG", "Manual Token: " + token);
+                });
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(

@@ -1,10 +1,12 @@
-package com.example.chatapp.utilities;
-
-import com.example.chatapp.adapters.GroupAdapter;
+package com.example.chatapp.consts;
 
 import java.util.HashMap;
 
 public class Constants {
+    public static final int CODE_SUCCESS = 20001;
+    public static final String URL_HOST_SERVER = "http://10.0.2.2:8082";
+    public static final int NUMBER_OF_THREADS_Write_EXECUTOR_DATABASE = 4;
+    public static final String DATABASE_NAME = "chatAppDatabase";
     public static final String KEY_COLLECTION_USERS = "users";
     public static final String KEY_NAME = "name";
     public static final String KEY_EMAIL = "email";
@@ -33,6 +35,7 @@ public class Constants {
     public static final String REMOTE_REGISTRATION_IDS = "registration_ids";
     public static final String KEY_GROUP = "group";
     public static final String KEY_GROUP_ID = "groupId";
+    public static final String KEY_IS_GROUP_CHAT = "isGroupChat";
 
     // Update this with your actual FCM server key
     private static final String FCM_SERVER_KEY = "";
