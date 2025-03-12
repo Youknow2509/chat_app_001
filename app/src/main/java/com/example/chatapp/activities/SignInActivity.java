@@ -2,22 +2,30 @@ package com.example.chatapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.LoginBinding;
+import com.example.chatapp.network.LoginHttpClient;
+import com.google.gson.JsonObject;
+
+import java.util.concurrent.CompletableFuture;
 
 public class SignInActivity extends AppCompatActivity {
 
     private LoginBinding binding;
+    private LoginHttpClient loginHttpClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loginHttpClient = new LoginHttpClient();
         binding = LoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         binding.back.setOnClickListener(v -> back_act());
         binding.btnLogin.setOnClickListener(v -> signIn());
     }
@@ -26,20 +34,44 @@ public class SignInActivity extends AppCompatActivity {
         String email = binding.editTextTextEmailAddress.getText().toString().trim();
         String password = binding.editTextTextPassword.getText().toString().trim();
 
-//        if ("demo".equals(email) && "demo".equals(password)) {
-//            Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
-//            startActivity(intent);
-//            finish();
-//        } else {
-//            showToast("Email hoặc mật khẩu không đúng");
-//        }
+        showToast("Logging in...");
+
+        CompletableFuture<JsonObject> future = loginHttpClient.login(email, password);
+
+        future.thenAccept(res -> runOnUiThread(() -> {
+            try {
+                if (res.has("code") && res.get("code").getAsInt() == Constants.CODE_SUCCESS) {
+                    JsonObject data = res.get("data").getAsJsonObject();
+                    String accessToken = data.get("token").getAsString();
+                    String refreshToken = data.get("refresh_token").getAsString();
+                    Log.d("SignIn", "AccessToken: " + accessToken);
+                    Log.d("SignIn", "RefreshToken: " + refreshToken);
+                    navigateToHome();
+                } else {
+                    // TODO handle new show err with code err
+                    showToast("Login failed: " + res.get("message").getAsString());
+                }
+            } catch (Exception e) {
+                Log.e("SignIn", "Error parsing response", e);
+                showToast("Error processing response");
+            }
+        })).exceptionally(e -> {
+            runOnUiThread(() -> {
+                Log.e("SignIn", "Login request failed", e);
+                showToast("Network error! Please try again.");
+            });
+            return null;
+        });
+    }
+
+    private void navigateToHome() {
         Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
     }
 
     private void showToast(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
     }
 
     private void back_act() {
