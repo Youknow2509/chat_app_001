@@ -2,6 +2,7 @@ package com.example.chatapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -13,13 +14,13 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.chatapp.R;
-import com.example.chatapp.services.StompServiceHelper;
 import com.example.chatapp.utilities.StompClientManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import ua.naiksoftware.stomp.StompClient;
 
 public class HomeActivity extends AppCompatActivity {
+
+    private StompClientManager stompClientManager = StompClientManager.getInstance();
 
     private Button btnReturnToCall; // Nút quay lại cuộc gọi
 
@@ -27,14 +28,12 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        StompServiceHelper.getInstance().initialize(this);
-//        StompServiceHelper.getInstance().startAndBindService();
-
+        stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
-                        Log.w("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
+                        Log.d("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
                         return;
                     }
                     String token = task.getResult();

@@ -59,18 +59,18 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
 
         void setData(ChatMessage chatMessage) {
             // Sử dụng trực tiếp Bitmap cho hình ảnh
-            binding.imageProfile.setImageBitmap(chatMessage.conversionImage);
-            binding.textName.setText(chatMessage.conversionName);
-            binding.textRecentMessage.setText(chatMessage.message);
-
-            binding.getRoot().setOnClickListener(v -> {
-                // Tạo đối tượng User và gọi listener khi người dùng nhấn vào một cuộc trò chuyện
-                User user = new User();
-                user.id = chatMessage.coversionId;
-                user.name = chatMessage.conversionName;
-                user.image = chatMessage.conversionImage;  // Sử dụng trực tiếp Bitmap
-                conversionListener.onConversionClicked(user);
-            });
+            binding.imageProfile.setImageBitmap(chatMessage.getConversionImage());
+//            binding.textName.setText(chatMessage.get);
+//            binding.textRecentMessage.setText(chatMessage.content);
+//
+//            binding.getRoot().setOnClickListener(v -> {
+//                // Tạo đối tượng User và gọi listener khi người dùng nhấn vào một cuộc trò chuyện
+//                User user = new User();
+//                user.id = chatMessage.chatId;
+//                user.name = chatMessage.conversionName;
+//                user.image = chatMessage.conversionImage;  // Sử dụng trực tiếp Bitmap
+//                conversionListener.onConversionClicked(user);
+//            });
         }
 
     }

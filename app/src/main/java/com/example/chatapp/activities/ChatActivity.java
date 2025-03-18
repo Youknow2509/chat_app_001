@@ -1,10 +1,12 @@
 package com.example.chatapp.activities;
 
+import static android.content.ContentValues.TAG;
 import static java.lang.Thread.sleep;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -16,6 +18,8 @@ import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.User;
 import com.example.chatapp.models.Group;
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.observers.MessageObservable;
+import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.utilities.PreferenceManager;
 
 import java.text.SimpleDateFormat;
@@ -24,9 +28,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity implements MessageObserver {
 
-
+    private MessageObservable messageObservable;
     private ActivityChatBinding binding;
     private User receiverUser;
     private Group receiverGroup;
@@ -34,24 +38,31 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
 
     private PreferenceManager preferenceManager;
-    private String conversionId = null;
+    private String conversionId;
     private Boolean isReceiverAvailable = false;
 
     private String id_client_test = "0";
     private boolean isGroupChat = false;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "chatActivity: " + conversionId);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();
         loadChatDetails();
         binding.progressBar.setVisibility(View.GONE);
         init();
+
+        // Subscribe to message observable
+        messageObservable = MessageObservable.getInstance();
+        messageObservable.addObserver(this);
     }
 
     private void init() {
+        conversionId = "789e0123-a456-42f5-b678-556655440000";
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatMessages = new ArrayList<>();
         chatAdapter = new ChatAdapter(
@@ -61,7 +72,6 @@ public class ChatActivity extends AppCompatActivity {
                 isGroupChat
         );
         binding.chatRecycleView.setAdapter(chatAdapter);
-        addSampleMessages();
     }
 
 
@@ -74,11 +84,17 @@ public class ChatActivity extends AppCompatActivity {
             receiverGroup = (Group) getIntent().getSerializableExtra(Constants.KEY_GROUP);
             isGroupChat = true;
             binding.textName.setText(receiverGroup.getName());
+            // Set conversionId for group chat
+            conversionId = receiverGroup.id;
+            Log.d(TAG, "Loaded group chat with ID: " + conversionId);
         } else {
             receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
             assert receiverUser != null;
             binding.textName.setText(receiverUser.name);
             binding.imageInfo.setImageBitmap(getBitmap(receiverUser.image));
+            // Set conversionId for one-to-one chat
+//            conversionId = preferenceManager.getString(Constants.KEY_USER_ID) + "_" + receiverUser.id;
+            Log.d(TAG, "Loaded one-to-one chat with ID: " + conversionId);
         }
     }
 
@@ -111,63 +127,26 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-    private void addSampleMessages() {
-        if (isGroupChat) {
-            ChatMessage groupMessage1 = new ChatMessage();
-            groupMessage1.message = "Hey everyone!";
-            groupMessage1.senderId = "2";
-            groupMessage1.conversionName = "Alice";
-            groupMessage1.receiverId = receiverGroup.id;
-            groupMessage1.dateTime = getReadableDateTime(new Date());
-            chatMessages.add(groupMessage1);
-
-            ChatMessage groupMessage2 = new ChatMessage();
-            groupMessage2.message = "Hello Alice!";
-            groupMessage2.senderId = "3";
-            groupMessage2.conversionName = "Bob";
-            groupMessage2.receiverId = receiverGroup.id;
-            groupMessage2.dateTime = getReadableDateTime(new Date());
-            chatMessages.add(groupMessage2);
-        } else {
-            ChatMessage receivedMessage = new ChatMessage();
-            receivedMessage.message = "Hello, how are you?";
-            receivedMessage.senderId = receiverUser.id;
-            receivedMessage.receiverId = id_client_test;
-            receivedMessage.dateTime = getReadableDateTime(new Date());
-            chatMessages.add(receivedMessage);
-
-            ChatMessage sentMessage = new ChatMessage();
-            sentMessage.message = "I'm fine, thank you!";
-            sentMessage.senderId = id_client_test;
-            sentMessage.receiverId = receiverUser.id;
-            sentMessage.dateTime = getReadableDateTime(new Date());
-            chatMessages.add(sentMessage);
-        }
-
-        chatAdapter.notifyDataSetChanged();
-        binding.chatRecycleView.setVisibility(View.VISIBLE);
-    }
-
     private void sendMessage() {
         String messageText = binding.inputMessage.getText().toString();
         if (messageText.isEmpty()) {
             return;
         }
 
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.senderId = id_client_test;
-        chatMessage.message = messageText;
-        chatMessage.dateTime = getReadableDateTime(new Date());
-        chatMessage.dateObject = new Date();
+//        ChatMessage chatMessage = new ChatMessage();
+//        chatMessage.senderId = id_client_test;
+//        chatMessage.content = messageText;
+//        chatMessage.dateTime = getReadableDateTime(new Date());
+//        chatMessage.setDateObject();
 
-        if (isGroupChat) {
-            chatMessage.receiverId = receiverGroup.id;
-            chatMessage.conversionName = "You";
-        } else {
-            chatMessage.receiverId = receiverUser.id;
-        }
+//        if (isGroupChat) {
+//            chatMessage.receiverId = receiverGroup.id;
+//            chatMessage.conversionName = "You";
+//        } else {
+//            chatMessage.receiverId = receiverUser.id;
+//        }
 
-        chatMessages.add(chatMessage);
+//        chatMessages.add(chatMessage);
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
         binding.chatRecycleView.smoothScrollToPosition(chatMessages.size() - 1);
         binding.inputMessage.setText(null);
@@ -183,5 +162,48 @@ public class ChatActivity extends AppCompatActivity {
 
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMessageReceived(ChatMessage message) {
+        Log.d(TAG, "onMessageReceived: " + message.getContent() + " for chatId: " + message.getChatId()
+                + ", my conversionId: " + conversionId);
+
+        if (isMessageRelevantToThisChat(message)) {
+            Log.d(TAG, "Message is relevant to this chat, updating UI");
+            runOnUiThread(() -> {
+                chatAdapter.getChatMessages().add(message);
+//                chatMessages.add(message);
+                chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+                binding.chatRecycleView.smoothScrollToPosition(chatMessages.size() - 1);
+                chatAdapter.notifyDataSetChanged();
+            });
+        } else {
+            Log.d(TAG, "Message is NOT relevant to this chat");
+        }
+
+    }
+
+    private boolean isMessageRelevantToThisChat(ChatMessage message) {
+        if (message == null) {
+            Log.e(TAG, "Message is null");
+            return false;
+        }
+
+        // Check if conversionId is properly set
+        if (conversionId == null || conversionId.isEmpty()) {
+            Log.e(TAG, "conversionId is not properly set");
+            return false;
+        }
+
+        // Check for actual match
+        boolean isRelevant = conversionId.equals(message.getChatId());
+        Log.d(TAG, "Message relevance check: " + isRelevant +
+                " (conversionId=" + conversionId + ", messageChatId=" + message.getChatId() + ")");
+        return isRelevant;
+    }
+
+    public ChatAdapter getChatAdapter() {
+        return chatAdapter;
     }
 }

@@ -12,7 +12,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -80,7 +80,7 @@ dependencies {
     implementation("com.makeramen:roundedimageview:2.3.0")
     implementation("com.github.NaikSoftware:StompProtocolAndroid:1.6.6")
     implementation("com.squareup.okhttp3:okhttp:3.12.1")
-//    implementation("com.android.support:recyclerview-v7:28.0.0")
+    implementation("io.getstream:stream-webrtc-android:1.3.8")
     // RxJava
     implementation("io.reactivex.rxjava2:rxjava:2.2.5")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.0")

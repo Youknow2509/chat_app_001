@@ -33,7 +33,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         ChatMessage message = chatMessages.get(position);
-        if (message.senderId.equals("0")) {
+        if (message.getSenderId().equals("0")) {
             return VIEW_TYPE_SENT;
         } else if (isGroupChat) {
             return VIEW_TYPE_GROUP_RECEIVED;
@@ -97,8 +97,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void setData(ChatMessage chatMessage) {
-            binding.textMessage.setText(chatMessage.message);
-            binding.textDateTime.setText(chatMessage.dateTime);
+            binding.textMessage.setText(chatMessage.getContent());
+            binding.textDateTime.setText(chatMessage.getDateTime());
         }
     }
 
@@ -112,8 +112,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void setData(ChatMessage chatMessage, Bitmap receiverProfileImage) {
-            binding.textMessage.setText(chatMessage.message);
-            binding.textDateTime.setText(chatMessage.dateTime);
+            binding.textMessage.setText(chatMessage.getContent());
+            binding.textDateTime.setText(chatMessage.getDateTime());
             if (receiverProfileImage != null) {
                 binding.imageProfile.setImageBitmap(receiverProfileImage);
             }
@@ -129,13 +129,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void setData(ChatMessage chatMessage, Bitmap receiverProfileImage) {
-            binding.textNameOtherPerson.setText(chatMessage.conversionName);
-            binding.textMessage.setText(chatMessage.message);
-            binding.textDateTime.setText(chatMessage.dateTime);
+//            binding.textNameOtherPerson.setText(chatMessage.get);
+            binding.textMessage.setText(chatMessage.getContent());
+            binding.textDateTime.setText(chatMessage.getDateTime());
             if (receiverProfileImage != null) {
                 binding.imageProfile.setImageBitmap(receiverProfileImage);
             }
 
         }
+    }
+
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
     }
 }

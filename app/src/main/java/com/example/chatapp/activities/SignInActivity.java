@@ -38,30 +38,31 @@ public class SignInActivity extends AppCompatActivity {
 
         CompletableFuture<JsonObject> future = loginHttpClient.login(email, password);
 
-        future.thenAccept(res -> runOnUiThread(() -> {
-            try {
-                if (res.has("code") && res.get("code").getAsInt() == Constants.CODE_SUCCESS) {
-                    JsonObject data = res.get("data").getAsJsonObject();
-                    String accessToken = data.get("token").getAsString();
-                    String refreshToken = data.get("refresh_token").getAsString();
-                    Log.d("SignIn", "AccessToken: " + accessToken);
-                    Log.d("SignIn", "RefreshToken: " + refreshToken);
-                    navigateToHome();
-                } else {
-                    // TODO handle new show err with code err
-                    showToast("Login failed: " + res.get("message").getAsString());
-                }
-            } catch (Exception e) {
-                Log.e("SignIn", "Error parsing response", e);
-                showToast("Error processing response");
-            }
-        })).exceptionally(e -> {
-            runOnUiThread(() -> {
-                Log.e("SignIn", "Login request failed", e);
-                showToast("Network error! Please try again.");
-            });
-            return null;
-        });
+//        future.thenAccept(res -> runOnUiThread(() -> {
+//            try {
+//                if (res.has("code") && res.get("code").getAsInt() == Constants.CODE_SUCCESS) {
+//                    JsonObject data = res.get("data").getAsJsonObject();
+//                    String accessToken = data.get("token").getAsString();
+//                    String refreshToken = data.get("refresh_token").getAsString();
+//                    Log.d("SignIn", "AccessToken: " + accessToken);
+//                    Log.d("SignIn", "RefreshToken: " + refreshToken);
+//                    navigateToHome();
+//                } else {
+//                    // TODO handle new show err with code err
+//                    showToast("Login failed: " + res.get("message").getAsString());
+//                }
+//            } catch (Exception e) {
+//                Log.e("SignIn", "Error parsing response", e);
+//                showToast("Error processing response");
+//            }
+//        })).exceptionally(e -> {
+//            runOnUiThread(() -> {
+//                Log.e("SignIn", "Login request failed", e);
+//                showToast("Network error! Please try again.");
+//            });
+//            return null;
+//        });
+        navigateToHome();
     }
 
     private void navigateToHome() {
