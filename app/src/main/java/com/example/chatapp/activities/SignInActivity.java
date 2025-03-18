@@ -5,19 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.room.DatabaseConfiguration;
-import androidx.room.InvalidationTracker;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
-import com.example.chatapp.consts.Constants;
-import com.example.chatapp.dao.TokenClientDao;
-import com.example.chatapp.database.AppDatabase;
 import com.example.chatapp.databinding.LoginBinding;
 import com.example.chatapp.models.ResponRepo;
 import com.example.chatapp.models.TokenClient;
-import com.example.chatapp.network.LoginHttpClient;
+import com.example.chatapp.network.HttpClient;
 import com.example.chatapp.repo.TokenClientRepo;
 import com.example.chatapp.utils.Utils;
 import com.google.gson.JsonObject;
@@ -28,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 public class SignInActivity extends AppCompatActivity {
 
     private LoginBinding binding;
-    private LoginHttpClient loginHttpClient;
+    private HttpClient loginHttpClient;
     private TokenClientRepo tokenClientRepo;
 
     @Override
@@ -46,7 +39,7 @@ public class SignInActivity extends AppCompatActivity {
 
     // init var use
     private void initVariableUse() {
-        loginHttpClient = new LoginHttpClient();
+        loginHttpClient = new HttpClient();
         tokenClientRepo = new TokenClientRepo(this);
     }
 

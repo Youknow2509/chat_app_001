@@ -61,7 +61,7 @@ public class TokenClient {
                 ", UpdatedAt=" + UpdatedAt +
                 '}';
     }
-    
+
     // Getters and Setters
     @NonNull
     public String getIdToken() {
