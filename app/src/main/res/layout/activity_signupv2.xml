@@ -142,7 +142,7 @@ android:background="#FFFFFF">
 </LinearLayout>
 
 <LinearLayout
-    android:id="@+id/r9oet35f5d8r"
+    android:id="@+id/btn_signup"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="24dp"
@@ -162,7 +162,7 @@ android:background="#FFFFFF">
     tools:layout_editor_absoluteX="16dp">
 
     <TextView
-        android:id="@+id/btn_signup"
+        android:id="@+id/r9oet35f5d8r"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign up"

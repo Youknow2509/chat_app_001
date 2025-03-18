@@ -2,6 +2,7 @@ package com.example.chatapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import com.example.chatapp.databinding.SignupBinding;
 public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
     private SignupBinding binding;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +26,8 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
         // get data intent
         Intent intent = getIntent();
         String email = intent.getStringExtra("email");
+        token = intent.getStringExtra("token");
+        Log.d("UpdatePasswordRegisterActivity", "Email: " + email + " Token: " + token);
         binding.editTextTextEmailAddress2.setText(email);
 
         setListeners();
