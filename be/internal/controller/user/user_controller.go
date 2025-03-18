@@ -81,7 +81,7 @@ func (cU *cUser) GetUserInfo(c *gin.Context) {
 // @Param        body body  model.UpdateUserInfoInput  true  "Update user info"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/update_user_info [post]
+// @Router       /v1/user/update_user_info [put]
 func (cU *cUser) UpdateUserInfo(c *gin.Context) {
 	var parameters model.UpdateUserInfoInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -159,7 +159,7 @@ func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 // @Param        body body  model.EndFriendRequestInput  true  "End friend request"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/end_friend_request [post]
+// @Router       /v1/user/end_friend_request [delete]
 func (cU *cUser) EndFriendRequest(c *gin.Context) {
 	var parameters model.EndFriendRequestInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -276,7 +276,7 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 // @Param        body body  model.DeleteFriendInput  true  "delete friend user information"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/delete_friend [post]
+// @Router       /v1/user/delete_friend [delete]
 func (cU *cUser) DeleteFriend(c *gin.Context) {
 	var parameters model.DeleteFriendInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -371,7 +371,7 @@ func (cU *cUser) GetListFriendRequet(c *gin.Context) {
 // @Param        body body  model.UserChangePasswordInput  true  "Update password user for user"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/update_password [post]
+// @Router       /v1/user/update_password [put]
 func (cU *cUser) UpdatePassword(c *gin.Context) {
 	var parameters model.UserChangePasswordInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {

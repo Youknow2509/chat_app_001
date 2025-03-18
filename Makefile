@@ -77,12 +77,12 @@ kafka_9091_create_a_topic:
 # Docker Compose
 docker_run:
 	@echo "Running Docker Compose dev"
-	docker compose -f ./environment/docker-compose.yml up -d
+	docker compose -f ./environment/docker-compose.yml -p chatapp up -d
 	@echo "Docker Compose running"
 
 docker_stop_deploy:
 	@echo "Stopping Docker Compose deploy"
-	docker compose -f ./environment/docker-compose.prod.yml down
+	docker compose -f ./environment/docker-compose.prod.yml -p chatapp down
 	@echo "Docker Compose stopped"
 
 docker_check_deploy:
@@ -118,5 +118,5 @@ docker_exec_redis:
 docker_deploy:
 	@echo "Note change config productiom before deploy - be/internal/initialize/run.go:15"
 	@echo "Deploying Back-End ChatApp"
-	docker-compose -f environment/docker-compose.prod.yml up -d --build
+	docker-compose -f environment/docker-compose.prod.yml -p chatapp up -d --build
 	@echo "Back-End ChatApp deployed"

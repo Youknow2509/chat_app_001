@@ -228,7 +228,7 @@ paths:
       tags:
       - Chat
   /v1/chat/change-admin-group-chat:
-    post:
+    put:
       consumes:
       - application/json
       description: Change admin chat status from old admin to new admin
@@ -322,7 +322,7 @@ paths:
       tags:
       - Chat
   /v1/chat/del-chat:
-    post:
+    delete:
       consumes:
       - application/json
       description: Delete chat by admin group chat
@@ -353,7 +353,7 @@ paths:
       tags:
       - Chat
   /v1/chat/del-men-from-chat:
-    post:
+    delete:
       consumes:
       - application/json
       description: Delete member from chat by admin group chat
@@ -489,7 +489,7 @@ paths:
       tags:
       - Chat
   /v1/chat/upgrade-chat-info:
-    post:
+    put:
       consumes:
       - application/json
       description: Update chat info by admin group chat
@@ -700,7 +700,7 @@ paths:
       tags:
       - User Info
   /v1/user/delete_friend:
-    post:
+    delete:
       consumes:
       - application/json
       description: Delete friend user information from the service
@@ -731,7 +731,7 @@ paths:
       tags:
       - User Info
   /v1/user/end_friend_request:
-    post:
+    delete:
       consumes:
       - application/json
       description: End friend request to another user
@@ -1013,7 +1013,7 @@ paths:
       tags:
       - User Info
   /v1/user/update_password:
-    post:
+    put:
       consumes:
       - application/json
       description: Update password user for user
@@ -1044,7 +1044,7 @@ paths:
       tags:
       - User Info
   /v1/user/update_user_info:
-    post:
+    put:
       consumes:
       - application/json
       description: Update nick name, ... information user

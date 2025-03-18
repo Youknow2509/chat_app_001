@@ -30,14 +30,14 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 	{
 		userRouterPrivate.GET("/get_user_info", userInfoController.User.GetUserInfo)
 		userRouterPrivate.GET("/find_user", userInfoController.User.FindUser)
-		userRouterPrivate.POST("/update_user_info", userInfoController.User.UpdateUserInfo)
+		userRouterPrivate.PUT("/update_user_info", userInfoController.User.UpdateUserInfo)
 		userRouterPrivate.POST("/create_friend_request", userInfoController.User.CreateFriendRequest)
-		userRouterPrivate.POST("/end_friend_request", userInfoController.User.EndFriendRequest)
-		userRouterPrivate.POST("/delete_friend", userInfoController.User.DeleteFriend)
+		userRouterPrivate.DELETE("/end_friend_request", userInfoController.User.EndFriendRequest)
+		userRouterPrivate.DELETE("/delete_friend", userInfoController.User.DeleteFriend)
 		userRouterPrivate.POST("/accept_friend_request", userInfoController.User.AcceptFriendRequest)
 		userRouterPrivate.POST("/reject_friend_request", userInfoController.User.RejectFriendRequest)
 		userRouterPrivate.GET("/get_list_friend_request", userInfoController.User.GetListFriendRequet)
 		//
-		userRouterPrivate.POST("/update_password", userInfoController.User.UpdatePassword)
+		userRouterPrivate.PUT("/update_password", userInfoController.User.UpdatePassword)
 	}
 }

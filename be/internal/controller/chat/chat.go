@@ -301,7 +301,7 @@ func (ct *cChat) GetUserInChat(c *gin.Context) {
 // @Param        payload body model.ChangeAdminGroupChatInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/change-admin-group-chat [post]
+// @Router       /v1/chat/change-admin-group-chat [put]
 func (ct *cChat) ChangeAdminGroupChat(c *gin.Context) {
 	// get body input
 	var parameters *model.ChangeAdminGroupChatInput
@@ -341,7 +341,7 @@ func (ct *cChat) ChangeAdminGroupChat(c *gin.Context) {
 // @Param        payload body model.DelChatInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/del-chat [post]
+// @Router       /v1/chat/del-chat [delete]
 func (ct *cChat) DelChat(c *gin.Context) {
 	// get body input
 	var parameters *model.DelChatInput
@@ -382,7 +382,7 @@ func (ct *cChat) DelChat(c *gin.Context) {
 // @Param        payload body model.DelMenForChatInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/del-men-from-chat [post]
+// @Router       /v1/chat/del-men-from-chat [delete]
 func (ct *cChat) DelMemberForChat(c *gin.Context) {
 	// get body input
 	var parameters *model.DelMenForChatInput
@@ -423,7 +423,7 @@ func (ct *cChat) DelMemberForChat(c *gin.Context) {
 // @Param        payload body model.UpgradeChatInfoInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/upgrade-chat-info [post]
+// @Router       /v1/chat/upgrade-chat-info [PUT]
 func (ct *cChat) UpdateChatInfo(c *gin.Context) {
 	// get body input
 	var parameters *model.UpgradeChatInfoInput

@@ -36,9 +36,9 @@ func (cb *ChatBaseRouter) InitChatBaseRouter(Router *gin.RouterGroup) {
 	chatRouterPrivate.Use(middlewares.AuthenMiddleware())
 	chatRouterPrivate.Use(middlewares.TokenAuthMiddleware())
 	{
-		chatRouterPrivate.POST("upgrade-chat-info", chatController.Chat.UpdateChatInfo)
-		chatRouterPrivate.POST("change-admin-group-chat", chatController.Chat.ChangeAdminGroupChat)
-		chatRouterPrivate.POST("del-men-from-chat", chatController.Chat.DelMemberForChat)
-		chatRouterPrivate.POST("del-chat", chatController.Chat.DelChat)
+		chatRouterPrivate.PUT("upgrade-chat-info", chatController.Chat.UpdateChatInfo)
+		chatRouterPrivate.PUT("change-admin-group-chat", chatController.Chat.ChangeAdminGroupChat)
+		chatRouterPrivate.DELETE("del-men-from-chat", chatController.Chat.DelMemberForChat)
+		chatRouterPrivate.DELETE("del-chat", chatController.Chat.DelChat)
 	}
 }

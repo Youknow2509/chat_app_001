@@ -72,7 +72,7 @@ const docTemplate = `{
             }
         },
         "/v1/chat/change-admin-group-chat": {
-            "post": {
+            "put": {
                 "description": "Change admin chat status from old admin to new admin",
                 "consumes": [
                     "application/json"
@@ -213,7 +213,7 @@ const docTemplate = `{
             }
         },
         "/v1/chat/del-chat": {
-            "post": {
+            "delete": {
                 "description": "Delete chat by admin group chat",
                 "consumes": [
                     "application/json"
@@ -260,7 +260,7 @@ const docTemplate = `{
             }
         },
         "/v1/chat/del-men-from-chat": {
-            "post": {
+            "delete": {
                 "description": "Delete member from chat by admin group chat",
                 "consumes": [
                     "application/json"
@@ -463,7 +463,7 @@ const docTemplate = `{
             }
         },
         "/v1/chat/upgrade-chat-info": {
-            "post": {
+            "put": {
                 "description": "Update chat info by admin group chat",
                 "consumes": [
                     "application/json"
@@ -783,7 +783,7 @@ const docTemplate = `{
             }
         },
         "/v1/user/delete_friend": {
-            "post": {
+            "delete": {
                 "description": "Delete friend user information from the service",
                 "consumes": [
                     "application/json"
@@ -830,7 +830,7 @@ const docTemplate = `{
             }
         },
         "/v1/user/end_friend_request": {
-            "post": {
+            "delete": {
                 "description": "End friend request to another user",
                 "consumes": [
                     "application/json"
@@ -1257,7 +1257,7 @@ const docTemplate = `{
             }
         },
         "/v1/user/update_password": {
-            "post": {
+            "put": {
                 "description": "Update password user for user",
                 "consumes": [
                     "application/json"
@@ -1304,7 +1304,7 @@ const docTemplate = `{
             }
         },
         "/v1/user/update_user_info": {
-            "post": {
+            "put": {
                 "description": "Update nick name, ... information user",
                 "consumes": [
                     "application/json"
