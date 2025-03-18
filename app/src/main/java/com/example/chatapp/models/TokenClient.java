@@ -51,6 +51,17 @@ public class TokenClient {
         this.UpdatedAt = System.currentTimeMillis();
     }
 
+    @Override
+    public String toString() {
+        return "TokenClient{" +
+                "IdToken='" + IdToken + '\'' +
+                ", AccessToken='" + AccessToken + '\'' +
+                ", RefreshToken='" + RefreshToken + '\'' +
+                ", CreatedAt=" + CreatedAt +
+                ", UpdatedAt=" + UpdatedAt +
+                '}';
+    }
+    
     // Getters and Setters
     @NonNull
     public String getIdToken() {
