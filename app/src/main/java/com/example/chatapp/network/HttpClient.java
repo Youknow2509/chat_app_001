@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import okhttp3.*;
 
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.utils.EndPoint;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -28,7 +29,7 @@ public class HttpClient {
     public CompletableFuture<JsonObject> login(String email, String password) {
         CompletableFuture<JsonObject> future = new CompletableFuture<>();
 
-        String url = Constants.URL_HOST_SERVER + "/v1/user/login";
+        String url = Constants.URL_HOST_SERVER + EndPoint.LOGIN;
 
         // Create JSON body for login request
         JsonObject jsonObject = new JsonObject();
@@ -66,7 +67,7 @@ public class HttpClient {
     public CompletableFuture<JsonObject> register(String email) {
         CompletableFuture<JsonObject> future = new CompletableFuture<>();
 
-        String url = Constants.URL_HOST_SERVER + "/v1/user/register";
+        String url = Constants.URL_HOST_SERVER + EndPoint.REGISTER;
 
         // Create JSON body for login request
         JsonObject jsonObject = new JsonObject();
@@ -106,7 +107,7 @@ public class HttpClient {
     public CompletableFuture<JsonObject> verifyOtp(String email, String otp) {
         CompletableFuture<JsonObject> future = new CompletableFuture<>();
 
-        String url = Constants.URL_HOST_SERVER + "/v1/user/verify_account";
+        String url = Constants.URL_HOST_SERVER + EndPoint.VERIFY_ACCOUNT;
 
         // Create JSON body for login request
         JsonObject jsonObject = new JsonObject();
