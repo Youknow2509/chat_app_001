@@ -433,9 +433,9 @@ func (s *sUserLogin) Register(ctx context.Context, in *model.RegisterInput) (cod
 func (s *sUserLogin) VerifyOTP(ctx context.Context, in *model.VerifyInput) (out model.VerifyOTPOutput, err error) {
 	// get hash key
 	hashKey := crypto.GetHash(strings.ToLower(in.VerifyKey))
-
+	keyRedis := utils.GetTwoFactorKeyVerifyRegister(hashKey)
 	// get otp
-	otpFound, err := global.Rdb.Get(ctx, utils.GetTwoFactorKeyVerifyRegister(hashKey)).Result()
+	otpFound, err := global.Rdb.Get(ctx, keyRedis).Result()
 	switch {
 	case errors.Is(err, redis.Nil):
 		fmt.Println("key does not exist")
@@ -453,6 +453,14 @@ func (s *sUserLogin) VerifyOTP(ctx context.Context, in *model.VerifyInput) (out 
 	if err != nil {
 		return out, err
 	}
+	// rm cache otp
+	go func() {
+		err := global.Rdb.Del(ctx, keyRedis).Err()
+		if err != nil {
+			fmt.Println("Del failed:: ", err)
+		}
+		global.Logger.Info(fmt.Sprintf("Del OTP cache: %s", hashKey))
+	}()
 
 	// upgrade status verify
 	err = s.r.UpdateUserVerificationStatus(ctx, hashKey)
