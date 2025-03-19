@@ -38,8 +38,8 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
     private ChatAdapter chatAdapter;
 
     private PreferenceManager preferenceManager;
-    private String conversionId;
-    private Boolean isReceiverAvailable = false;
+    private String conversionId = "789e0123-a456-42f5-b678-556655440000";
+    private Boolean isReceiverAvailable = true;
 
     private String id_client_test = "0";
     private boolean isGroupChat = false;
@@ -72,8 +72,12 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
                 isGroupChat
         );
         binding.chatRecycleView.setAdapter(chatAdapter);
+        addSampleMessages();
     }
 
+    private void addSampleMessages() {
+        binding.chatRecycleView.setVisibility(View.VISIBLE);
+    }
 
     private Bitmap getBitmap(Bitmap bitmapImage) {
         return bitmapImage != null ? bitmapImage : null;
@@ -133,20 +137,19 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
             return;
         }
 
-//        ChatMessage chatMessage = new ChatMessage();
-//        chatMessage.senderId = id_client_test;
-//        chatMessage.content = messageText;
-//        chatMessage.dateTime = getReadableDateTime(new Date());
-//        chatMessage.setDateObject();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSenderId(id_client_test);
+        chatMessage.setContent(messageText);
+        chatMessage.setDateObject(new Date());
 
-//        if (isGroupChat) {
-//            chatMessage.receiverId = receiverGroup.id;
-//            chatMessage.conversionName = "You";
-//        } else {
-//            chatMessage.receiverId = receiverUser.id;
-//        }
+        if (isGroupChat) {
+            chatMessage.setReceiverId(receiverGroup.id);
+            chatMessage.setName("You");
+        } else {
+            chatMessage.setReceiverId(receiverUser.id);
+        }
 
-//        chatMessages.add(chatMessage);
+        chatMessages.add(chatMessage);
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
         binding.chatRecycleView.smoothScrollToPosition(chatMessages.size() - 1);
         binding.inputMessage.setText(null);
@@ -172,10 +175,7 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
         if (isMessageRelevantToThisChat(message)) {
             Log.d(TAG, "Message is relevant to this chat, updating UI");
             runOnUiThread(() -> {
-                chatAdapter.getChatMessages().add(message);
-//                chatMessages.add(message);
-                chatAdapter.notifyItemInserted(chatMessages.size() - 1);
-                binding.chatRecycleView.smoothScrollToPosition(chatMessages.size() - 1);
+                chatMessages.add(message);
                 chatAdapter.notifyDataSetChanged();
             });
         } else {
@@ -201,9 +201,5 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
         Log.d(TAG, "Message relevance check: " + isRelevant +
                 " (conversionId=" + conversionId + ", messageChatId=" + message.getChatId() + ")");
         return isRelevant;
-    }
-
-    public ChatAdapter getChatAdapter() {
-        return chatAdapter;
     }
 }

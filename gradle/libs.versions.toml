@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.3"
+agp = "8.9.0"
 cameraCore = "1.4.1"
 googleAuthLibraryOauth2Http = "1.15.0"
 junit = "4.13.2"

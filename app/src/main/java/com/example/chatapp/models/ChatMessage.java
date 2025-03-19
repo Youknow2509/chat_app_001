@@ -6,14 +6,30 @@ import java.util.Date;
 
 public class ChatMessage {
     private String id;
-    private String senderId, content, dateTime;
+    private String senderId, content, dateTime, receiverId;
     private Date dateObject;
-    private String chatId, messageType;
+    private String chatId, messageType, name;
     private Bitmap conversionImage;
     private String mediaUrl;
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
     }
 
     public void setSenderId(String senderId) {

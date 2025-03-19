@@ -58,45 +58,46 @@ public class SignInActivity extends AppCompatActivity {
 
         CompletableFuture<JsonObject> future = loginHttpClient.login(email, password);
 
-        future.thenAccept(res -> runOnUiThread(() -> {
-            try {
-                int codeRes = 0;
-                if (res.has("code")) {
-                    codeRes = res.get("code").getAsInt();
-                }
-                if (codeRes == Utils.ErrCodeSuccess) {
-                    JsonObject data = res.get("data").getAsJsonObject();
-                    String accessToken = data.get("token").getAsString();
-                    String refreshToken = data.get("refresh_token").getAsString();
-                    Log.d("SignIn", "AccessToken: " + accessToken);
-                    Log.d("SignIn", "RefreshToken: " + refreshToken);
-                    // sqlite
-                    ResponRepo responRepo = tokenClientRepo.insertToken(new TokenClient(
-                            UUID.randomUUID().toString(),
-                            accessToken,
-                            refreshToken
-                    ));
-                    if (!responRepo.isStatus()) {
-                        showToast("Login failed: " + responRepo.getMessage());
-                        return;
-                    }
-                    navigateToHome();
-                } else {
-                    // TODO handle new show err with code err
-                    Log.e("SignIn", "Login failed: " + Utils.getMessageByCode(codeRes));
-                    showToast("Login failed: " + Utils.getMessageByCode(codeRes));
-                }
-            } catch (Exception e) {
-                Log.e("SignIn", "Error parsing response", e);
-                showToast("Error processing response");
-            }
-        })).exceptionally(e -> {
-            runOnUiThread(() -> {
-                Log.e("SignIn", "Login request failed", e);
-                showToast("Network error! Please try again.");
-            });
-            return null;
-        });
+//        future.thenAccept(res -> runOnUiThread(() -> {
+//            try {
+//                int codeRes = 0;
+//                if (res.has("code")) {
+//                    codeRes = res.get("code").getAsInt();
+//                }
+//                if (codeRes == Utils.ErrCodeSuccess) {
+//                    JsonObject data = res.get("data").getAsJsonObject();
+//                    String accessToken = data.get("token").getAsString();
+//                    String refreshToken = data.get("refresh_token").getAsString();
+//                    Log.d("SignIn", "AccessToken: " + accessToken);
+//                    Log.d("SignIn", "RefreshToken: " + refreshToken);
+//                    // sqlite
+//                    ResponRepo responRepo = tokenClientRepo.insertToken(new TokenClient(
+//                            UUID.randomUUID().toString(),
+//                            accessToken,
+//                            refreshToken
+//                    ));
+//                    if (!responRepo.isStatus()) {
+//                        showToast("Login failed: " + responRepo.getMessage());
+//                        return;
+//                    }
+//                    navigateToHome();
+//                } else {
+//                    // TODO handle new show err with code err
+//                    Log.e("SignIn", "Login failed: " + Utils.getMessageByCode(codeRes));
+//                    showToast("Login failed: " + Utils.getMessageByCode(codeRes));
+//                }
+//            } catch (Exception e) {
+//                Log.e("SignIn", "Error parsing response", e);
+//                showToast("Error processing response");
+//            }
+//        })).exceptionally(e -> {
+//            runOnUiThread(() -> {
+//                Log.e("SignIn", "Login request failed", e);
+//                showToast("Network error! Please try again.");
+//            });
+//            return null;
+//        });
+        navigateToHome();
     }
 
     private void navigateToHome() {
