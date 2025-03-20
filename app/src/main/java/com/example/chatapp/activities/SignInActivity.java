@@ -49,7 +49,7 @@ public class SignInActivity extends AppCompatActivity {
         // TODO handle input validation
         showToast("Logging in...");
 
-        // TODO - prd rm
+        // TODO - use in test -> prd
         if (email == "admin" && password == "admin") {
             navigateToHome();
         }
@@ -95,7 +95,6 @@ public class SignInActivity extends AppCompatActivity {
             });
             return null;
         });
-        navigateToHome();
     }
 
     private void navigateToHome() {
