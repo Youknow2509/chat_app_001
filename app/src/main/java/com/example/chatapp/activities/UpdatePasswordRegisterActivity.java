@@ -78,19 +78,34 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
         if (!isValidSignUp(email, password, password_repeat)) {
             Log.e(TAG, "Input register account when update password is invalid");
-            showToast("Invalid input");
+            return;
         }
 
-        showToast("TODO cmp");
-//        showToast("Sign Up Successful!");
-//
-//        Intent intent = new Intent(UpdatePasswordRegisterActivity.this, HomeActivity.class);
-//        startActivity(intent);
-//        finish();
+        handleReqSignUpAccountHavePassword(password).thenAccept(ac -> {
+            if (ac == null) {
+                showToast("Create password user failed");
+                return;
+            }
+            back_act();
+        }).exceptionally(e -> {
+            Log.e(TAG, "Create password user failed", e);
+            showToast("Create password user failed");
+            return null;
+        });
+
+    }
+
+    // change to login activity
+    private void back_act() {
+        Intent intent = new Intent(UpdatePasswordRegisterActivity.this, SignInActivity.class);
+        String email = binding.editTextTextEmailAddress2.getText().toString().trim();
+        intent.putExtra("mail", email);
+        startActivity(intent);
+        finish();
     }
 
     // handle req sign up account have password
-    private void handleReqSignUpAccountHavePassword(String password) {
+    private CompletableFuture<JsonObject> handleReqSignUpAccountHavePassword(String password) {
         CompletableFuture<JsonObject> future = httpClient.createPassword(token, password);
         future.thenAccept(res -> runOnUiThread(() -> {
             try {
@@ -101,13 +116,10 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
                 if (codeRes != Utils.ErrCodeSuccess) {
                     Log.e(TAG, "Err code: " + Utils.getMessageByCode(codeRes));
                     showToast(Utils.getMessageByCode(codeRes));
-                    return;
+                    future.complete(null);
                 }
-                // back to login
-                Intent intent = new Intent(UpdatePasswordRegisterActivity.this, SignInActivity.class);
-                startActivity(intent);
-                finish();
-                showToast("Sign Up Successful!");
+
+                future.complete(res);
             } catch (Exception e) {
                 Log.e("SignIn", "Error parsing response", e);
                 showToast("Error processing response");
@@ -119,9 +131,10 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
             });
             return null;
         });
+        return future;
     }
 
     private void showToast(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
     }
 }

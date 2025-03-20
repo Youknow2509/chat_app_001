@@ -147,7 +147,7 @@ public class HttpClient {
     public CompletableFuture<JsonObject> createPassword(String token, String password) {
         CompletableFuture<JsonObject> future = new CompletableFuture<>();
 
-        String url = Constants.URL_HOST_SERVER + EndPoint.VERIFY_ACCOUNT;
+        String url = Constants.URL_HOST_SERVER + EndPoint.UPGRADE_PASSWORD_REGISTER;
 
         // Create JSON body for login request
         JsonObject jsonObject = new JsonObject();

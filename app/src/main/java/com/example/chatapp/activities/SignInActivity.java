@@ -33,9 +33,19 @@ public class SignInActivity extends AppCompatActivity {
         binding = LoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // handle if activity before is register
+        handleFielMail();
+
         binding.back.setOnClickListener(v -> back_act());
         binding.btnLogin.setOnClickListener(v -> signIn());
         binding.tvForgotPassword.setOnClickListener(v -> forgotPassword());
+    }
+
+    // handle if before is register
+    private void handleFielMail() {
+        Intent intent = getIntent();
+        String new_email_acc = intent.getStringExtra("mail");
+        binding.editTextTextEmailAddress.setText(new_email_acc);
     }
 
     // init var use
