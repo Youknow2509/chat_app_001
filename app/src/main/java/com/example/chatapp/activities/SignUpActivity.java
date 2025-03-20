@@ -178,6 +178,7 @@ public class SignUpActivity extends AppCompatActivity {
                     codeRes = res.get("code").getAsInt();
                 }
                 if (codeRes != Utils.ErrCodeSuccess) {
+                    showToast(Utils.getMessageByCode(codeRes));
                     Log.e("RequestOTP", "RequestOTP failed: " + Utils.getMessageByCode(codeRes));
                 }
             } catch (Exception e) {
