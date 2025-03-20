@@ -35,12 +35,18 @@ public class SignInActivity extends AppCompatActivity {
 
         binding.back.setOnClickListener(v -> back_act());
         binding.btnLogin.setOnClickListener(v -> signIn());
+        binding.tvForgotPassword.setOnClickListener(v -> forgotPassword());
     }
 
     // init var use
     private void initVariableUse() {
         loginHttpClient = new HttpClient();
         tokenClientRepo = new TokenClientRepo(this);
+    }
+
+    // handle forgot password
+    private void forgotPassword() {
+        // TODO: dont have view forgot password
     }
 
     private void signIn() {

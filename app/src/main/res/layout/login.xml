@@ -260,7 +260,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/rvszm0m601wj"
+        android:id="@+id/tvForgotPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="131dp"
