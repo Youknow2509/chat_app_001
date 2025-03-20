@@ -1,3 +1,4 @@
+gradle/libs.versions:.toml
 *.iml
 .gradle
 /local.properties
