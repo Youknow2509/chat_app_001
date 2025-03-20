@@ -103,7 +103,7 @@ run_server:
 # SQLC - Generate
 sqlc_generate:
 	@echo "Generating SQLC queries"
-	sqlc -f ../environment/sqlc.yaml generate
+	sqlc -f sqlc.yaml generate
 	@echo "SQLC queries generated"
 
 # Create Environment Variables

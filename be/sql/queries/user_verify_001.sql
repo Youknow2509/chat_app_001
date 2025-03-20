@@ -1,7 +1,14 @@
 -- name: GetValidOtp :one
 SELECT verify_otp, verify_key_hash, verify_key, verify_id
 FROM `user_verify`
-WHERE verify_key_hash = ? AND is_verified = 0;
+WHERE verify_key_hash = ? AND is_verified = 1 AND is_deleted = 0
+LIMIT 1;
+
+-- name: DeleteTokenVerifyRegister :exec
+UPDATE `user_verify`
+SET is_deleted = 1, 
+    verify_updated_at = now()
+WHERE verify_key_hash = ?;
 
 -- update lai
 -- name: UpdateUserVerificationStatus :exec

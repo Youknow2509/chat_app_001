@@ -478,14 +478,15 @@ func (s *sUserLogin) VerifyOTP(ctx context.Context, in *model.VerifyInput) (out 
 // UpdatePasswordRegister implements service.IUserLogin.
 func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.UpdatePasswordInput) (userId int, err error) {
 	// token is already
-	infoOTP, err := s.r.GetInfoOTP(ctx, in.Token)
+	infoOTP, err := s.r.GetValidOtp(ctx, in.Token)
 	if err != nil {
 		return response.ErrCodeUserOTPNotExist, err
 	}
 	// check otp verify
-	if infoOTP.IsVerified.Int32 == 0 {
-		return response.ErrCodeOTPDontVerify, errors.New("OTP not verify")
+	if infoOTP.VerifyKeyHash != in.Token {
+		return response.ErrCodeOTPDontVerify, errors.New("otp not verify")
 	}
+
 	// check token exists in user_base
 	// update userbase password
 	salt, err := crypto.GenerateSalt(16)
@@ -521,6 +522,15 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 	if err != nil {
 		return response.ErrCodeAddUserInfo, err
 	}
+
+	// delete token 
+	go func() {
+		err_del := s.r.DeleteTokenVerifyRegister(context.Background(), infoOTP.VerifyKeyHash)
+		if err_del != nil {
+			global.Logger.Info(fmt.Sprintf("Delete token verify register failed: %v", err_del))
+		}
+		global.Logger.Info(fmt.Sprintf("Deleted token verify register: %s", infoOTP.VerifyKeyHash))
+	}()
 
 	return response.ErrCodeSuccess, nil
 }
