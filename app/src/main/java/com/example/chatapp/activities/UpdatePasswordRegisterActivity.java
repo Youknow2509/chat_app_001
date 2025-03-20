@@ -8,11 +8,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.databinding.SignupBinding;
+import com.example.chatapp.network.HttpClient;
+import com.example.chatapp.utils.Utils;
+import com.google.gson.JsonObject;
+
+import java.util.concurrent.CompletableFuture;
 
 public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
     private SignupBinding binding;
     private String token;
+    private HttpClient httpClient;
+    private final String TAG = "UpdatePasswordRegisterActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +42,7 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
     // init variable use
     private void initVariableUse() {
-
+        httpClient = new HttpClient();
     }
 
     private void setListeners() {
@@ -46,42 +53,65 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
     }
 
     // Kiểm tra tính hợp lệ của email và mật khẩu
-//    private Boolean isValidSignUp() {
-//        String email = binding.editTextTextEmailAddress2.getText().toString().trim();
-//        String password = binding.editTextTextPassword2.getText().toString().trim();
-//        String confirmPassword = binding.editTextTextPassword3.getText().toString().trim();
-//
-//        if (email.isEmpty()) {
-//            showToast("Please enter your email");
-//            return false;
-//        } else if (password.isEmpty()) {
-//            showToast("Please enter your password");
-//            return false;
-//        } else if (confirmPassword.isEmpty()) {
-//            showToast("Please confirm your password");
-//            return false;
-//        } else if (!password.equals(confirmPassword)) {
-//            showToast("Password and Confirm Password must match");
-//            return false;
-//        }
-//        return true;
-//    }
+    private Boolean isValidSignUp(String email, String password, String confirmPassword) {
+        if (email.isEmpty()) {
+            showToast("Please enter your email");
+            return false;
+        } else if (password.isEmpty()) {
+            showToast("Please enter your password");
+            return false;
+        } else if (confirmPassword.isEmpty()) {
+            showToast("Please confirm your password");
+            return false;
+        } else if (!password.equals(confirmPassword)) {
+            showToast("Password and Confirm Password must match");
+            return false;
+        }
+        return true;
+    }
 
     // Xử lý đăng ký
     private void signUp() {
         String email = binding.editTextTextEmailAddress2.getText().toString().trim();
         String password = binding.editTextTextPassword2.getText().toString().trim();
+        String password_repeat = binding.editTextTextPassword3.getText().toString().trim();
 
-        showToast("Sign Up Successful!");
+        if (!isValidSignUp(email, password, password_repeat)) {
+            Log.e(TAG, "Input register account when update password is invalid");
+            showToast("Invalid input");
+        }
 
-        Intent intent = new Intent(UpdatePasswordRegisterActivity.this, HomeActivity.class);
-        startActivity(intent);
-        finish();
+        showToast("TODO cmp");
+//        showToast("Sign Up Successful!");
+//
+//        Intent intent = new Intent(UpdatePasswordRegisterActivity.this, HomeActivity.class);
+//        startActivity(intent);
+//        finish();
     }
 
-    // get code otp
-    private void getCodeOtp() {
-
+    // handle req sign up account have password
+    private void handleReqSignUpAccountHavePassword(String password) {
+        CompletableFuture<JsonObject> future = httpClient.createPassword(token, password);
+        future.thenAccept(res -> runOnUiThread(() -> {
+            try {
+                int codeRes = 0;
+                if (res.has("code")) {
+                    codeRes = res.get("code").getAsInt();
+                }
+                if (codeRes != Utils.ErrCodeSuccess) {
+                    // TODO
+                }
+            } catch (Exception e) {
+                Log.e("SignIn", "Error parsing response", e);
+                showToast("Error processing response");
+            }
+        })).exceptionally(e -> {
+            runOnUiThread(() -> {
+                Log.e(TAG, "Create password user failed: ", e);
+                showToast("Network error! Please try again.");
+            });
+            return null;
+        });
     }
 
     private void showToast(String message) {

@@ -72,27 +72,33 @@ public class signupv2 extends AppCompatActivity {
     }
 
     private void sendVerificationCode() {
-        // TODO: fix error click sign up lien tiep bi chan
 
-//        tvCodeSent.setVisibility(View.VISIBLE);
-//        btnGetCode.setEnabled(false);
-//        btnGetCode.setBackgroundColor(getResources().getColor(R.color.nav_item_color)); // Đổi màu nút khi bị vô hiệu hóa
-//
-//        countDownTimer = new CountDownTimer(60000, 1000) {
-//            @Override
-//            public void onTick(long millisUntilFinished) {
-//                btnGetCode.setText("Resend in " + millisUntilFinished / 1000 + "s");
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                btnGetCode.setEnabled(true);
-//                btnGetCode.setText("Get Code");
-//                btnGetCode.setBackgroundColor(getResources().getColor(R.color.primary)); // Trả lại màu ban đầu
-//            }
-//        }.start();
         // get email input
         emailInput = ((EditText)findViewById(R.id.editTextTextEmailAddress2)).getText().toString();
+
+        if (emailInput.isEmpty() || emailInput == "") {
+            showToast("Vui long nhap email");
+            return;
+        }
+
+        tvCodeSent.setVisibility(View.VISIBLE);
+        btnGetCode.setEnabled(false);
+        btnGetCode.setBackgroundColor(getResources().getColor(R.color.nav_item_color)); // Đổi màu nút khi bị vô hiệu hóa
+
+        countDownTimer = new CountDownTimer(60000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                btnGetCode.setText("Resend in " + millisUntilFinished / 1000 + "s");
+            }
+
+            @Override
+            public void onFinish() {
+                btnGetCode.setEnabled(true);
+                btnGetCode.setText("Get Code");
+                btnGetCode.setBackgroundColor(getResources().getColor(R.color.primary)); // Trả lại màu ban đầu
+            }
+        }.start();
+
         // send otp and save token in device
         sendOtp();
     }

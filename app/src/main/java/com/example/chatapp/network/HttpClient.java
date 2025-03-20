@@ -72,7 +72,7 @@ public class HttpClient {
         // Create JSON body for login request
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("verify_key", email);
-        jsonObject.addProperty("verify_purpose", PURPOSE_REGISTER_TEST); // use PURPOSE_REGISTER_TEST -> otp test 123456
+        jsonObject.addProperty("verify_purpose", PURPOSE_REGISTER_PROD); // use PURPOSE_REGISTER_TEST -> otp test 123456
         jsonObject.addProperty("verify_type", 1);
 
         RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
@@ -142,4 +142,10 @@ public class HttpClient {
         return future;
     }
 
+
+    // create password when register
+    public CompletableFuture<JsonObject> createPassword(String token, String password) {
+        // TODO
+        return null;
+    }
 }
