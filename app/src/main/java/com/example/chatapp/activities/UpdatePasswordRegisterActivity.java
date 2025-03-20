@@ -2,24 +2,40 @@ package com.example.chatapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.databinding.SignupBinding;
 
-public class SignUpActivity extends AppCompatActivity {
+public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
     private SignupBinding binding;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        initVariableUse();
+
         binding = SignupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // get data intent
+        Intent intent = getIntent();
+        String email = intent.getStringExtra("email");
+        token = intent.getStringExtra("token");
+        Log.d("UpdatePasswordRegisterActivity", "Email: " + email + " Token: " + token);
+        binding.editTextTextEmailAddress2.setText(email);
+
         setListeners();
+    }
+
+    // init variable use
+    private void initVariableUse() {
+
     }
 
     private void setListeners() {
@@ -58,9 +74,14 @@ public class SignUpActivity extends AppCompatActivity {
 
         showToast("Sign Up Successful!");
 
-        Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+        Intent intent = new Intent(UpdatePasswordRegisterActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    // get code otp
+    private void getCodeOtp() {
+
     }
 
     private void showToast(String message) {

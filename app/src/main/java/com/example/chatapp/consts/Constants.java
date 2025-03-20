@@ -4,8 +4,7 @@ import java.util.HashMap;
 
 public class Constants {
     public static final int CODE_SUCCESS = 20001;
-    public static final String URL_HOST_SERVER = "http://10.0.2.2:8082";
-    public static final String HOST_SERVER = "khanhdew.ddns.net:8881";
+    public static final String URL_HOST_SERVER = "http://10.0.2.2:8082"; // http://10.0.2.2:8082 is local
     public static final int NUMBER_OF_THREADS_Write_EXECUTOR_DATABASE = 4;
     public static final String DATABASE_NAME = "chatAppDatabase";
     public static final String KEY_COLLECTION_USERS = "users";
