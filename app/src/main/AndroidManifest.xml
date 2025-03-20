@@ -28,7 +28,7 @@
         android:usesCleartextTraffic="true"
         >
         <activity
-            android:name=".activities.signupv2"
+            android:name=".activities.SignUpActivity"
             android:exported="false"
             android:theme="@style/Theme.ChatApp.NoActionBar" />
         <activity

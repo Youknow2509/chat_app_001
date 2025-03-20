@@ -2,7 +2,6 @@ package com.example.chatapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,7 +15,7 @@ public class OnboardingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_onboarding);
 
         findViewById(R.id.btn_signup).setOnClickListener(v -> {
-            startActivity(new Intent(OnboardingActivity.this, signupv2.class));
+            startActivity(new Intent(OnboardingActivity.this, SignUpActivity.class));
         });
 
         findViewById(R.id.btn_login).setOnClickListener(v -> {

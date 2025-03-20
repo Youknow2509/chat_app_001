@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 
 import java.util.concurrent.CompletableFuture;
 
-public class signupv2 extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity {
 
     private Button btnGetCode;
     private TextView tvCodeSent;
@@ -105,60 +105,68 @@ public class signupv2 extends AppCompatActivity {
 
     // handle submit otp and mail register
     private void handleBtnRegister() {
-//        showToast("Click sign up");
         String code = "";
         for (EditText codeInput : codeInputs) {
             code += codeInput.getText().toString();
         }
         emailInput = ((EditText)findViewById(R.id.editTextTextEmailAddress2)).getText().toString();
-        Log.d("handleBtnRegister", "Code: " + code + " Email: " + emailInput + "");
+        Log.d("handleBtnRegister", "Code: " + code + " Email: " + emailInput);
+
         if (code.length() == 6) {
-            // Verify code
-            verifyOtp(emailInput, code);
-            if (tokenVerifyOTP == null || tokenVerifyOTP.isEmpty()) {
-                showToast("Vui long nhap dung otp");
-                return;
-            }
-            // navigate to update password
-            Intent intent = new Intent(signupv2.this, UpdatePasswordRegisterActivity.class);
-            intent.putExtra("email", emailInput);
-            intent.putExtra("token", tokenVerifyOTP);
-            startActivity(intent);
-            finish();
+            verifyOtp(emailInput, code).thenAccept(verified -> runOnUiThread(() -> {
+                if (verified && tokenVerifyOTP != null && !tokenVerifyOTP.isEmpty()) {
+                    // OTP hợp lệ, điều hướng sang màn hình tiếp theo
+                    Intent intent = new Intent(SignUpActivity.this, UpdatePasswordRegisterActivity.class);
+                    intent.putExtra("email", emailInput);
+                    intent.putExtra("token", tokenVerifyOTP);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // OTP không hợp lệ
+                    showToast("Vui lòng nhập đúng OTP");
+                }
+            }));
         } else {
-            showToast("Vui long nhap dung otp");
+            showToast("Vui lòng nhập đủ 6 số OTP");
         }
     }
 
+
     // verify otp
-    private void verifyOtp(String email, String otp) {
+    private CompletableFuture<Boolean> verifyOtp(String email, String otp) {
+        CompletableFuture<Boolean> verifyFuture = new CompletableFuture<>();
+
         CompletableFuture<JsonObject> future = httpClient.verifyOtp(email, otp);
         future.thenAccept(res -> runOnUiThread(() -> {
             try {
-                int codeRes = 0;
-                if (res.has("code")) {
-                    codeRes = res.get("code").getAsInt();
-                }
+                int codeRes = res.has("code") ? res.get("code").getAsInt() : -1;
                 if (codeRes == Utils.ErrCodeSuccess) {
                     JsonObject data = res.get("data").getAsJsonObject();
-                    String token = data.get("token").getAsString();
-                    this.tokenVerifyOTP = token;
-                    Log.d("VerifyOTP", "Token: " + token);
+                    this.tokenVerifyOTP = data.get("token").getAsString();
+                    Log.d("VerifyOTP", "Token: " + tokenVerifyOTP);
+                    verifyFuture.complete(true);
                 } else {
-                    Log.e("VerifyOTP", "Request verify failed: " + Utils.getMessageByCode(codeRes));
+                    Log.e("VerifyOTP", "Verify failed: " + Utils.getMessageByCode(codeRes));
+                    showToast("Vui lòng nhập đúng OTP");
+                    verifyFuture.complete(false);
                 }
             } catch (Exception e) {
                 Log.e("VerifyOTP", "Error parsing response", e);
                 showToast("Error processing response");
+                verifyFuture.complete(false);
             }
         })).exceptionally(e -> {
             runOnUiThread(() -> {
-                Log.e("VerifyOTP", "Request verify failed: ", e);
+                Log.e("VerifyOTP", "Network request failed: ", e);
                 showToast("Network error! Please try again.");
+                verifyFuture.complete(false);
             });
             return null;
         });
+
+        return verifyFuture;
     }
+
 
     // send otp
     private void sendOtp() {

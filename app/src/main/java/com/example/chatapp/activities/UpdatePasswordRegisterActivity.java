@@ -99,8 +99,15 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
                     codeRes = res.get("code").getAsInt();
                 }
                 if (codeRes != Utils.ErrCodeSuccess) {
-                    // TODO
+                    Log.e(TAG, "Err code: " + Utils.getMessageByCode(codeRes));
+                    showToast(Utils.getMessageByCode(codeRes));
+                    return;
                 }
+                // back to login
+                Intent intent = new Intent(UpdatePasswordRegisterActivity.this, SignInActivity.class);
+                startActivity(intent);
+                finish();
+                showToast("Sign Up Successful!");
             } catch (Exception e) {
                 Log.e("SignIn", "Error parsing response", e);
                 showToast("Error processing response");
