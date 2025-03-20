@@ -10,6 +10,18 @@ import (
 	"database/sql"
 )
 
+const deleteTokenVerifyRegister = `-- name: DeleteTokenVerifyRegister :exec
+UPDATE ` + "`" + `user_verify` + "`" + `
+SET is_deleted = 1, 
+    verify_updated_at = now()
+WHERE verify_key_hash = ?
+`
+
+func (q *Queries) DeleteTokenVerifyRegister(ctx context.Context, verifyKeyHash string) error {
+	_, err := q.db.ExecContext(ctx, deleteTokenVerifyRegister, verifyKeyHash)
+	return err
+}
+
 const getInfoOTP = `-- name: GetInfoOTP :one
 SELECT verify_id, verify_otp, verify_key, verify_key_hash, verify_type, is_verified, is_deleted
 FROM ` + "`" + `user_verify` + "`" + `
@@ -44,7 +56,8 @@ func (q *Queries) GetInfoOTP(ctx context.Context, verifyKeyHash string) (GetInfo
 const getValidOtp = `-- name: GetValidOtp :one
 SELECT verify_otp, verify_key_hash, verify_key, verify_id
 FROM ` + "`" + `user_verify` + "`" + `
-WHERE verify_key_hash = ? AND is_verified = 0
+WHERE verify_key_hash = ? AND is_verified = 1 AND is_deleted = 0
+LIMIT 1
 `
 
 type GetValidOtpRow struct {
