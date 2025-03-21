@@ -13,11 +13,11 @@ public interface TokenClientDao {
 
     // Get the latest token from the database
     @Query("SELECT * FROM token_client LIMIT 1")
-    LiveData<TokenClient> getTokenLiveData();
+    TokenClient getTokenData();
 
     // Get the token by id from the database
     @Query("SELECT * FROM token_client WHERE id_token = :id")
-    LiveData<TokenClient> getTokenByIdLiveData(String id);
+    TokenClient getTokenByIdData(String id);
 
     // Get the token by id from the database
     @Query("UPDATE token_client SET access_token = :accessToken, refresh_token = :refreshToken, updated_at = :updatedAt")

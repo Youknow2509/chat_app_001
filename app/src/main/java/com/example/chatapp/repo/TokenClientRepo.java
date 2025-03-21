@@ -25,13 +25,22 @@ public class TokenClientRepo {
     }
 
     // Get the latest token from the database
-    public LiveData<TokenClient> getToken() {
-        return tokenClientDao.getTokenLiveData();
+    public TokenClient getToken() {
+        TokenClient res = null;
+        Future<?> future = Executors.newSingleThreadExecutor().submit(() -> {
+            tokenClientDao.getTokenData();
+        });
+        try {
+            res = (TokenClient) future.get();
+        } catch (Exception e) {
+            Log.d(TAG, "get failed");
+        }
+        return res;
     }
 
     // Get token by id from the database
-    public LiveData<TokenClient> getTokenById(String id) {
-        return tokenClientDao.getTokenByIdLiveData(id);
+    public TokenClient getTokenById(String id) {
+        return tokenClientDao.getTokenByIdData(id);
     }
 
     // Update token information in the database
