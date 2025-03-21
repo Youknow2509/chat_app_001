@@ -1,5 +1,6 @@
 package com.example.chatapp.utils;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -24,6 +25,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.view.Display;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -222,5 +225,17 @@ public class Utils {
         }
         String res = tokenClient.getAccessToken();
         return res == null ? "" : res;
+    }
+
+    // hideKeyboard
+    // Thêm vào lớp Utils
+    public static void hideKeyboard(Activity activity) {
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
     }
 }
