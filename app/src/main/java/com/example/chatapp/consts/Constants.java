@@ -3,6 +3,7 @@ package com.example.chatapp.consts;
 import java.util.HashMap;
 
 public class Constants {
+    public static final String TOKEN_PREFIX_REQUEST = "Bearer ";
     public static final String REFRESH_TOKEN_KEY_PREF = "refresh_token_pref";
     public static final String ACCESS_TOKEN_KEY_PREF = "access_token_pref";
     public static final String SHARED_PREFS_FILE_TOKEN = "TokenEncryptedPrefs";

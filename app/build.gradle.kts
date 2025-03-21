@@ -42,8 +42,8 @@ android {
             resources.excludes.add("META-INF/DEPENDENCIES")
             resources.excludes.add("META-INF/io.netty.versions.properties")
 
-            /*pickFirsts += ['META-INF/LICENSE.txt']
-            excludes += ['META-INF/NOTICE.md', 'META-INF/LICENSE.md', 'META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/io.netty.versions.properties']*/
+            /*pickFirsts += ["META-INF/LICENSE.txt"]
+            excludes += ["META-INF/NOTICE.md", "META-INF/LICENSE.md", "META-INF/INDEX.LIST", "META-INF/DEPENDENCIES", "META-INF/io.netty.versions.properties"]*/
         }
         //resources.excludes.add("META-INF/*")
     }
@@ -128,4 +128,17 @@ dependencies {
 dependencies {
     implementation("commons-codec:commons-codec:1.15")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+}
+
+dependencies {
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
+    // For handling Reactive streams (optional but recommended)
+    implementation("io.reactivex.rxjava3:rxjava:3.1.5")
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
+    implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
 }
