@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -34,7 +35,11 @@ import androidx.lifecycle.LiveData;
 
 import com.example.chatapp.database.AppDatabase;
 import com.example.chatapp.models.TokenClient;
+import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.repo.TokenClientRepo;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -228,7 +233,6 @@ public class Utils {
     }
 
     // hideKeyboard
-    // Thêm vào lớp Utils
     public static void hideKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
@@ -236,6 +240,20 @@ public class Utils {
             if (imm != null) {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
+        }
+    }
+
+    // get data filed data body
+    public static String getDataBody(ResponseData<Object> responseData, String field) {
+        try {
+            Gson gson = new Gson();
+            JsonElement jsonElement = gson.toJsonTree(responseData.getData());
+            JsonObject dataObject = jsonElement.getAsJsonObject();
+
+            return dataObject.get(field).getAsString();
+        } catch (Exception e) {
+            Log.e("GetDataBody", "Error parsing response data");
+            return "";
         }
     }
 }

@@ -3,46 +3,65 @@ package com.example.chatapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.api.ApiManager;
+import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.SignupBinding;
+import com.example.chatapp.models.request.AccountModels;
+import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.network.HttpClient;
 import com.example.chatapp.utils.Utils;
 import com.google.gson.JsonObject;
 
 import java.util.concurrent.CompletableFuture;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
     private SignupBinding binding;
+    private FrameLayout progressBar;
+
+    //
     private String token;
-    private HttpClient httpClient;
+    private ApiManager apiManager;
+
+
     private final String TAG = "UpdatePasswordRegisterActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initVariableUse();
-
         binding = SignupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // get data intent
-        Intent intent = getIntent();
-        String email = intent.getStringExtra("email");
-        token = intent.getStringExtra("token");
-        Log.d("UpdatePasswordRegisterActivity", "Email: " + email + " Token: " + token);
-        binding.editTextTextEmailAddress2.setText(email);
+        progressBar = binding.progressOverlay;
+
+        initVariableUse();
 
         setListeners();
     }
 
     // init variable use
     private void initVariableUse() {
-        httpClient = new HttpClient();
+        apiManager = new ApiManager();
+
+        // get data intent
+        Intent intent = getIntent();
+        String email = intent.getStringExtra("email");
+        token = intent.getStringExtra("token");
+
+        // set data to view
+        Log.d("UpdatePasswordRegisterActivity", "Email: " + email + " Token: " + token);
+        binding.editTextTextEmailAddress2.setText(email);
     }
 
     private void setListeners() {
@@ -81,18 +100,8 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
             return;
         }
 
-        handleReqSignUpAccountHavePassword(password).thenAccept(ac -> {
-            if (ac == null) {
-                showToast("Create password user failed");
-                return;
-            }
-            back_act();
-        }).exceptionally(e -> {
-            Log.e(TAG, "Create password user failed", e);
-            showToast("Create password user failed");
-            return null;
-        });
-
+        progressBar.setVisibility(View.VISIBLE);
+        handleReqSignUpAccountHavePassword(password);
     }
 
     // change to login activity
@@ -105,33 +114,29 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
     }
 
     // handle req sign up account have password
-    private CompletableFuture<JsonObject> handleReqSignUpAccountHavePassword(String password) {
-        CompletableFuture<JsonObject> future = httpClient.createPassword(token, password);
-        future.thenAccept(res -> runOnUiThread(() -> {
-            try {
-                int codeRes = 0;
-                if (res.has("code")) {
-                    codeRes = res.get("code").getAsInt();
-                }
-                if (codeRes != Utils.ErrCodeSuccess) {
-                    Log.e(TAG, "Err code: " + Utils.getMessageByCode(codeRes));
-                    showToast(Utils.getMessageByCode(codeRes));
-                    future.complete(null);
-                }
+    private void handleReqSignUpAccountHavePassword(String password) {
+        apiManager.upgradePasswordRegister(
+                new AccountModels.UpdatePasswordInput(password, token),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        progressBar.setVisibility(View.GONE);
+                        int code = response.body().getCode();
+                        if (code != Constants.CODE_SUCCESS) {
+                            showToast(response.body().getMessage());
+                        } else {
+                            showToast("Tạo mật khẩu người dùng thành công!");
+                            back_act();
+                        }
+                    }
 
-                future.complete(res);
-            } catch (Exception e) {
-                Log.e("SignIn", "Error parsing response", e);
-                showToast("Error processing response");
-            }
-        })).exceptionally(e -> {
-            runOnUiThread(() -> {
-                Log.e(TAG, "Create password user failed: ", e);
-                showToast("Network error! Please try again.");
-            });
-            return null;
-        });
-        return future;
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        progressBar.setVisibility(View.GONE);
+                        showToast("Vui lòng kiểm tra lại kết nối mạng!");
+                    }
+                }
+        );
     }
 
     private void showToast(String message) {

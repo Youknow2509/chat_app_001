@@ -28,6 +28,8 @@ import com.example.chatapp.models.request.AccountModels;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.network.HttpClient;
 import com.example.chatapp.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.concurrent.CompletableFuture;
@@ -159,14 +161,25 @@ public class SignUpActivity extends AppCompatActivity {
                             deleteOtp();
                             return;
                         }
-
-                        // OTP hợp lệ, điều hướng sang màn hình tiếp theo
-                        Intent intent = new Intent(SignUpActivity.this, UpdatePasswordRegisterActivity.class);
-                        intent.putExtra("email", emailInput);
-                        intent.putExtra("token", tokenVerifyOTP);
-                        startActivity(intent);
-                        finish();
-
+                        try {
+                            tokenVerifyOTP = Utils.getDataBody(response.body(), "token");
+                            if (tokenVerifyOTP.isEmpty()) {
+                                showToast("Lỗi xử lý dữ liệu");
+                                deleteOtp();
+                                return;
+                            }
+                            Log.d("SignUp", "Token verify otp: " + tokenVerifyOTP);
+                            // OTP hợp lệ, điều hướng sang màn hình tiếp theo
+                            Intent intent = new Intent(SignUpActivity.this, UpdatePasswordRegisterActivity.class);
+                            intent.putExtra("email", emailInput);
+                            intent.putExtra("token", tokenVerifyOTP);
+                            startActivity(intent);
+                            finish();
+                        } catch (Exception e) {
+                            Log.e("VerifyOTP", "Error parsing response data", e);
+                            showToast("Lỗi xử lý dữ liệu");
+                            deleteOtp();
+                        }
                     }
 
                     @Override
