@@ -25,7 +25,7 @@ public class SignInActivity extends AppCompatActivity {
     private TokenClientRepo tokenClientRepo;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) { // TODO: fix use retrofit and save user info to sqlite
         super.onCreate(savedInstanceState);
 
         initVariableUse();
