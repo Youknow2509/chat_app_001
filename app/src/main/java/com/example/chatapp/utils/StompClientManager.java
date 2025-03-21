@@ -1,4 +1,4 @@
-package com.example.chatapp.utilities;
+package com.example.chatapp.utils;
 
 import android.annotation.SuppressLint;
 import android.util.Log;

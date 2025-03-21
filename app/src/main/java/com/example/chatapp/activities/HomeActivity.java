@@ -14,7 +14,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.chatapp.R;
-import com.example.chatapp.utilities.StompClientManager;
+import com.example.chatapp.utils.StompClientManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 

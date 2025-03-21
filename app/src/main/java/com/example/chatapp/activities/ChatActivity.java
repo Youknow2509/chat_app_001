@@ -20,7 +20,7 @@ import com.example.chatapp.models.Group;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.observers.MessageObserver;
-import com.example.chatapp.utilities.PreferenceManager;
+import com.example.chatapp.utils.PreferenceManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

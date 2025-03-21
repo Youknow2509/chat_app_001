@@ -181,4 +181,43 @@ public class HttpClient {
 
         return future;
     }
+
+    // refresh token
+    public CompletableFuture<JsonObject> refreshToken(String accessToken, String refreshToken) {
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+
+        String url = Constants.URL_HOST_SERVER + EndPoint.REFRESH_TOKEN;
+
+        // Create JSON body for login request
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("access_token", accessToken);
+        jsonObject.addProperty("refresh_token", refreshToken);
+
+        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        // Asynchronous network call
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                // Complete future exceptionally in case of failure
+                future.completeExceptionally(new IOException("Network request failed", e));
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String responseBody = response.body().string();
+
+                // Parse the response body as JSON
+                JsonObject jsonResponse = JsonParser.parseString(responseBody).getAsJsonObject();
+                future.complete(jsonResponse);
+            }
+        });
+
+        return future;
+    }
 }

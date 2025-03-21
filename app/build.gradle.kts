@@ -120,3 +120,12 @@ dependencies {
     val okhttp_version = "4.12.0"
     implementation("com.squareup.okhttp3:okhttp:$okhttp_version")
 }
+
+dependencies {  
+    implementation("androidx.security:security-crypto:1.1.0-alpha03")
+}
+
+dependencies {
+    implementation("commons-codec:commons-codec:1.15")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+}

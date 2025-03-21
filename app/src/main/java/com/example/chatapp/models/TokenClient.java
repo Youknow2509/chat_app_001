@@ -28,6 +28,11 @@ public class TokenClient {
     public TokenClient() {
     }
 
+    public TokenClient(String accessToken, String refreshToken) {
+        this.AccessToken = accessToken;
+        this.RefreshToken = refreshToken;
+    }
+
     // Constructor without timestamps (auto-set)
     public TokenClient(@NonNull String idToken, String accessToken, String refreshToken) {
         this.IdToken = idToken;

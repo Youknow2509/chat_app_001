@@ -3,6 +3,9 @@ package com.example.chatapp.consts;
 import java.util.HashMap;
 
 public class Constants {
+    public static final String REFRESH_TOKEN_KEY_PREF = "refresh_token_pref";
+    public static final String ACCESS_TOKEN_KEY_PREF = "access_token_pref";
+    public static final String SHARED_PREFS_FILE_TOKEN = "TokenEncryptedPrefs";
     public static final int CODE_SUCCESS = 20001;
     public static final String HOST_SERVER = "khanhdew.ddns.net:8881"; // ws
     public static final String URL_HOST_SERVER = "http://10.0.2.2:8082"; // http://10.0.2.2:8082 is local
