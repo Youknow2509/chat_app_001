@@ -7,22 +7,32 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.api.ApiManager;
+import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.LoginBinding;
 import com.example.chatapp.models.ResponRepo;
 import com.example.chatapp.models.TokenClient;
+import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.network.HttpClient;
+import com.example.chatapp.repo.ChatRepo;
 import com.example.chatapp.repo.TokenClientRepo;
 import com.example.chatapp.utils.Utils;
+import com.example.chatapp.utils.session.SessionManager;
 import com.google.gson.JsonObject;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SignInActivity extends AppCompatActivity {
 
     private LoginBinding binding;
-    private HttpClient loginHttpClient;
-    private TokenClientRepo tokenClientRepo;
+    //
+    private ApiManager apiManager;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) { // TODO: fix use retrofit and save user info to sqlite
@@ -50,8 +60,8 @@ public class SignInActivity extends AppCompatActivity {
 
     // init var use
     private void initVariableUse() {
-        loginHttpClient = new HttpClient();
-        tokenClientRepo = new TokenClientRepo(this);
+        apiManager = new ApiManager();
+        sessionManager = new SessionManager(this);
     }
 
     // handle forgot password
@@ -70,47 +80,45 @@ public class SignInActivity extends AppCompatActivity {
             navigateToHome();
         }
 
-        CompletableFuture<JsonObject> future = loginHttpClient.login(email, password);
+        apiManager.login(
+                email,
+                password,
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        int code = response.body().getCode();
+                        if (code != Constants.CODE_SUCCESS) {
+                            showToast("Login failed: " + response.body().getMessage());
+                            return;
+                        }
 
-        future.thenAccept(res -> runOnUiThread(() -> {
-            try {
-                int codeRes = 0;
-                if (res.has("code")) {
-                    codeRes = res.get("code").getAsInt();
-                }
-                if (codeRes == Utils.ErrCodeSuccess) {
-                    JsonObject data = res.get("data").getAsJsonObject();
-                    String accessToken = data.get("token").getAsString();
-                    String refreshToken = data.get("refresh_token").getAsString();
-                    Log.d("SignIn", "AccessToken: " + accessToken);
-                    Log.d("SignIn", "RefreshToken: " + refreshToken);
-                    // sqlite
-                    ResponRepo responRepo = tokenClientRepo.insertToken(new TokenClient(
-                            UUID.randomUUID().toString(),
-                            accessToken,
-                            refreshToken
-                    ));
-                    if (!responRepo.isStatus()) {
-                        showToast("Login failed: " + responRepo.getMessage());
-                        return;
+                        String accessToken = Utils.getDataBody(response.body(), "token");
+                        String refreshToken = Utils.getDataBody(response.body(), "refresh_token");
+
+                        Log.i("SignIn", "AccessToken: " + accessToken);
+                        Log.i("SignIn", "RefreshToken: " + refreshToken);
+                        // save session
+                        saveSession(accessToken, refreshToken);
+                        navigateToHome();
                     }
-                    navigateToHome();
-                } else {
-                    // TODO handle new show err with code err
-                    Log.e("SignIn", "Login failed: " + Utils.getMessageByCode(codeRes));
-                    showToast("Login failed: " + Utils.getMessageByCode(codeRes));
-                }
-            } catch (Exception e) {
-                Log.e("SignIn", "Error parsing response", e);
-                showToast("Error processing response");
-            }
-        })).exceptionally(e -> {
-            runOnUiThread(() -> {
-                Log.e("SignIn", "Login request failed", e);
-                showToast("Network error! Please try again.");
-            });
-            return null;
-        });
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        Log.e("SignIn", "Login request failed");
+                        showToast("Network error! Please try again.");
+                    }
+                });
+
+    }
+
+    /**
+     * Save session user when login
+     * @param accessToken String
+     * @param refreshToken String
+     */
+    private void saveSession(String accessToken, String refreshToken) {
+
+        sessionManager.saveAuthData(accessToken, refreshToken, "TODO");
     }
 
     private void navigateToHome() {

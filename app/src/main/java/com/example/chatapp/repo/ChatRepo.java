@@ -3,6 +3,7 @@ package com.example.chatapp.repo;
 import static com.example.chatapp.database.AppDatabase.*;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -29,8 +30,8 @@ public class ChatRepo {
     private RelationshipQueries relationshipQueries;
     private final ExecutorService executorService;
 
-    public ChatRepo(Application application) {
-        AppDatabase db = getInstance(application);
+    public ChatRepo(Context context) {
+        AppDatabase db = getInstance(context);
         userDao = db.userDao();
         conversationDao = db.conversationDao();
         messageDao = db.messageDao();

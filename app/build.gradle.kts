@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.chatapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.chatapp"
@@ -141,4 +141,10 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxjava:3.1.5")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
     implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
+}
+
+dependencies {
+    val work_version = "2.8.1"
+    implementation("androidx.work:work-runtime:$work_version")
+    implementation(libs.work.runtime)
 }
