@@ -11,8 +11,8 @@ import (
 // Run all initialization
 func Run() *gin.Engine {
 	// load configuration
-	LoadConfig() // Enable when dev
-	// LoadConfigProd() // Enable when deloy 
+	// LoadConfig() // Enable when dev
+	LoadConfigProd() // Enable when deloy 
 	fmt.Println("@@@ Loader configuration")
 
 	// initialize logger

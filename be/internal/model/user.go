@@ -2,6 +2,13 @@ package model
 
 import "time"
 
+// list user friend input
+type ListUserFriendInput struct {
+	UserID string `json:"user_id"`
+	Limit  int    `json:"limit"`
+	Page   int    `json:"page"`
+}
+
 // UserInfoOutput
 type UserInfoOutput struct {
 	UserID       string    `json:"user_id"`
@@ -20,7 +27,6 @@ type UserInfoOutput struct {
 // user find output
 type UserFindOutput struct {
 	UserID       string `json:"user_id"`
-	UserAccount  string `json:"user_account"`
 	UserNickname string `json:"user_nickname"`
 	UserAvatar   string `json:"user_avatar"`
 	UserEmail    string `json:"user_email"`

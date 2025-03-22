@@ -94,10 +94,12 @@ const (
 	ErrCodeUpdatePassword            = 120012
 	ErrCodeRefreshTokenFail          = 120013
 	ErrCodeForgotPasswordFail        = 120014
+	ErrCodeGetListUserFriend         = 120015
 )
 
 // message
 var msg = map[int]string{
+	ErrCodeUserBlockAddFriendRequest: "user block add friend request",
 	ErrCodeForgotPasswordFail:       "Forgot password fail",
 	ErrCodeRefreshTokenFail:         "RefreshTokenFail",
 	ErrCodeGetCache:                 "get cache failed",

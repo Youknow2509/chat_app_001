@@ -28,6 +28,75 @@ type sUserInfo struct {
 	r *database.Queries
 }
 
+// ListFriendUser implements service.IUserInfo.
+func (s *sUserInfo) ListFriendUser(ctx context.Context, in *model.ListUserFriendInput) (out []model.UserFindOutput, err error) {
+	// 1. get in cache
+	cacheKey := fmt.Sprintf("list_friend_user::%s::l%d::p%d", in.UserID, in.Limit, in.Page)
+	cacheData, err := global.Rdb.Get(ctx, cacheKey).Result()
+	switch {
+	case errors.Is(err, redis.Nil):
+		// Cache miss, continue to database query
+	case err != nil:
+		global.Logger.Error("Error getting data from cache", zap.Error(err))
+		// Continue execution despite cache error
+	}
+	if cacheData != "" {
+		err = json.Unmarshal([]byte(cacheData), &out)
+		if err != nil {
+			global.Logger.Error("Err unmarshal data", zap.Error(err))
+			return nil, err
+		}
+		return out, nil
+	}
+	// 2. check user exist
+	cUserReq, err := s.r.CheckUserBaseExistsWithID(ctx, in.UserID)
+	if err != nil {
+		global.Logger.Error("Err get user with id", zap.Error(err))
+		return nil, err
+	}
+	if cUserReq < 1 {
+		global.Logger.Error("User is not exist")
+		return nil, fmt.Errorf("user is not exist")
+	}
+	// 3. get list friend
+	listFriendUser, err := s.r.GetFriendUser(ctx, database.GetFriendUserParams{
+		UserID: sql.NullString{String: in.UserID, Valid: true},
+		Limit:  int32(in.Limit),
+		Offset: int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+	})
+	if err != nil {
+		global.Logger.Error("Err get list friend user", zap.Error(err))
+		return nil, err
+	}
+	if len(listFriendUser) < 1 {
+		global.Logger.Error("List friend user not found")
+		return nil, fmt.Errorf("list friend user not found")
+	}
+	out = make([]model.UserFindOutput, 0, len(listFriendUser))
+	for _, item := range listFriendUser {
+		out = append(out, model.UserFindOutput{
+			UserID:       item.UserID,
+			UserNickname: item.UserNickname.String,
+			UserAvatar:   item.UserAvatar.String,
+			UserEmail:    item.UserEmail.String,
+		})
+	}
+	// 4. save to cache
+	go func() {
+		cacheData, err := json.Marshal(out)
+		if err != nil {
+			global.Logger.Error("Err marshal data", zap.Error(err))
+			return
+		}
+		err = global.Rdb.Set(ctx, cacheKey, cacheData, time.Minute*5).Err()
+		if err != nil {
+			global.Logger.Error("Err set data to cache", zap.Error(err))
+		}
+	}()
+
+	return out, nil
+}
+
 // UpdatePasswordForUserRequest implements service.IUserInfo.
 func (s *sUserInfo) UpdatePasswordForUserRequest(ctx context.Context, in *model.UserChangePasswordInput) (codeResult int, err error) {
 	// 1. check user exist
@@ -54,13 +123,13 @@ func (s *sUserInfo) UpdatePasswordForUserRequest(ctx context.Context, in *model.
 	// 3. update password
 	go func() {
 		passworkNewHash := crypto.HashPasswordWithSalt(in.NewPassword, iPasswordSalt.UserSalt)
-        err = s.r.UpdatePasswordWithUserID(context.Background(), database.UpdatePasswordWithUserIDParams{
-            UserID: in.UserID,
-            UserPassword: passworkNewHash,
-        })
-        if err != nil {
-            fmt.Printf("Err when updating password for user %s \n", in.UserID)
-        }
+		err = s.r.UpdatePasswordWithUserID(context.Background(), database.UpdatePasswordWithUserIDParams{
+			UserID:       in.UserID,
+			UserPassword: passworkNewHash,
+		})
+		if err != nil {
+			fmt.Printf("Err when updating password for user %s \n", in.UserID)
+		}
 	}()
 	return response.ErrCodeSuccess, nil
 }
@@ -171,19 +240,19 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 		}
 	}()
 	// 6. notify to user
-	go func ()  {
-        notify.InitINotify(impl.GetNotifyImpl())
-        iNotify := notify.GetINotify()
-        err := iNotify.SendKafkaNotificationUser(
-            cInfoRequest.ToUser.String,
-            "Accept friend request "  + cInfoRequest.FromUser.String,
-            "Accept friend request",
-            "",
-        )
-        if err != nil {
-            fmt.Println("Err when sending notification")
-        }
-    }()
+	go func() {
+		notify.InitINotify(impl.GetNotifyImpl())
+		iNotify := notify.GetINotify()
+		err := iNotify.SendKafkaNotificationUser(
+			cInfoRequest.ToUser.String,
+			"Accept friend request "+cInfoRequest.FromUser.String,
+			"Accept friend request",
+			"",
+		)
+		if err != nil {
+			fmt.Println("Err when sending notification")
+		}
+	}()
 	return response.ErrCodeSuccess, nil
 }
 
@@ -266,19 +335,19 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 		}
 	}()
 	// 7. notify to user
-	go func ()  {
-        notify.InitINotify(impl.GetNotifyImpl())
-        iNotify := notify.GetINotify()
-        err := iNotify.SendKafkaNotificationUser(
-            iUserFriend.UserID,
-			"Friend request from " + in.UserID,
+	go func() {
+		notify.InitINotify(impl.GetNotifyImpl())
+		iNotify := notify.GetINotify()
+		err := iNotify.SendKafkaNotificationUser(
+			iUserFriend.UserID,
+			"Friend request from "+in.UserID,
 			"Friend request",
 			"",
-        )
-        if err != nil {
-            fmt.Println("Err when sending notification")
-        }
-    }()
+		)
+		if err != nil {
+			fmt.Println("Err when sending notification")
+		}
+	}()
 	return response.ErrCodeSuccess, nil
 }
 
@@ -349,18 +418,67 @@ func (s *sUserInfo) EndFriendRequest(ctx context.Context, in *model.EndFriendReq
 }
 
 // FindUser implements service.IUserInfo.
-func (s *sUserInfo) FindUser(ctx context.Context, in model.UserFindInput) (out []model.UserFindOutput, err error) {
+func (s *sUserInfo) FindUser(ctx context.Context, in *model.UserFindInput) (out []model.UserFindOutput, err error) {
 	// 1. check res find in cache
-	
-	// 2. check res parent exists in cache
+	cacheKey := fmt.Sprintf("find_users::email:%s::limit:%d::page:%d", in.UserEmail, in.Limit, in.Page)
 
-	// 3. check res find in db
+	cacheData, err := global.Rdb.Get(ctx, cacheKey).Result()
+	switch {
+	case errors.Is(err, redis.Nil):
+		// Cache miss, continue to database query
+	case err != nil:
+		global.Logger.Error("Error getting data from cache", zap.Error(err))
+		// Continue execution despite cache error
+	default:
+		// Cache hit
+		if cacheData != "" {
+			err = json.Unmarshal([]byte(cacheData), &out)
+			if err == nil {
+				return out, nil
+			}
+			global.Logger.Error("Error unmarshalling cache data", zap.Error(err))
+			// Continue execution despite unmarshal error
+		}
+	}
 
+	// 3. find res find in db
+	listUserFind, err := s.r.FindUserWithMail(ctx, database.FindUserWithMailParams{
+		UserEmail: sql.NullString{String: in.UserEmail, Valid: true},
+		Limit:     int32(in.Limit),
+		Offset:    int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+	})
+	if err != nil {
+		global.Logger.Error("Error finding user", zap.Error(err))
+		return nil, err
+	}
+	if len(listUserFind) < 1 {
+		global.Logger.Error("User not found")
+		return nil, fmt.Errorf("user not found")
+	}
 	// 4. write out request
-	
+	out = make([]model.UserFindOutput, 0, len(listUserFind))
+	for _, item := range listUserFind {
+		out = append(out, model.UserFindOutput{
+			UserID:       item.UserID,
+			UserNickname: item.UserNickname.String,
+			UserAvatar:   item.UserAvatar.String,
+			UserEmail:    item.UserEmail.String,
+		})
+	}
 	// 5. save to cache
+	go func() {
+		cacheData, err := json.Marshal(out)
+		if err != nil {
+			global.Logger.Error("Error marshalling data", zap.Error(err))
+			return
+		}
+		timeEx := time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE) * time.Minute
+		err = global.Rdb.Set(context.Background(), cacheKey, cacheData, timeEx).Err()
+		if err != nil {
+			global.Logger.Error("Error saving data to cache", zap.Error(err))
+		}
+	}()
 
-	// TODO
 	return out, nil
 }
 

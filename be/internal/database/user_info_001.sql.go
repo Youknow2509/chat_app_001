@@ -100,39 +100,59 @@ func (q *Queries) EditUserByUserIdForUser(ctx context.Context, arg EditUserByUse
 }
 
 const findUserWithMail = `-- name: FindUserWithMail :many
-SELECT user_id, user_account, user_nickname, user_avatar, user_state, user_mobile, user_gender, user_birthday, user_email, user_is_authentication, created_at, updated_at FROM user_info WHERE user_email LIKE ?
-ORDER BY user_nickname ASC
+SELECT 
+    user_id, user_account, user_nickname, user_avatar, 
+    user_state, user_email, created_at
+FROM user_info
+WHERE user_email LIKE ?
+ORDER BY 
+    CASE 
+        WHEN LOWER(user_email) = LOWER(?) THEN 0
+        ELSE 1 
+    END,
+    created_at DESC
 LIMIT ? OFFSET ?
 `
 
 type FindUserWithMailParams struct {
 	UserEmail sql.NullString
+	LOWER     string
 	Limit     int32
 	Offset    int32
 }
 
-func (q *Queries) FindUserWithMail(ctx context.Context, arg FindUserWithMailParams) ([]UserInfo, error) {
-	rows, err := q.db.QueryContext(ctx, findUserWithMail, arg.UserEmail, arg.Limit, arg.Offset)
+type FindUserWithMailRow struct {
+	UserID       string
+	UserAccount  string
+	UserNickname sql.NullString
+	UserAvatar   sql.NullString
+	UserState    UserInfoUserState
+	UserEmail    sql.NullString
+	CreatedAt    sql.NullTime
+}
+
+func (q *Queries) FindUserWithMail(ctx context.Context, arg FindUserWithMailParams) ([]FindUserWithMailRow, error) {
+	rows, err := q.db.QueryContext(ctx, findUserWithMail,
+		arg.UserEmail,
+		arg.LOWER,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []UserInfo
+	var items []FindUserWithMailRow
 	for rows.Next() {
-		var i UserInfo
+		var i FindUserWithMailRow
 		if err := rows.Scan(
 			&i.UserID,
 			&i.UserAccount,
 			&i.UserNickname,
 			&i.UserAvatar,
 			&i.UserState,
-			&i.UserMobile,
-			&i.UserGender,
-			&i.UserBirthday,
 			&i.UserEmail,
-			&i.UserIsAuthentication,
 			&i.CreatedAt,
-			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

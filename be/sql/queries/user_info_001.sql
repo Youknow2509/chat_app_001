@@ -81,7 +81,15 @@ SET user_nickname =?, user_avatar = ?, user_mobile = ?,
 WHERE user_id = ?;
 
 -- name: FindUserWithMail :many
-SELECT user_id, user_account, user_nickname, user_avatar, user_email
-FROM user_info WHERE user_email LIKE ?
-ORDER BY user_nickname ASC
-LIMIT ? OFFSET ?;
+SELECT 
+    user_id, user_account, user_nickname, user_avatar, 
+    user_state, user_email, created_at
+FROM user_info
+WHERE user_email LIKE ?
+ORDER BY 
+    CASE 
+        WHEN LOWER(user_email) = LOWER(?) THEN 0
+        ELSE 1 
+    END,
+    created_at DESC
+LIMIT ? OFFSET ?

@@ -17,6 +17,72 @@ var User = new(cUser)
 type cUser struct {
 }
 
+// @Summary      Get list user friend
+// @Description  Get list user friend 
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        limit  query  int  true  "Limit number"
+// @Param        page  query  int  true  "Page number"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/get_list_friend [get]
+func (cU *cUser) GetListUserFriend(c *gin.Context) {
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	// query limit and page
+	limit := c.Query("limit")
+	page := c.Query("page")
+	if limit == "" || page == "" {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Limit and page are required")
+		return
+	}
+	// convert string to int
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		global.Logger.Error("Error converting limit to int", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		global.Logger.Error("Error converting page to int", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	// validate input
+	if limitInt <= 0 {
+		global.Logger.Error("Limit must be greater than 0")
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Limit must be greater than 0")
+		return
+	}
+	if pageInt <= 0 {
+		global.Logger.Error("Page must be greater than 0")
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Page must be greater than 0")
+		return
+	}
+	// create input model	
+	input := &model.ListUserFriendInput{
+		UserID: userIDReq,
+		Limit:  limitInt,
+		Page:   pageInt,
+	}
+	// call to service
+	listUserFriend, err := service.UserInfo().ListFriendUser(c.Request.Context(), input)
+	if err != nil {
+		global.Logger.Error("Error getting list user friend", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeGetListUserFriend, err.Error())
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, listUserFriend)
+}
+
 // @Summary      Find user
 // @Description  Find a user by mail address
 // @Tags         User Info
@@ -53,7 +119,7 @@ func (cU *cUser) FindUser(c *gin.Context) {
 	}
 
 	// call to service
-	lUserFind, err := service.UserInfo().FindUser(c.Request.Context(), parameters)
+	lUserFind, err := service.UserInfo().FindUser(c.Request.Context(), &parameters)
 	if err != nil {
 		global.Logger.Error("Error finding user", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeFindUser, err.Error())
