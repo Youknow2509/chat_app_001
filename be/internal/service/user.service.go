@@ -20,7 +20,7 @@ type (
 
 	IUserInfo interface { // handle with token
 		GetUserInfo(ctx context.Context, userID string) (out model.UserInfoOutput, err error)
-		FindUser(ctx context.Context, email string) (out model.UserInfoOutput, err error)
+		FindUser(ctx context.Context, in model.UserFindInput) (out []model.UserFindOutput, err error)
 		UpdateUserInfo(ctx context.Context, in *model.UpdateUserInfoInput) (codeResult int, err error)
 		// AddFriendRequest(ctx context.Context, int *model.AddFriendRequestInput) (codeResult int, err error)
 		// ResponseFriendRequest(ctx context.Context, friendId string) (codeResult int, err error)
