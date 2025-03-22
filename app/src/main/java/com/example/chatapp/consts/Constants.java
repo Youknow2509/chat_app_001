@@ -3,6 +3,9 @@ package com.example.chatapp.consts;
 import java.util.HashMap;
 
 public class Constants {
+    public static final int DEFAULT_MEDIA_RETENTION_DAYS = 30; // 1 m
+    public static final int DEFAULT_MESSAGE_RETENTION_DAYS = 90; // 3 m
+    public static final String PREF_LAST_PURGE = "last_data_purge_time";
     public static final String TOKEN_PREFIX_REQUEST = "Bearer ";
     public static final String IS_LOGGED_IN_PREEFS_KEY = "is_logged_in";
     public static final String USER_ID_PREEFS_KEY = "user_id";

@@ -2,11 +2,14 @@ package com.example.chatapp.models.sqlite;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity(tableName = "conversations")
+@Entity(tableName = "conversations", indices = {@Index("lastMessageTimestamp"), // Để sắp xếp cuộc trò chuyện hiệu quả
+        @Index(value = {"conversationType", "isPinned"}) // Cho các truy vấn lọc
+})
 public class Conversation {
     @PrimaryKey
     @NonNull

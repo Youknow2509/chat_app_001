@@ -1,5 +1,7 @@
 package com.example.chatapp.repo;
 
+import static com.example.chatapp.database.AppDatabase.*;
+
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
@@ -12,6 +14,7 @@ import com.example.chatapp.dao.UserDao;
 import com.example.chatapp.database.AppDatabase;
 import com.example.chatapp.models.relationship.ConversationWithLastMessage;
 import com.example.chatapp.models.relationship.MessageWithMedia;
+import com.example.chatapp.models.sqlite.MediaFile;
 import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.models.sqlite.User;
 
@@ -27,7 +30,7 @@ public class ChatRepo {
     private final ExecutorService executorService;
 
     public ChatRepo(Application application) {
-        AppDatabase db = AppDatabase.getInstance(application);
+        AppDatabase db = getInstance(application);
         userDao = db.userDao();
         conversationDao = db.conversationDao();
         messageDao = db.messageDao();
@@ -92,5 +95,25 @@ public class ChatRepo {
             data.postValue(friends);
         });
         return data;
+    }
+
+    public void sendMessageWithAttachments(Message message, List<MediaFile> attachments) {
+//        executorService.execute(() -> {
+//            AppDatabase.BeginTransaction(() -> {
+//                // Tất cả các thao tác trong này sẽ được thực hiện trong một transaction duy nhất
+//                messageDao.insert(message);
+//
+//                for (MediaFile mediaFile : attachments) {
+//                    mediaFile.setMessageId(message.getMessageId());
+//                    StringBuffer mediaFileDao;
+//                    mediaFileDao.insert(mediaFile);
+//                }
+//
+//                conversationDao.updateLastMessage(
+//                        message.getConversationId(),
+//                        message.getMessageId(),
+//                        message.getTimestamp());
+//            });
+//        });
     }
 }

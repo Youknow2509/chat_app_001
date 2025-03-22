@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 
 import com.example.chatapp.models.relationship.ConversationWithLastMessage;
 import com.example.chatapp.models.relationship.MessageWithMedia;
@@ -17,13 +18,23 @@ import java.util.UUID;
 public class ChatViewModel extends AndroidViewModel {
     private ChatRepo repository;
 
+    private final MediatorLiveData<List<ConversationWithLastMessage>> conversationsLiveData = new MediatorLiveData<>();
+    private LiveData<List<ConversationWithLastMessage>> currentConversationsSource;
+
     public ChatViewModel(Application application) {
         super(application);
         repository = new ChatRepo(application);
     }
 
     public LiveData<List<ConversationWithLastMessage>> getConversations(String userId) {
-        return repository.getConversationsForCurrentUser(userId);
+        if (currentConversationsSource != null) {
+            conversationsLiveData.removeSource(currentConversationsSource);
+        }
+
+        currentConversationsSource = repository.getConversationsForCurrentUser(userId);
+        conversationsLiveData.addSource(currentConversationsSource, conversationsLiveData::setValue);
+
+        return conversationsLiveData;
     }
 
     public LiveData<List<MessageWithMedia>> getMessages(String conversationId) {

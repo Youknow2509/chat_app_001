@@ -2,10 +2,12 @@ package com.example.chatapp.database;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.dao.ContactDao;
@@ -74,5 +76,68 @@ public abstract class AppDatabase extends RoomDatabase {
             }
         }
         return INSTANCE;
+    }
+
+    /**
+     * Override the onCreate method to populate the database.
+     * For this you'll need to implement a callback method.
+     */
+    private static final RoomDatabase.Callback sRoomDatabaseCallback =
+            new RoomDatabase.Callback() {
+                @Override
+                public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                    super.onCreate(db);
+
+                    // If you want to populate the database with initial data
+                    // when it's first created, do it here
+                    databaseWriteExecutor.execute(() -> {
+                        // Example: Pre-populate the database with some data
+                        // UserDao dao = INSTANCE.userDao();
+                        // dao.insert(new User("system", "System", "System Account", "system@chatapp.com"));
+                    });
+                }
+
+                @Override
+                public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                    super.onOpen(db);
+
+                    // You can also perform operations when the database is opened
+                    // This is useful for setting up PRAGMA statements or database configurations
+                    // Example: db.execSQL("PRAGMA foreign_keys = ON");
+                }
+            };
+
+    /**
+     * Closes the database and releases all resources.
+     * This should be called when the app is shutting down.
+     */
+    public static void destroyInstance() {
+        if (INSTANCE != null && INSTANCE.isOpen()) {
+            INSTANCE.close();
+        }
+        INSTANCE = null;
+    }
+
+    /**
+     * Checks the size of the database file.
+     * Useful for monitoring and debugging.
+     *
+     * @param context The application context
+     * @return The size of the database in bytes
+     */
+    public static long getDatabaseSize(Context context) {
+        return context.getDatabasePath("chat_database").length();
+    }
+
+    /**
+     * Optimizes the database by running the VACUUM command.
+     * This should be done periodically to reclaim space and improve performance.
+     */
+    public void optimize() {
+        if (INSTANCE != null) {
+            databaseWriteExecutor.execute(() -> {
+                INSTANCE.getOpenHelper().getWritableDatabase().execSQL("VACUUM");
+            });
+        }
     }
 }

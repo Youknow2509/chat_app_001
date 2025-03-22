@@ -10,6 +10,7 @@ import androidx.room.Update;
 
 import com.example.chatapp.models.sqlite.MediaFile;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -47,4 +48,12 @@ public interface MediaFileDao {
 
     @Query("DELETE FROM media_files WHERE messageId = :messageId")
     void deleteMediaFilesForMessage(String messageId);
+
+    // getMediaFilesOlderThan - Lấy danh sách các file media cũ hơn ngày cutoffDate
+    @Query("SELECT * FROM media_files WHERE createdAt < :cutoffDate")
+    List<MediaFile> getMediaFilesOlderThan(Date cutoffDate);
+
+    // getMediaCount - Lấy số lượng file media
+    @Query("SELECT COUNT(*) FROM media_files")
+    int getMediaCount();
 }

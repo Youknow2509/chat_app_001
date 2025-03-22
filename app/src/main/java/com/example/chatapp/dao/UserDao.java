@@ -14,6 +14,10 @@ import java.util.List;
 
 @Dao
 public interface UserDao {
+    // getUserCount - Lấy số lượng người dùng trong cơ sở dữ liệu
+    @Query("SELECT COUNT(*) FROM users")
+    int getUserCount();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(User user);
 

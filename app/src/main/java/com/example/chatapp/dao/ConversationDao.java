@@ -45,4 +45,17 @@ public interface ConversationDao {
     @Transaction
     @Query("SELECT * FROM conversations WHERE conversationId IN (SELECT conversationId FROM conversation_members WHERE userId = :userId) ORDER BY lastMessageTimestamp DESC")
     List<Conversation> getConversationsForUser(String userId);
+
+    @Query("SELECT conversationId FROM conversations")
+    List<String> getAllConversationIds();
+
+    @Query("SELECT COUNT(*) FROM conversations")
+    int getConversationCount();
+
+    @Query("SELECT COUNT(*) FROM conversations WHERE isArchived = 1")
+    int getArchivedConversationCount();
+
+    @Query("SELECT COUNT(*) FROM conversations WHERE isPinned = 1")
+    int getPinnedConversationCount();
+
 }
