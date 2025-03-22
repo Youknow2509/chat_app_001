@@ -349,32 +349,18 @@ func (s *sUserInfo) EndFriendRequest(ctx context.Context, in *model.EndFriendReq
 }
 
 // FindUser implements service.IUserInfo.
-func (s *sUserInfo) FindUser(ctx context.Context, email string) (out model.UserInfoOutput, err error) {
-	// 1. check uset exist
-	iUser, err := s.r.GetUserWithAccount(ctx, email)
-	if err != nil {
-		global.Logger.Error("Err get user info", zap.Error(err))
-		return out, err
-	}
-	if iUser.UserID == "" {
-		global.Logger.Error("User not found")
-		return out, fmt.Errorf("user not found")
-	}
-	// 2. write out request
-	out = model.UserInfoOutput{
-		UserID:       iUser.UserID,
-		UserAccount:  iUser.UserAccount,
-		UserNickname: iUser.UserNickname.String,
-		UserAvatar:   iUser.UserAccount,
-		UserState:    string(iUser.UserState),
-		UserMobile:   iUser.UserMobile.String,
-		UserGender:   string(iUser.UserGender.UserInfoUserGender),
-		UserBirthday: iUser.UserBirthday.Time,
-		UserEmail:    iUser.UserEmail.String,
-		CreatedAt:    iUser.CreatedAt.Time,
-		UpdatedAt:    iUser.UpdatedAt.Time,
-	}
-	// 3. save to cache
+func (s *sUserInfo) FindUser(ctx context.Context, in model.UserFindInput) (out []model.UserFindOutput, err error) {
+	// 1. check res find in cache
+	
+	// 2. check res parent exists in cache
+
+	// 3. check res find in db
+
+	// 4. write out request
+	
+	// 5. save to cache
+
+	// TODO
 	return out, nil
 }
 

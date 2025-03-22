@@ -23,26 +23,44 @@ type cUser struct {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization  header  string  true  "Bearer token"
-// @Param        email  query  string  true  "Email address"
+// @Param        body body  model.UserFindInput  true  "Find user by email"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /v1/user/find_user [get]
 func (cU *cUser) FindUser(c *gin.Context) {
-	// get email from query
-	email := c.Query("email")
-	if email == "" {
-		response.ErrorResponse(c, response.ErrCodeBadRequest, "Email is required")
+	// get input
+	var parameters model.UserFindInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		global.Logger.Error("Error binding data", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
 		return
 	}
+	// validate input
+	if parameters.UserEmail == "" {
+		global.Logger.Error("Email is required")
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Email is required")
+		return
+	}
+	if parameters.Limit <= 0 {
+		global.Logger.Error("Limit must be greater than 0")
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Limit must be greater than 0")
+		return
+	}
+	if parameters.Page <= 0 {
+		global.Logger.Error("Page must be greater than 0")
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Page must be greater than 0")
+		return
+	}
+
 	// call to service
-	userInfo, err := service.UserInfo().FindUser(c.Request.Context(), email)
+	lUserFind, err := service.UserInfo().FindUser(c.Request.Context(), parameters)
 	if err != nil {
 		global.Logger.Error("Error finding user", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeFindUser, err.Error())
 		return
 	}
 
-	response.SuccessResponse(c, response.ErrCodeSuccess, userInfo)
+	response.SuccessResponse(c, response.ErrCodeSuccess, lUserFind)
 }
 
 // @Summary      Get user info

@@ -10,11 +10,27 @@ type UserInfoOutput struct {
 	UserAvatar   string    `json:"user_avatar"`
 	UserState    string    `json:"user_state"`
 	UserMobile   string    `json:"user_mobile"`
-	UserGender   string    `json: "user_gender"`
+	UserGender   string    `json:"user_gender"`
 	UserBirthday time.Time `json:"user_birthday"`
 	UserEmail    string    `json:"user_email"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// user find output
+type UserFindOutput struct {
+	UserID       string `json:"user_id"`
+	UserAccount  string `json:"user_account"`
+	UserNickname string `json:"user_nickname"`
+	UserAvatar   string `json:"user_avatar"`
+	UserEmail    string `json:"user_email"`
+}
+
+// user find input
+type UserFindInput struct {
+	UserEmail string `json:"user_email"`
+	Limit     int    `json:"limit"`
+	Page      int    `json:"page"`
 }
 
 // UpdateUserInfoInput
