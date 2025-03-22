@@ -512,7 +512,7 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 		UserID:       userBase.UserID,
 		UserAccount:  infoOTP.VerifyKey,
 		UserNickname: sql.NullString{String: infoOTP.VerifyKey, Valid: true},
-		UserAvatar:   sql.NullString{String: "", Valid: true},
+		UserAvatar:   sql.NullString{String: "https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png", Valid: true},
 		UserState:    database.UserInfoUserStateActivated,
 		UserMobile:   sql.NullString{String: "", Valid: true},
 		UserGender:   database.NullUserInfoUserGender{UserInfoUserGender: database.UserInfoUserGenderMale, Valid: false},
