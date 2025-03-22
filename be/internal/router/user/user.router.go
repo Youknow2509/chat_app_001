@@ -30,6 +30,7 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 	{
 		userRouterPrivate.GET("/get_user_info", userInfoController.User.GetUserInfo)
 		userRouterPrivate.GET("/find_user", userInfoController.User.FindUser)
+		userRouterPrivate.GET("/get_list_friend", userInfoController.User.GetListUserFriend)
 		userRouterPrivate.PUT("/update_user_info", userInfoController.User.UpdateUserInfo)
 		userRouterPrivate.POST("/create_friend_request", userInfoController.User.CreateFriendRequest)
 		userRouterPrivate.DELETE("/end_friend_request", userInfoController.User.EndFriendRequest)

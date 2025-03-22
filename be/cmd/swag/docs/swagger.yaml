@@ -158,6 +158,15 @@ definitions:
       user_id:
         type: string
     type: object
+  model.UserFindInput:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      user_email:
+        type: string
+    type: object
   model.VerifyInput:
     properties:
       verify_code:
@@ -779,11 +788,12 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Email address
-        in: query
-        name: email
+      - description: Find user by email
+        in: body
+        name: body
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/model.UserFindInput'
       produces:
       - application/json
       responses:
@@ -823,6 +833,41 @@ paths:
       summary: Forgot Password
       tags:
       - accounts management
+  /v1/user/get_list_friend:
+    get:
+      consumes:
+      - application/json
+      description: Get list user friend
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Limit number
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get list user friend
+      tags:
+      - User Info
   /v1/user/get_list_friend_request:
     get:
       consumes:
