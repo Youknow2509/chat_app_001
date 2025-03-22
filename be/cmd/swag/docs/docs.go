@@ -668,7 +668,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.JwtInput"
+                            "$ref": "#/definitions/model.JwtValidateInput"
                         }
                     }
                 ],
@@ -1558,6 +1558,17 @@ const docTemplate = `{
             }
         },
         "model.JwtInput": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.JwtValidateInput": {
             "type": "object",
             "properties": {
                 "data": {

@@ -56,7 +56,7 @@ func (cU *cUser) FindUser(c *gin.Context) {
 // @Router       /v1/user/get_user_info [get]
 func (cU *cUser) GetUserInfo(c *gin.Context) {
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -90,7 +90,7 @@ func (cU *cUser) UpdateUserInfo(c *gin.Context) {
 		return
 	}
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -101,8 +101,8 @@ func (cU *cUser) UpdateUserInfo(c *gin.Context) {
 	codeRes, err := service.UserInfo().UpdateUserInfo(c.Request.Context(), &parameters)
 	if err != nil {
 		global.Logger.Error("Error updating user info", zap.Error(err))
-        response.ErrorResponse(c, response.ErrCodeUpdateUserInfo, err.Error())
-        return
+		response.ErrorResponse(c, response.ErrCodeUpdateUserInfo, err.Error())
+		return
 	}
 	if codeRes != response.ErrCodeSuccess {
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
@@ -129,7 +129,7 @@ func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 		return
 	}
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -168,7 +168,7 @@ func (cU *cUser) EndFriendRequest(c *gin.Context) {
 		return
 	}
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -207,7 +207,7 @@ func (cU *cUser) AcceptFriendRequest(c *gin.Context) {
 		return
 	}
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -246,7 +246,7 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 		return
 	}
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -267,7 +267,7 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
-// @Summary      Delete friend user 
+// @Summary      Delete friend user
 // @Description  Delete friend user information from the service
 // @Tags         User Info
 // @Accept       json
@@ -285,7 +285,7 @@ func (cU *cUser) DeleteFriend(c *gin.Context) {
 		return
 	}
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -339,7 +339,7 @@ func (cU *cUser) GetListFriendRequet(c *gin.Context) {
 		return
 	}
 	// get user id from token in headers
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -347,22 +347,22 @@ func (cU *cUser) GetListFriendRequet(c *gin.Context) {
 	}
 	// create input model
 	input := &model.GetFriendRequestInput{
-        UserID: userIDReq,
-        Limit:  limitInt,
-        Page:   pageInt,
-    }
-    // call to service
-    listFriendRequest, err := service.UserInfo().GetListFriendRequest(c.Request.Context(), input)
-    if err != nil {
-        global.Logger.Error("Error getting list friend request", zap.Error(err))
-        response.ErrorResponse(c, response.ErrCodeGetListFriendRequest, err.Error())
-        return
-    }
+		UserID: userIDReq,
+		Limit:  limitInt,
+		Page:   pageInt,
+	}
+	// call to service
+	listFriendRequest, err := service.UserInfo().GetListFriendRequest(c.Request.Context(), input)
+	if err != nil {
+		global.Logger.Error("Error getting list friend request", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeGetListFriendRequest, err.Error())
+		return
+	}
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, listFriendRequest)
 }
 
-// @Summary      Update password user for user 
+// @Summary      Update password user for user
 // @Description  Update password user for user
 // @Tags         User Info
 // @Accept       json
@@ -379,15 +379,15 @@ func (cU *cUser) UpdatePassword(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
 		return
 	}
-    // get id user from token
-    userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	// get id user from token
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
 	}
-    parameters.UserID = userIDReq
-    // call to service
+	parameters.UserID = userIDReq
+	// call to service
 	codeRes, err := service.UserInfo().UpdatePasswordForUserRequest(c.Request.Context(), &parameters)
 	if err != nil {
 		global.Logger.Error("Error updating password", zap.Error(err))

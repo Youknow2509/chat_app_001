@@ -37,7 +37,7 @@ func (cJ *cJwtToken) CreateToken(c *gin.Context) {
 	}
 
 	// create a new token
-	out, err := auth.CreateToken(params.Data)
+	out, err := auth.CreateToken(params.Data, params.UserID)
 	if err != nil {
         global.Logger.Error("Error creating token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeCreateToken, err.Error())
@@ -85,13 +85,13 @@ func (cJ *cJwtToken) CreateRefreshToken(c *gin.Context) {
 // @Tags         Token
 // @Accept       json
 // @Produce      json
-// @Param        payload body model.JwtInput true "payload"
+// @Param        payload body model.JwtValidateInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /v1/token/valid_token [post]
 func (cJ *cJwtToken) JwtValidToken(c *gin.Context) {
 
-	var params model.JwtInput
+	var params model.JwtValidateInput
 	if err := c.ShouldBindJSON(&params); err != nil {
 		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
 		return

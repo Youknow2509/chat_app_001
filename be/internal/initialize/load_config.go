@@ -10,7 +10,7 @@ import (
 // func load configuration with viper - DEV
 func LoadConfig() {
 	viper := viper.New()
-	viper.AddConfigPath(".../config") // paht to config
+	viper.AddConfigPath("./../config") // paht to config
 	viper.SetConfigName("local")    // ten file
 	viper.SetConfigType("yaml")     // loai file
 

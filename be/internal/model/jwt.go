@@ -4,6 +4,12 @@ import "github.com/golang-jwt/jwt"
 
 // jwt input
 type JwtInput struct {
+	Data   string `json:"data"`
+	UserID string `json:"user_id"`
+}
+
+// JwtValidateInput
+type JwtValidateInput struct {
 	Data string `json:"data"`
 }
 
@@ -23,3 +29,8 @@ type JwtRefreshInput struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// Define PayloadClaim with UserID as a separate field
+type PayloadClaim struct {
+	jwt.StandardClaims
+	UserID string `json:"user_id"`
+}

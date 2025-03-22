@@ -84,6 +84,13 @@ definitions:
     properties:
       data:
         type: string
+      user_id:
+        type: string
+    type: object
+  model.JwtValidateInput:
+    properties:
+      data:
+        type: string
     type: object
   model.LoginInput:
     properties:
@@ -622,7 +629,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/model.JwtInput'
+          $ref: '#/definitions/model.JwtValidateInput'
       produces:
       - application/json
       responses:

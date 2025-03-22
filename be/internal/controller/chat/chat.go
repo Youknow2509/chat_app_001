@@ -36,7 +36,8 @@ func (ct *cChat) CreateChatGroup(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userID, err := context.GetUserIdFromUUID(c.Request.Context())
+	// userID, err := context.GetUserIdFromToken(c.Request.Context())
+	userID, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
@@ -70,7 +71,7 @@ func (ct *cChat) CreateChatPrivate(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userID, err := context.GetUserIdFromUUID(c.Request.Context())
+	userID, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
@@ -104,7 +105,7 @@ func (ct *cChat) AddMemberToChat(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
@@ -145,7 +146,7 @@ func (ct *cChat) GetChatInfo(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
@@ -185,7 +186,7 @@ func (ct *cChat) GetListChatForUser(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
@@ -221,9 +222,8 @@ func (ct *cChat) GetListChatForUser(c *gin.Context) {
 	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
 }
 
-
-// @Summary      Hanlde get infomation user in chat 
-// @Description  Get information user in chat with chat id 
+// @Summary      Hanlde get infomation user in chat
+// @Description  Get information user in chat with chat id
 // @Tags         Chat
 // @Accept       json
 // @Produce      json
@@ -236,12 +236,12 @@ func (ct *cChat) GetListChatForUser(c *gin.Context) {
 // @Router       /v1/chat/get-user-in-chat [get]
 func (ct *cChat) GetUserInChat(c *gin.Context) {
 	// query chat id
-    chatID := c.Query("chat_id")
-    if chatID == "" {
-        response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Chat ID is required")
-        return
-    }
-    // query limit and page
+	chatID := c.Query("chat_id")
+	if chatID == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Chat ID is required")
+		return
+	}
+	// query limit and page
 	limmit := c.Query("limit")
 	if limmit == "" {
 		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Limit is required")
@@ -268,7 +268,7 @@ func (ct *cChat) GetUserInChat(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -279,9 +279,9 @@ func (ct *cChat) GetUserInChat(c *gin.Context) {
 		UserId: userIDReq,
 		ChatID: chatID,
 		Limit:  limmitInt,
-        Page:   pageInt,
-    }
-	// call to service 
+		Page:   pageInt,
+	}
+	// call to service
 	outPutData, err := service.ChatService().GetUserInChat(c, p)
 	if err != nil {
 		global.Logger.Error("Error getting user in chat", zap.Error(err))
@@ -311,7 +311,7 @@ func (ct *cChat) ChangeAdminGroupChat(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -351,7 +351,7 @@ func (ct *cChat) DelChat(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -361,10 +361,10 @@ func (ct *cChat) DelChat(c *gin.Context) {
 	// call to service
 	codeRes, err := service.ChatServiceAdmin().DelChat(c, parameters)
 	if err != nil {
-        global.Logger.Error("Error deleting chat", zap.Error(err))
-        response.ErrorResponse(c, codeRes, err.Error())
-        return
-    }
+		global.Logger.Error("Error deleting chat", zap.Error(err))
+		response.ErrorResponse(c, codeRes, err.Error())
+		return
+	}
 	if codeRes != response.ErrCodeSuccess {
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
@@ -392,7 +392,7 @@ func (ct *cChat) DelMemberForChat(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -433,7 +433,7 @@ func (ct *cChat) UpdateChatInfo(c *gin.Context) {
 		return
 	}
 	// get user id from token
-	userIDReq, err := context.GetUserIdFromUUID(c.Request.Context())
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
 		global.Logger.Error("Error getting user id from token", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
@@ -454,4 +454,3 @@ func (ct *cChat) UpdateChatInfo(c *gin.Context) {
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
-
