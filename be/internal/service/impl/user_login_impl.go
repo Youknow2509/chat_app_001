@@ -190,7 +190,7 @@ func (s *sUserLogin) RefreshToken(ctx context.Context, in *model.RefreshTokenInp
 	}
 	// 4. create new access token
 	subToken := utils.GenerateCliTokenUUID(ciRTK.UserID)
-	accessTokenNew, err := auth.CreateToken(subToken)
+	accessTokenNew, err := auth.CreateToken(subToken, iUser.UserID)
 	if err != nil {
 		return response.ErrCodeAuthFailed, out, err
 	}
@@ -289,7 +289,7 @@ func (s *sUserLogin) Login(ctx context.Context, in *model.LoginInput) (codeResul
 		return response.ErrCodeAuthFailed, out, fmt.Errorf("set redis failed: %w", err)
 	}
 	// create token
-	out.Token, err = auth.CreateToken(subToken)
+	out.Token, err = auth.CreateToken(subToken, userBase.UserID)
 	if err != nil {
 		return response.ErrCodeAuthFailed, out, fmt.Errorf("create access token failed: %w", err)
 	}

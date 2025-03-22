@@ -6,17 +6,13 @@ import (
 	"time"
 
 	"example.com/be/global"
+	"example.com/be/internal/model"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
 
-// PayloadClaim struct
-type PayloadClaim struct {
-	jwt.StandardClaims
-}
-
-// create token with uuid
-func CreateToken(uuidToken string) (string, error) {
+// create token with uuid and user id
+func CreateToken(uuidToken string, userID string) (string, error) {
 	// set time expiration
 	timEx := global.Config.Jwt.JWT_EXPIRATION
 	if timEx == "" {
@@ -31,7 +27,7 @@ func CreateToken(uuidToken string) (string, error) {
 	now := time.Now()
 	expirationAt := now.Add(expiration)
 
-	return GenerateToken(&PayloadClaim{
+	return GenerateToken(&model.PayloadClaim{
 		StandardClaims: jwt.StandardClaims{
 			Id:        uuid.New().String(),
 			ExpiresAt: expirationAt.Unix(),
@@ -39,6 +35,7 @@ func CreateToken(uuidToken string) (string, error) {
 			Issuer:    "go-ecommerce",
 			Subject:   uuidToken,
 		},
+		UserID: userID,
 	})
 }
 
@@ -50,11 +47,11 @@ func CreateRefreshToken(uuidToken string) (string, error) {
 		timEx = "7"
 	}
 	timExInt, err := strconv.ParseInt(timEx, 10, 64)
-    if err != nil {
-        return "Pare time", err
-    }
+	if err != nil {
+		return "Pare time", err
+	}
 
-    timeExInt := timExInt * 24
+	timeExInt := timExInt * 24
 	timeEx := fmt.Sprintf("%dh", timeExInt)
 	// convert to time duration
 	expiration, err := time.ParseDuration(timeEx)
@@ -65,7 +62,7 @@ func CreateRefreshToken(uuidToken string) (string, error) {
 	now := time.Now()
 	expirationAt := now.Add(expiration)
 
-	return GenerateToken(&PayloadClaim{
+	return GenerateToken(&model.PayloadClaim{
 		StandardClaims: jwt.StandardClaims{
 			Id:        uuid.New().String(),
 			ExpiresAt: expirationAt.Unix(),
@@ -83,7 +80,7 @@ func GenerateToken(payload jwt.Claims) (string, error) {
 }
 
 // validate token subject
-func ValidateTokenSubject(tokenString string) (*PayloadClaim, error) {
+func ValidateTokenSubject(tokenString string) (*model.PayloadClaim, error) {
 	// parse token
 	claims, err := ParseTokenSubject(tokenString)
 	if err != nil {
@@ -96,15 +93,15 @@ func ValidateTokenSubject(tokenString string) (*PayloadClaim, error) {
 }
 
 // parse token subject
-func ParseTokenSubject(tokenString string) (*PayloadClaim, error) {
+func ParseTokenSubject(tokenString string) (*model.PayloadClaim, error) {
 	tokenClaim, err := jwt.ParseWithClaims(
 		tokenString,
-		&PayloadClaim{},
+		&model.PayloadClaim{},
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(global.Config.Jwt.API_SECRET), nil
 		})
 	if err != nil {
 		return nil, err
 	}
-	return tokenClaim.Claims.(*PayloadClaim), nil
+	return tokenClaim.Claims.(*model.PayloadClaim), nil
 }
