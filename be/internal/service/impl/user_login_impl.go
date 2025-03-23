@@ -187,6 +187,7 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 		email,
 		consts.SEND_EMAIL_OTP,
 		endpoint,
+		newPassword,
 	)
 	if err != nil {
 		global.Logger.Error("Err when sending mail new password to ", zap.String("email", email))

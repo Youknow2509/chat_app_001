@@ -13,13 +13,15 @@ type kafka_send_mail struct {
 }
 
 // SendKafkaMailNewPassword implements ISendTo.
-func (k *kafka_send_mail) SendKafkaMailNewPassword(from string, to string, type_send int, data string) error {
+func (k *kafka_send_mail) SendKafkaMailNewPassword(from string, to string, type_send int, endpoint string, passwordNew string) error {
 	body := make(map[string]interface{})
 
 	body["from"] = from
 	body["to"] = to
 	body["type"] = type_send
-	body["data"] = data
+	body["endpoint"] = endpoint
+	body["passwordNew"] = passwordNew
+	
 	// requestBody
 	requestBody, _ := json.Marshal(body)
 
