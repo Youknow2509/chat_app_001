@@ -1188,7 +1188,7 @@ paths:
       tags:
       - accounts management
   /v1/user/verify_forgot_password/{email}/{token}:
-    post:
+    get:
       consumes:
       - application/json
       description: Verify Forgot Password with token

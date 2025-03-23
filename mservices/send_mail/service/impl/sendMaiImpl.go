@@ -11,9 +11,9 @@ import (
 
 type SendMailImpl struct{}
 
-func (s *SendMailImpl) SendMailNewPassword(message model.MessageMail) error {
+func (s *SendMailImpl) SendMailNewPassword(message model.MessageMailForgotPassword) error {
 	uSendmail := getSendGridInstance()
-	if err := uSendmail.SendTemplateEmailNewPasswork(message.From, message.To, message.Data); err != nil {
+	if err := uSendmail.SendTemplateEmailNewPasswork(message.From, message.To, message.EndPoint, message.PasswordNew); err != nil {
 		return fmt.Errorf("Send mail failed: %v", err)
 	}
 	return nil

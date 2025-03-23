@@ -5,7 +5,7 @@ import "example.com/send_mail/model"
 // interface send mail service
 type ISendMailService interface {
 	SendMailOTP(model.MessageMail) error
-	SendMailNewPassword(model.MessageMail) error
+	SendMailNewPassword(model.MessageMailForgotPassword) error
 }
 
 var vISendMailService ISendMailService

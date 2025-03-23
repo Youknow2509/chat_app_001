@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"time"
 
+	"example.com/send_mail/consts"
 	"example.com/send_mail/global"
 	isendgrid "example.com/send_mail/utils/sendGrid"
 	"github.com/sendgrid/sendgrid-go"
@@ -19,8 +21,20 @@ const (
 
 type SendGridImpl struct{}
 
-func (s *SendGridImpl) SendTemplateEmailNewPasswork(from, to, data string) error {
-	mailTemplateHtml, err := getMailTemplate(nameMailNewPasswordTemplate, map[string]interface{}{"new_password": data})
+func (s *SendGridImpl) SendTemplateEmailNewPasswork(from, to, token, password string) error {
+	mailTemplateHtml, err := getMailTemplate(
+		nameMailNewPasswordTemplate, 
+		map[string]interface{}{
+			"userName": to,
+			"resetPasswordLink": 
+				consts.APP_URL + "/v1/user/verify_forgot_password/" + to + "/" + token, 
+			"temporaryPassword": password,
+			"userEmail": to,
+			"privacyPolicyUrl": "https://www.freeprivacypolicy.com/live/051ebb07-d8a6-490c-a003-58bc332234d0",
+			"termsOfServiceUrl": "https://www.freeprivacypolicy.com/live/1fa8c319-1480-402f-ac5d-5eb9261db25e",
+			"date": time.Now().UTC().Format(time.RFC1123),
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -28,13 +42,23 @@ func (s *SendGridImpl) SendTemplateEmailNewPasswork(from, to, data string) error
 	return sendMail(isendgrid.Mail{
 		From:        isendgrid.EmailAddress{Address: from, Name: "Ly Tran Vinh"},
 		To:          to,
-		Subject:     "New Password",
+		Subject:     "Verify forgot password",
 		HtmlContent: mailTemplateHtml,
 	})
 }
 
 func (s *SendGridImpl) SendTemplateEmailOTP(from, to, data string) error {
-	mailTemplateHtml, err := getMailTemplate(nameMailOTPTemplate, map[string]interface{}{"otp": data})
+	mailTemplateHtml, err := getMailTemplate(
+		nameMailOTPTemplate, 
+		map[string]interface{}{
+			"userName": to,
+			"otpCode": data,
+			"verificationLink": consts.APP_URL + "/v1/user/verify_account?verify_code=" + data + "&verify_key=" + to,
+			"userEmail": to,
+			"privacyPolicyUrl": "https://www.freeprivacypolicy.com/live/051ebb07-d8a6-490c-a003-58bc332234d0",
+			"termsOfServiceUrl": "https://www.freeprivacypolicy.com/live/1fa8c319-1480-402f-ac5d-5eb9261db25e",
+		},
+	)
 	if err != nil {
 		return err
 	}
