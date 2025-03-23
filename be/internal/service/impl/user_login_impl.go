@@ -158,7 +158,21 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 
 // Logout implements service.IUserLogin.
 func (s *sUserLogin) Logout(ctx context.Context, in *model.LogoutInput) (codeResult int, err error) {
-	panic("unimplemented") // TODO: implement
+	// block access token request
+	accessTokenObj, err := auth.ValidateTokenSubject(in.AccessToken)
+	if err != nil {
+		global.Logger.Error(fmt.Sprintf("Validate access token failed: %v", err))
+        return response.ErrCodeAuthFailed, err
+    }
+	keyAccessToken := accessTokenObj.Subject
+	go func ()  {
+		if global.Rdb.Del(context.Background(), keyAccessToken).Err() != nil {
+			global.Logger.Error(fmt.Sprintf("Err when deleting cache access token %s\n", keyAccessToken))
+		}
+	}()
+	// block refresh token request
+	// TODO
+	return response.ErrCodeSuccess, nil
 }
 
 // RefreshToken implements service.IUserLogin.
