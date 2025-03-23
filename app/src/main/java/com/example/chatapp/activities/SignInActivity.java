@@ -76,7 +76,8 @@ public class SignInActivity extends AppCompatActivity {
 
     // handle forgot password
     private void forgotPassword() {
-        // TODO: dont have view forgot password
+        showToast("Da gui ve email cua ban");
+        // TODO: handle send email
     }
 
     private void signIn() {
@@ -87,7 +88,7 @@ public class SignInActivity extends AppCompatActivity {
         showToast("Logging in...");
 
         // TODO - use in test -> prd
-        if (email == "admin" && password == "admin") {
+        if (email.equals("admin") && password.equals("admin")) {
             navigateToHome();
         }
 

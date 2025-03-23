@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFC107">
+
+
+<!--    width matchparent xong margin horizontal-->
+    <LinearLayout
+        android:id="@+id/profileSection"
+        android:layout_width="338dp"
+        android:layout_height="175dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnback"
+            android:layout_width="24dp"
+            android:layout_height="23dp"
+            android:layout_marginTop="@dimen/_7sdp"
+            android:layout_marginEnd="67dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_back" />
+
+        <LinearLayout
+            android:id="@+id/profileInfo"
+            android:layout_width="150dp"
+            android:layout_height="171dp"
+            android:layout_marginVertical="9dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/rounded_image"
+                android:clipToOutline="true"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_launcher" />
+
+            <LinearLayout
+                android:id="@+id/nameSection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/nameText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="HAHAHA"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/usernameText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="testid"
+                    android:textColor="#797C7B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Phần chứa các icon -->
+    <LinearLayout
+        android:id="@+id/iconsSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/profileSection"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/icon1"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/message"
+            android:scaleType="fitXY" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/icon3"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/video"
+            android:scaleType="fitXY" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/icon4"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/call"
+            android:scaleType="fitXY" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/main_content"
+        android:layout_width="409dp"
+        android:layout_height="475dp"
+        android:background="@drawable/cr16bffffff"
+        android:orientation="vertical"
+        android:paddingTop="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iconsSection"
+        app:layout_constraintVertical_bias="0.931">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="122dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_16ssp"
+                android:text="Tên hiển thị"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/txtNameView"
+                android:layout_width="match_parent"
+                android:layout_height="31dp"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="122dp"
+                android:layout_marginLeft="@dimen/_16ssp"
+
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/txtEmailView"
+                android:layout_width="match_parent"
+                android:layout_height="31dp"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/lblAddress"
+                android:layout_width="120dp"
+                android:layout_marginLeft="@dimen/_16ssp"
+                android:layout_height="wrap_content"
+                android:text="Địa chỉ"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/txtAddressView"
+                android:layout_width="match_parent"
+                android:layout_height="31dp"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="59dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="131dp"
+                android:layout_marginLeft="@dimen/_16ssp"
+                android:layout_height="wrap_content"
+                android:text="So dien thoai"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/txtPhoneNumView"
+                android:layout_width="match_parent"
+                android:layout_height="31dp"
+                android:text="" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

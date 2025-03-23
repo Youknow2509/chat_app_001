@@ -55,7 +55,7 @@ public class UserChatAdapter extends RecyclerView.Adapter<UserChatAdapter.UserVi
 
         void setUserData(User user) {
             binding.textName.setText(user.name);
-            binding.textEmail.setText(user.email);
+            binding.message.setText(user.email);
             binding.imageProfile.setImageBitmap(user.image);
             binding.getRoot().setOnClickListener(v -> userListener.onUserClick(user));
         }

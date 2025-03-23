@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.chatapp.R;
 import com.example.chatapp.activities.OnboardingActivity;
+import com.example.chatapp.activities.Profile;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.utils.session.SessionManager;
 
@@ -23,6 +24,7 @@ public class Setting extends Fragment {
     private TextView profileStatus;
     private ImageView imgProfile;
     private LinearLayout logoutElement;
+    private LinearLayout accountElement;
 
     //
     private SessionManager sessionManager;
@@ -53,6 +55,7 @@ public class Setting extends Fragment {
         this.profileStatus = root.findViewById(R.id.profile_status);
         this.imgProfile = root.findViewById(R.id.profile_image);
         this.logoutElement = root.findViewById(R.id.logout_section);
+        this.accountElement = root.findViewById(R.id.account_section);
     }
 
     // set data to view
@@ -72,6 +75,8 @@ public class Setting extends Fragment {
             startActivity(new Intent(this.getContext(), OnboardingActivity.class));
             this.getActivity().finish();
         });
+        this.accountElement.setOnClickListener(l->{
+            startActivity(new Intent(this.getContext(), Profile.class));
+        });
     }
-
 }

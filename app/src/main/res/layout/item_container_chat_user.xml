@@ -38,7 +38,7 @@
         app:layout_constraintStart_toEndOf="@id/imageProfile"/>
     
     <TextView
-        android:id="@+id/textEmail"
+        android:id="@+id/message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8sdp"
