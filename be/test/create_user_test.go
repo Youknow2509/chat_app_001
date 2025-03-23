@@ -25,6 +25,7 @@ func TestCreateUser(t *testing.T) {
 	iUser := service.UserLogin()
 
 	listEmail := []string{
+		"lytranvinh.work@gmail.com",
 		"us1@gmail.com",
 		"us2@gmail.com",
 		"us3@gmail.com",
