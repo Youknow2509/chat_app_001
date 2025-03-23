@@ -33,6 +33,11 @@ func (cU *cUserLogin) Login(c *gin.Context) {
 	}
 
 	codeStatus, out, err := service.UserLogin().Login(c, &params)
+	if codeStatus != response.ErrCodeSuccess {
+		global.Logger.Error("Error login user", zap.Error(err))
+		response.ErrorResponse(c, codeStatus, response.GetMessageCode(codeStatus))
+		return
+	}
 	if err != nil {
 		global.Logger.Error("Error login user", zap.Error(err))
 		response.ErrorResponse(c, codeStatus, err.Error())
@@ -60,6 +65,11 @@ func (cU *cUserLogin) Register(c *gin.Context) {
 	}
 
 	codeStatus, err := service.UserLogin().Register(c, &params)
+	if codeStatus != response.ErrCodeSuccess {
+		global.Logger.Error("Error register user", zap.Error(err))
+		response.ErrorResponse(c, codeStatus, response.GetMessageCode(codeStatus))
+		return
+	}
 	if err != nil {
 		global.Logger.Error("Error registering user otp", zap.Error(err))
 		response.ErrorResponse(c, codeStatus, err.Error())
@@ -140,17 +150,16 @@ func (cU *cUserLogin) RefreshToken(c *gin.Context) {
     }
 	// call to service
 	codeRes, out, err := service.UserLogin().RefreshToken(c, &parameters)
-    if err != nil {
+    if codeRes != response.ErrCodeSuccess {
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+        return
+	}
+	if err != nil {
         global.Logger.Error("Error refreshing token", zap.Error(err))
         response.ErrorResponse(c, response.ErrCodeRefreshTokenFail, err.Error())
         return
     }
 
-	if codeRes != response.ErrCodeSuccess {
-		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
-        return
-	}
-	
     response.SuccessResponse(c, response.ErrCodeSuccess, out)
 }
 
@@ -174,15 +183,14 @@ func (cU *cUserLogin) ForgotPassword(c *gin.Context) {
 
     // call to service
     codeRes, err := service.UserLogin().ForgotPassword(c, mail)
-    if err != nil {
-        global.Logger.Error("Error forgot password", zap.Error(err))
-        response.ErrorResponse(c, response.ErrCodeForgotPasswordFail, err.Error())
-        return
-    }
-
     if codeRes != response.ErrCodeSuccess {
 		global.Logger.Error("Error forgot password", zap.Error(err))
         response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+        return
+    }
+	if err != nil {
+        global.Logger.Error("Error forgot password", zap.Error(err))
+        response.ErrorResponse(c, response.ErrCodeForgotPasswordFail, err.Error())
         return
     }
 
@@ -194,11 +202,28 @@ func (cU *cUserLogin) ForgotPassword(c *gin.Context) {
 // @Tags         accounts management
 // @Accept       json
 // @Produce      json
-// @Param        payload body model.RefreshTokenInput true "payload"
+// @Param        payload body model.LogoutInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /v1/user/logout [post]
 func (cU *cUserLogin) Logout(c *gin.Context) {
-	// TODO: implement logout
+	var parameters model.LogoutInput
+	if err := c.ShouldBindJSON(&parameters); err != nil {
+		response.ErrorResponse(c, response.ErrCodeBindVerifyInput, err.Error())
+		return
+	}
+	// call to service
+	codeRes, err := service.UserLogin().Logout(c, &parameters)
+	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error logout user", zap.Error(err))
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+	if err != nil {
+		global.Logger.Error("Error logout user", zap.Error(err))
+		response.ErrorResponse(c, codeRes, err.Error())
+		return
+	}
+	
     response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }

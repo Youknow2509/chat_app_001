@@ -183,15 +183,16 @@ func (cU *cUser) UpdateUserInfo(c *gin.Context) {
 	parameters.UserID = userIDReq
 	// call to service
 	codeRes, err := service.UserInfo().UpdateUserInfo(c.Request.Context(), &parameters)
-	if err != nil {
-		global.Logger.Error("Error updating user info", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeUpdateUserInfo, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error updating user info", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeUpdateUserInfo, err.Error())
+		return
+	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -222,15 +223,16 @@ func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 	parameters.UserID = userIDReq
 	// call to service
 	codeRes, err := service.UserInfo().CreateFriendRequest(c.Request.Context(), &parameters)
-	if err != nil {
-		global.Logger.Error("Error creating friend request", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeCreateFriendRequest, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error creating friend request", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeCreateFriendRequest, err.Error())
+		return
+	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -261,15 +263,16 @@ func (cU *cUser) EndFriendRequest(c *gin.Context) {
 	parameters.UserID = userIDReq
 	// call to service
 	codeRes, err := service.UserInfo().EndFriendRequest(c.Request.Context(), &parameters)
-	if err != nil {
-		global.Logger.Error("Error ending friend request", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error ending friend request", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
+		return
+	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -300,15 +303,16 @@ func (cU *cUser) AcceptFriendRequest(c *gin.Context) {
 	parameters.UserAcceptID = userIDReq
 	// call to service create friend
 	codeRes, err := service.UserInfo().AcceptFriendRequest(c.Request.Context(), &parameters)
-	if err != nil {
-		global.Logger.Error("Error accepting friend request", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error accepting friend request", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
+		return
+	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -339,15 +343,16 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 	parameters.UserAcceptID = userIDReq
 	// call to service
 	codeRes, err := service.UserInfo().RejectFriendRequest(c.Request.Context(), &parameters)
-	if err != nil {
-		global.Logger.Error("Error rejecting friend request", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error rejecting friend request", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
+		return
+	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -378,15 +383,16 @@ func (cU *cUser) DeleteFriend(c *gin.Context) {
 	parameters.UserID = userIDReq
 	// call to service
 	codeRes, err := service.UserInfo().DeleteFriend(c.Request.Context(), &parameters)
-	if err != nil {
-		global.Logger.Error("Error deleting friend", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeDeleteFriend, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error deleting friend", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeDeleteFriend, err.Error())
+		return
+	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -473,15 +479,15 @@ func (cU *cUser) UpdatePassword(c *gin.Context) {
 	parameters.UserID = userIDReq
 	// call to service
 	codeRes, err := service.UserInfo().UpdatePasswordForUserRequest(c.Request.Context(), &parameters)
-	if err != nil {
-		global.Logger.Error("Error updating password", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeUpdatePassword, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error updating password", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
-
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeUpdatePassword, err.Error())
+		return
+	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
