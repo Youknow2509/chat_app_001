@@ -60,7 +60,9 @@ func (s *sUserInfo) ListFriendUser(ctx context.Context, in *model.ListUserFriend
 	}
 	// 3. get list friend
 	listFriendUser, err := s.r.GetFriendUser(ctx, database.GetFriendUserParams{
-		UserID: sql.NullString{String: in.UserID, Valid: true},
+		UserID:  sql.NullString{String: in.UserID, Valid: true},
+		UserID_2: in.UserID,
+		FriendID: sql.NullString{String: in.UserID, Valid: true},
 		Limit:  int32(in.Limit),
 		Offset: int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
 	})
@@ -207,6 +209,18 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 		global.Logger.Error("User accept not match")
 		return response.ErrCodeUserNotFound, fmt.Errorf("user accept not match")
 	}
+	//
+	codeRes, _, err := service.ChatService().CreateChatPrivate(
+		ctx,
+		&model.CreateChatPrivateInput{
+			User1: cInfoRequest.FromUser.String,
+			User2: cInfoRequest.ToUser.String,
+		},
+	)
+	if err != nil || codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Err create chat private", zap.Error(err))
+	}
+
 	// 3. update status request accept
 	go func() {
 		err := s.r.AcceptFriendRequest(context.Background(), in.RequestID)

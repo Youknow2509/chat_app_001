@@ -289,25 +289,18 @@ func (q *Queries) GetFriendRequestUserSend(ctx context.Context, arg GetFriendReq
 }
 
 const getFriendUser = `-- name: GetFriendUser :many
-SELECT ui.user_id, ui.user_nickname, ui.user_avatar, ui.user_email
-FROM (
-    SELECT 
-        CASE 
-            WHEN friends.user_id = ? THEN friend_id 
-            ELSE friends.user_id 
-        END AS friend_id
-    FROM friends
-    WHERE friends.user_id = ? OR friend_id = ?
-) AS f
-JOIN user_info ui ON ui.user_id = f.friend_id
-ORDER BY ui.user_nickname ASC
+SELECT u.user_id, u.user_nickname, u.user_email, u.user_avatar
+FROM user_info u
+JOIN friends f ON u.user_id = f.friend_id OR u.user_id = f.user_id
+WHERE (f.user_id = ? OR f.friend_id = ?) 
+AND u.user_id <> ?
 LIMIT ? OFFSET ?
 `
 
 type GetFriendUserParams struct {
 	UserID   sql.NullString
-	UserID_2 sql.NullString
 	FriendID sql.NullString
+	UserID_2 string
 	Limit    int32
 	Offset   int32
 }
@@ -315,15 +308,15 @@ type GetFriendUserParams struct {
 type GetFriendUserRow struct {
 	UserID       string
 	UserNickname sql.NullString
-	UserAvatar   sql.NullString
 	UserEmail    sql.NullString
+	UserAvatar   sql.NullString
 }
 
 func (q *Queries) GetFriendUser(ctx context.Context, arg GetFriendUserParams) ([]GetFriendUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFriendUser,
 		arg.UserID,
-		arg.UserID_2,
 		arg.FriendID,
+		arg.UserID_2,
 		arg.Limit,
 		arg.Offset,
 	)
@@ -337,8 +330,8 @@ func (q *Queries) GetFriendUser(ctx context.Context, arg GetFriendUserParams) ([
 		if err := rows.Scan(
 			&i.UserID,
 			&i.UserNickname,
-			&i.UserAvatar,
 			&i.UserEmail,
+			&i.UserAvatar,
 		); err != nil {
 			return nil, err
 		}
