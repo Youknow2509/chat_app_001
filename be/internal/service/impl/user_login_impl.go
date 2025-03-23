@@ -81,77 +81,79 @@ func NewSUserLogin(r *database.Queries) service.IUserLogin {
 
 // ForgotPassword implements service.IUserLogin.
 func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResult int, err error) {
-	// 1. check cache sended password
-	key := utils.GetForgetPasswordRequestKey(email)
-	dataCache, err := global.Rdb.Get(ctx, key).Result()
+	emailHash := crypto.GetHash(strings.ToLower(email))
+	// check spam
+	keyBlockSpam := fmt.Sprintf("forgotpassword::%s", emailHash)
+	dataCache, err := global.Rdb.Get(ctx, keyBlockSpam).Result()
 	// Check handle get otp in redis - TODO handle utils...
 	switch {
 	case errors.Is(err, redis.Nil):
 		fmt.Println("key does not exist")
 	case err != nil:
 		fmt.Println("get failed:: ", err)
-		return response.ErrCodeGetCache, err
+		return response.ErrCodeRedisGetData, err
 	}
 	if dataCache != "" {
-		// TODO: check spam forgot password
-		return response.ErrCodeSuccess, nil
-	} else {
-		// 2. Check email exists in user_base
-		cUserID, err := s.r.GetIDUserWithEmail(ctx, email)
-		if err != nil {
-			return response.ErrCodeUserNotFound, err
-		}
-		if cUserID == "" {
-			global.Logger.Error("user not found with email ", zap.String("email", email))
-			return response.ErrCodeUserNotFound, errors.New("user not found")
-		}
-		// 3. Create new password
-		salt, err := crypto.GenerateSalt(16)
-		if err != nil {
-			return response.ErrCodeGeneratorSalt, err
-		}
-		newPassword := random.GeneratePassword(10)
-		newPassworkHash := crypto.HashPasswordWithSalt(newPassword, salt)
-		// 4. Update password in user_base
-		go func() {
-			err_p := s.r.UpdatePasswordAndSaltWithUserID(context.Background(), database.UpdatePasswordAndSaltWithUserIDParams{
-				UserPassword: newPassworkHash,
-				UserSalt:     salt,
-				UserID:       cUserID,
-			})
-			if err_p != nil {
-				fmt.Printf("Err when updating password for user %s: %v\n", cUserID, err_p)
-			}
-			global.Logger.Info("Created new password for user " + cUserID)
-		}()
-		// 5. Save handle forpassword in cache
-		go func() {
-			if global.Rdb.Set(
-				ctx,
-				key,
-				newPassword,
-				time.Duration(consts.TIME_BLOCK_FORGOT_PASSWORD_REQUEST)*time.Hour,
-			).Err() != nil {
-				fmt.Printf("Err when saving cache for forgot password: %v\n", err)
-			} else {
-				global.Logger.Info("Saved handle for forgot password in cache with key " + key)
-			}
-		}()
-		// 6. Send password to email
-		go func() {
-			email_to := email
-			err_s := sendto.NewKafkaSendTo().SendKafkaMailNewPassword(consts.EMAIL_HOST, email_to, consts.SEND_EMAIL_OTP, newPassword)
-			if err_s != nil {
-				global.Logger.Error("Err when sending mail new password to ", zap.String("email", email_to))
-			}
-			global.Logger.Info("Sented new password to email " + email_to)
-		}()
-		// 7. Block all all token login
-		go func() {
-			s.blockToken(cUserID)
-		}()
-		return response.ErrCodeSuccess, nil
+		// block spam ....
+		global.Logger.Info("User has mail: " + email + " spam forgot password")
+        return response.ErrCodeForgotPasswordSpam, errors.New("forgot password spam")
 	}
+
+	// Check email exists in user_base
+	cUserID, err := s.r.GetIDUserWithEmail(ctx, email)
+	if err != nil {
+		return response.ErrCodeUserNotFound, err
+	}
+	if cUserID == "" {
+        global.Logger.Error("User not found")
+        return response.ErrCodeUserNotFound, fmt.Errorf("user not found")
+    }
+	// create endpoint
+	endpoint := fmt.Sprintf("%s_%s", emailHash, uuid.New().String())
+	// create newpassword 
+	newPassword := random.GeneratePassword(16)
+	// create key save new password
+	keyNewPassword := fmt.Sprintf("newpassword::%s", endpoint)
+
+	// save cache status forgot password
+	go func() {
+		err := global.Rdb.Set(
+			context.Background(), 
+			keyBlockSpam, 
+			keyNewPassword, 
+			time.Duration(consts.TIME_BLOCK_FORGOT_PASSWORD_REQUEST)*time.Hour,
+		).Err()
+		if err != nil {
+			global.Logger.Error("Err when setting cache forgot password", zap.Error(err))
+		}
+	}()
+
+	// save new password in cache
+	go func() {
+		err := global.Rdb.Set(
+			context.Background(),
+			keyNewPassword,
+			newPassword,
+			time.Duration(consts.TIME_BLOCK_FORGOT_PASSWORD_REQUEST)*time.Hour,
+		).Err()
+		if err != nil {
+			global.Logger.Error("Err when setting cache new password", zap.Error(err))
+        }
+	}()
+
+	// send email
+	err = sendto.NewKafkaSendTo().SendKafkaMailNewPassword(
+		consts.EMAIL_HOST, 
+		email, 
+		consts.SEND_EMAIL_OTP, 
+		endpoint,
+	)
+	if err != nil {
+		global.Logger.Error("Err when sending mail new password to ", zap.String("email", email))
+	}
+	global.Logger.Info("Sented new password to email " + email)
+
+	return response.ErrCodeSuccess, nil
 }
 
 // Logout implements service.IUserLogin.
