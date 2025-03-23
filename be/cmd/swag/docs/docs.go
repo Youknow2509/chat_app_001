@@ -1163,7 +1163,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.RefreshTokenInput"
+                            "$ref": "#/definitions/model.LogoutInput"
                         }
                     }
                 ],
@@ -1483,6 +1483,51 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/user/verify_forgot_password/{email}/{token}": {
+            "post": {
+                "description": "Verify Forgot Password with token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts management"
+                ],
+                "summary": "Verify Forgot Password",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1637,6 +1682,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LogoutInput": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

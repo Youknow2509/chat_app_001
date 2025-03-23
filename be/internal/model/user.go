@@ -2,6 +2,12 @@ package model
 
 import "time"
 
+// VerifyForgotPassword input
+type VerifyForgotPasswordInput struct {
+	Email string `json:"email"`
+	Token string `json:"token"`
+}
+
 // list user friend input
 type ListUserFriendInput struct {
 	UserID string `json:"user_id"`

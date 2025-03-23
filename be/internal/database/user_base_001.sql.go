@@ -76,6 +76,32 @@ func (q *Queries) GetIDUserWithEmail(ctx context.Context, userAccount string) (s
 	return user_id, err
 }
 
+const getInfoPasswordWithMail = `-- name: GetInfoPasswordWithMail :one
+SELECT user_id, user_account, user_password, user_salt
+FROM ` + "`" + `user_base` + "`" + `
+WHERE user_account = ?
+LIMIT 1
+`
+
+type GetInfoPasswordWithMailRow struct {
+	UserID       string
+	UserAccount  string
+	UserPassword string
+	UserSalt     string
+}
+
+func (q *Queries) GetInfoPasswordWithMail(ctx context.Context, userAccount string) (GetInfoPasswordWithMailRow, error) {
+	row := q.db.QueryRowContext(ctx, getInfoPasswordWithMail, userAccount)
+	var i GetInfoPasswordWithMailRow
+	err := row.Scan(
+		&i.UserID,
+		&i.UserAccount,
+		&i.UserPassword,
+		&i.UserSalt,
+	)
+	return i, err
+}
+
 const getMailWithIDUser = `-- name: GetMailWithIDUser :one
 SELECT user_account
 FROM ` + "`" + `user_base` + "`" + `

@@ -1,3 +1,8 @@
+-- name: GetInfoPasswordWithMail :one
+SELECT user_id, user_account, user_password, user_salt
+FROM `user_base`
+WHERE user_account = ?
+LIMIT 1;
 
 -- name: GetMailWithIDUser :one
 SELECT user_account

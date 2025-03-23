@@ -16,6 +16,7 @@ type (
 		Logout(ctx context.Context, in *model.LogoutInput) (codeResult int, err error)
 		RefreshToken(ctx context.Context, in *model.RefreshTokenInput) (codeResult int, out model.LoginOutput, err error)
 		ForgotPassword(ctx context.Context, email string) (codeResult int, err error)
+		VerifyForgotPassword(ctx context.Context, in *model.VerifyForgotPasswordInput) (codeResult int, err error)
 	}
 
 	IUserInfo interface { // handle with token
@@ -31,7 +32,7 @@ type (
 		AcceptFriendRequest(ctx context.Context, in *model.AcceptFriendRequestInput) (codeResult int, err error)
 		RejectFriendRequest(ctx context.Context, in *model.RejectFriendRequestInput) (codeResult int, err error)
 		GetListFriendRequest(ctx context.Context, in *model.GetFriendRequestInput) (out []model.GetListFriendRequestOutput, err error)
-		// 
+		//
 		UpdatePasswordForUserRequest(ctx context.Context, in *model.UserChangePasswordInput) (codeResult int, err error)
 	}
 
