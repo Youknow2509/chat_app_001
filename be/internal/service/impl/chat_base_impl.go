@@ -451,7 +451,7 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 	}
 	// 4. add member to chat
 	go func() {
-		errAddChatMember1 := s.r.InsertChatMember(ctx, database.InsertChatMemberParams{
+		errAddChatMember1 := s.r.InsertChatMember(context.Background(), database.InsertChatMemberParams{
 			ChatID: uuidChatPrivate,
 			UserID: in.User1,
 			Role:   "admin",
@@ -462,7 +462,7 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 		}
 	}()
 	go func() {
-		errAddChatMember2 := s.r.InsertChatMember(ctx, database.InsertChatMemberParams{
+		errAddChatMember2 := s.r.InsertChatMember(context.Background(), database.InsertChatMemberParams{
 			ChatID: uuidChatPrivate,
 			UserID: in.User2,
 			Role:   "admin",

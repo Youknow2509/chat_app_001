@@ -298,7 +298,7 @@ func (cU *cUser) AcceptFriendRequest(c *gin.Context) {
 		return
 	}
 	parameters.UserAcceptID = userIDReq
-	// call to service
+	// call to service create friend
 	codeRes, err := service.UserInfo().AcceptFriendRequest(c.Request.Context(), &parameters)
 	if err != nil {
 		global.Logger.Error("Error accepting friend request", zap.Error(err))

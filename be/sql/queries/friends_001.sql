@@ -22,18 +22,11 @@ WHERE id = ?
 LIMIT 1;
 
 -- name: GetFriendUser :many
-SELECT ui.user_id, ui.user_nickname, ui.user_avatar, ui.user_email
-FROM (
-    SELECT 
-        CASE 
-            WHEN friends.user_id = ? THEN friend_id 
-            ELSE friends.user_id 
-        END AS friend_id
-    FROM friends
-    WHERE friends.user_id = ? OR friend_id = ?
-) AS f
-JOIN user_info ui ON ui.user_id = f.friend_id
-ORDER BY ui.user_nickname ASC
+SELECT u.user_id, u.user_nickname, u.user_email, u.user_avatar
+FROM user_info u
+JOIN friends f ON u.user_id = f.friend_id OR u.user_id = f.user_id
+WHERE (f.user_id = ? OR f.friend_id = ?) 
+AND u.user_id <> ?
 LIMIT ? OFFSET ?;
 
 -- name: InsertFriendRequest :exec
