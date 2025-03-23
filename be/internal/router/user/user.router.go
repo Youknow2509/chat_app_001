@@ -21,7 +21,7 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouterPublic.POST("/logout", account.Login.Logout)
 		userRouterPublic.POST("/refresh_token", account.Login.RefreshToken) 
 		userRouterPublic.POST("/forgot_password", account.Login.ForgotPassword)
-		userRouterPublic.POST("/verify_forgot_password/:email/:token", account.Login.VerifyForgotPassword)
+		userRouterPublic.GET("/verify_forgot_password/:email/:token", account.Login.VerifyForgotPassword)
 	}
 
 	// private router

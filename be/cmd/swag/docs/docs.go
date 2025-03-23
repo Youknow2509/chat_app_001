@@ -1485,7 +1485,7 @@ const docTemplate = `{
             }
         },
         "/v1/user/verify_forgot_password/{email}/{token}": {
-            "post": {
+            "get": {
                 "description": "Verify Forgot Password with token",
                 "consumes": [
                     "application/json"

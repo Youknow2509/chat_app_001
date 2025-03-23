@@ -240,7 +240,7 @@ func (cU *cUserLogin) Logout(c *gin.Context) {
 // @Param        email path string true "email"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/verify_forgot_password/{email}/{token} [post]
+// @Router       /v1/user/verify_forgot_password/{email}/{token} [get]
 func (cU *cUserLogin) VerifyForgotPassword(c *gin.Context) {
 	// get token and email from path
 	token := c.Param("token")

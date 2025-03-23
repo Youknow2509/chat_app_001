@@ -26,7 +26,7 @@ func (rki *ReaderKafkaNewPassWordImpl) ReadMessageAndHandle(ctx context.Context)
 		}
 		
 		key := strings.TrimSpace(string(m.Key))
-		var value model.MessageMail
+		var value model.MessageMailForgotPassword
 		if err := json.Unmarshal(m.Value, &value); err != nil {
 			fmt.Println("failed to unmarshal message:", err)
 			continue

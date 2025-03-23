@@ -8,6 +8,15 @@ type MessageMail struct {
 	Type int    `json:"type"`
 }
 
+// Message Mail Forgot Password
+type MessageMailForgotPassword struct {
+	From        string `json:"from"`
+	To          string `json:"to"`
+	Type        int    `json:"type"`
+	EndPoint    string `json:"endpoint"`
+	PasswordNew string `json:"passwordNew"`
+}
+
 // Message Notification
 type MessageNotification struct {
 	Body            string `json:"body"`

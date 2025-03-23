@@ -28,7 +28,7 @@ func NewISendMail(iSendMail ISendGridMail) {
 type ISendGridMail interface {
 	SendText(from, to, data string) error
 	SendTemplateEmailOTP(from, to, data string) error
-	SendTemplateEmailNewPasswork(from, to, data string) error
+	SendTemplateEmailNewPasswork(from, to, endpoint, password string) error
 }
 
 // get instance of ISendMail
