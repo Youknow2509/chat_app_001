@@ -45,7 +45,13 @@ func (ct *cChat) CreateChatGroup(c *gin.Context) {
 	inputChatGroup.UserIDCreate = userID
 
 	codeRes, outputData, err := service.ChatService().CreateChatGroup(c, &inputChatGroup)
+	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error creating chat group", zap.Error(err))
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
 	if err != nil {
+		global.Logger.Error("Error creating chat group", zap.Error(err))
 		response.ErrorResponse(c, codeRes, err.Error())
 		return
 	}
@@ -79,6 +85,11 @@ func (ct *cChat) CreateChatPrivate(c *gin.Context) {
 	inputChatGroup.User1 = userID
 
 	codeRes, outputData, err := service.ChatService().CreateChatPrivate(c, &inputChatGroup)
+	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error creating chat private", zap.Error(err))
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
 	if err != nil {
 		response.ErrorResponse(c, codeRes, err.Error())
 		return
@@ -113,6 +124,11 @@ func (ct *cChat) AddMemberToChat(c *gin.Context) {
 	parameters.AdminChatID = userIDReq
 	// call to service
 	codeResult, out, err := service.ChatService().AddMemberToChat(c, parameters)
+	if codeResult != response.ErrCodeSuccess {
+		global.Logger.Error("Error adding member to chat", zap.Error(err))
+		response.ErrorResponse(c, codeResult, response.GetMessageCode(codeResult))
+		return
+	}
 	if err != nil {
 		global.Logger.Error("Error adding member to chat", zap.Error(err))
 		response.ErrorResponse(c, codeResult, err.Error())
@@ -320,15 +336,17 @@ func (ct *cChat) ChangeAdminGroupChat(c *gin.Context) {
 	parameters.OldAdminID = userIDReq
 	// call to service
 	codeRes, err := service.ChatServiceAdmin().ChangeAdminGroupChat(c, parameters)
+	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error changing admin group chat", zap.Error(err))
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
 	if err != nil {
 		global.Logger.Error("Error changing admin group chat", zap.Error(err))
 		response.ErrorResponse(c, codeRes, err.Error())
 		return
 	}
-	if codeRes != response.ErrCodeSuccess {
-		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
-		return
-	}
+	
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -360,15 +378,16 @@ func (ct *cChat) DelChat(c *gin.Context) {
 	parameters.AdminChatID = userIDReq
 	// call to service
 	codeRes, err := service.ChatServiceAdmin().DelChat(c, parameters)
-	if err != nil {
-		global.Logger.Error("Error deleting chat", zap.Error(err))
-		response.ErrorResponse(c, codeRes, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error deleting chat", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, codeRes, err.Error())
+		return
+	}
+	
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
@@ -401,15 +420,16 @@ func (ct *cChat) DelMemberForChat(c *gin.Context) {
 	parameters.AdminChatID = userIDReq
 	// call to service
 	codeRes, err := service.ChatServiceAdmin().DelMenForChat(c, parameters)
-	if err != nil {
-		global.Logger.Error("Error deleting member from chat", zap.Error(err))
-		response.ErrorResponse(c, codeRes, err.Error())
-		return
-	}
 	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error deleting member from chat", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
+	if err != nil {
+		response.ErrorResponse(c, codeRes, err.Error())
+		return
+	}
+
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
@@ -442,13 +462,13 @@ func (ct *cChat) UpdateChatInfo(c *gin.Context) {
 	parameters.UserAdminID = userIDReq
 	// call to service
 	codeRes, err := service.ChatServiceAdmin().UpgradeChatInfo(c, parameters)
-	if err != nil {
+	if codeRes != response.ErrCodeSuccess {
 		global.Logger.Error("Error updating chat info", zap.Error(err))
-		response.ErrorResponse(c, codeRes, err.Error())
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
 		return
 	}
-	if codeRes != response.ErrCodeSuccess {
-		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+	if err != nil {
+		response.ErrorResponse(c, codeRes, err.Error())
 		return
 	}
 
