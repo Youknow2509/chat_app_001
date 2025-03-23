@@ -285,6 +285,7 @@
                     android:src="@drawable/message" />
             </FrameLayout>
 
+
             <LinearLayout
                 android:id="@+id/help_details"
                 android:layout_width="0dp"
@@ -311,8 +312,61 @@
                     android:textColor="#797C7B"
                     android:textSize="12sp" />
             </LinearLayout>
+
         </LinearLayout>
 
+        <!-- Logout Section -->
+        <LinearLayout
+            android:id="@+id/logout_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="30dp"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="50dp"
+                android:layout_height="50dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ellipse_1182" />
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/logout" />
+            </FrameLayout>
+
+
+            <LinearLayout
+                android:id="@+id/logout_details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/logout_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Logout"
+                    android:textColor="#000D07"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Logout account"
+                    android:textColor="#797C7B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Bottom navigation view -->

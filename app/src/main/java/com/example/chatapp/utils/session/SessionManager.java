@@ -160,8 +160,6 @@ public class SessionManager {
         return (accessTokenExpiry - currentTime) <= (5 * 60);
     }
 
-    //------------------- Phần thêm mới: Quản lý thông tin người dùng -------------------//
-
     /**
      * Lưu trữ thông tin cơ bản của người dùng
      * @param name Tên người dùng
