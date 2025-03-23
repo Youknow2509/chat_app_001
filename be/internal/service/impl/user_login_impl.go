@@ -32,6 +32,46 @@ type sUserLogin struct {
 	r *database.Queries
 }
 
+// VerifyForgotPassword implements service.IUserLogin.
+func (s *sUserLogin) VerifyForgotPassword(ctx context.Context, in *model.VerifyForgotPasswordInput) (codeResult int, err error) {
+	key := fmt.Sprintf("newpassword::%s", in.Token)
+	// check token in redis
+	dataCache, err := global.Rdb.Get(ctx, key).Result()
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return response.ErrCodeRedisGetData, err
+	}
+	if dataCache == "" {
+		global.Logger.Error("Token not found")
+		return response.ErrCodeTokenNewPasswordNotFound, fmt.Errorf("token not found")
+	}
+	// check user exist
+	infoPasswordUser, err := s.r.GetInfoPasswordWithMail(ctx, in.Email)
+	if err != nil {
+		global.Logger.Error("Err get user with id", zap.Error(err))
+		return response.ErrCodeUserNotFound, err
+	}
+	if infoPasswordUser.UserID == "" {
+		global.Logger.Error("User not found")
+		return response.ErrCodeUserNotFound, fmt.Errorf("user not found")
+	}
+	// update password
+	passwordHash := crypto.HashPasswordWithSalt(dataCache, infoPasswordUser.UserSalt)
+	err = s.r.UpdatePasswordWithUserID(ctx, database.UpdatePasswordWithUserIDParams{
+		UserID:       infoPasswordUser.UserID,
+		UserPassword: passwordHash,
+	})
+	if err != nil {
+		global.Logger.Error("Err update password", zap.Error(err))
+		return response.ErrCodeUpdatePassword, err
+	}
+
+	return response.ErrCodeSuccess, nil
+}
+
 // help function block token user with id
 func (s *sUserLogin) blockToken(cUserID string) {
 	// block access tokens
@@ -96,7 +136,7 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 	if dataCache != "" {
 		// block spam ....
 		global.Logger.Info("User has mail: " + email + " spam forgot password")
-        return response.ErrCodeForgotPasswordSpam, errors.New("forgot password spam")
+		return response.ErrCodeForgotPasswordSpam, errors.New("forgot password spam")
 	}
 
 	// Check email exists in user_base
@@ -105,12 +145,12 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 		return response.ErrCodeUserNotFound, err
 	}
 	if cUserID == "" {
-        global.Logger.Error("User not found")
-        return response.ErrCodeUserNotFound, fmt.Errorf("user not found")
-    }
+		global.Logger.Error("User not found")
+		return response.ErrCodeUserNotFound, fmt.Errorf("user not found")
+	}
 	// create endpoint
 	endpoint := fmt.Sprintf("%s_%s", emailHash, uuid.New().String())
-	// create newpassword 
+	// create newpassword
 	newPassword := random.GeneratePassword(16)
 	// create key save new password
 	keyNewPassword := fmt.Sprintf("newpassword::%s", endpoint)
@@ -118,9 +158,9 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 	// save cache status forgot password
 	go func() {
 		err := global.Rdb.Set(
-			context.Background(), 
-			keyBlockSpam, 
-			keyNewPassword, 
+			context.Background(),
+			keyBlockSpam,
+			keyNewPassword,
 			time.Duration(consts.TIME_BLOCK_FORGOT_PASSWORD_REQUEST)*time.Hour,
 		).Err()
 		if err != nil {
@@ -138,14 +178,14 @@ func (s *sUserLogin) ForgotPassword(ctx context.Context, email string) (codeResu
 		).Err()
 		if err != nil {
 			global.Logger.Error("Err when setting cache new password", zap.Error(err))
-        }
+		}
 	}()
 
 	// send email
 	err = sendto.NewKafkaSendTo().SendKafkaMailNewPassword(
-		consts.EMAIL_HOST, 
-		email, 
-		consts.SEND_EMAIL_OTP, 
+		consts.EMAIL_HOST,
+		email,
+		consts.SEND_EMAIL_OTP,
 		endpoint,
 	)
 	if err != nil {
@@ -162,10 +202,10 @@ func (s *sUserLogin) Logout(ctx context.Context, in *model.LogoutInput) (codeRes
 	accessTokenObj, err := auth.ValidateTokenSubject(in.AccessToken)
 	if err != nil {
 		global.Logger.Error(fmt.Sprintf("Validate access token failed: %v", err))
-        return response.ErrCodeAuthFailed, err
-    }
+		return response.ErrCodeAuthFailed, err
+	}
 	keyAccessToken := accessTokenObj.Subject
-	go func ()  {
+	go func() {
 		if global.Rdb.Del(context.Background(), keyAccessToken).Err() != nil {
 			global.Logger.Error(fmt.Sprintf("Err when deleting cache access token %s\n", keyAccessToken))
 		}
@@ -539,7 +579,7 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 		return response.ErrCodeAddUserInfo, err
 	}
 
-	// delete token 
+	// delete token
 	go func() {
 		err_del := s.r.DeleteTokenVerifyRegister(context.Background(), infoOTP.VerifyKeyHash)
 		if err_del != nil {

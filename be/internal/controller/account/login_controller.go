@@ -1,6 +1,8 @@
 package account
 
 import (
+	"regexp"
+
 	"example.com/be/global"
 	"example.com/be/internal/model"
 	"example.com/be/internal/service"
@@ -225,5 +227,55 @@ func (cU *cUserLogin) Logout(c *gin.Context) {
 		return
 	}
 	
+    response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}
+
+// VerifyForgotPassword
+// @Summary      Verify Forgot Password
+// @Description  Verify Forgot Password with token
+// @Tags         accounts management
+// @Accept       json
+// @Produce      json
+// @Param 	     token path string true "token"
+// @Param        email path string true "email"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/verify_forgot_password/{email}/{token} [post]
+func (cU *cUserLogin) VerifyForgotPassword(c *gin.Context) {
+	// get token and email from path
+	token := c.Param("token")
+	email := c.Param("email")
+	if token == "" || email == "" {
+		response.ErrorResponse(c, response.ErrCodeBadRequest, "Token and email are required")
+		return
+	}
+	// validate token and email
+	if len(token) < 8 {
+		response.ErrorResponse(c, response.ErrCodeBadRequest, "Invalid token")
+		return
+	}
+	emailRegex := regexp.MustCompile(`^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$`)
+	if !emailRegex.MatchString(email) {
+		response.ErrorResponse(c, response.ErrCodeBadRequest, "Invalid email")
+		return
+	}
+
+	input := model.VerifyForgotPasswordInput{
+		Token: token,
+		Email: email,
+	}
+	// call to service
+	codeRes, err := service.UserLogin().VerifyForgotPassword(c, &input)
+	if codeRes != response.ErrCodeSuccess {
+		global.Logger.Error("Error verify forgot password", zap.Error(err))
+		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
+		return
+	}
+	if err != nil {
+		global.Logger.Error("Error verify forgot password", zap.Error(err))
+		response.ErrorResponse(c, codeRes, err.Error())
+		return
+	}
+
     response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }

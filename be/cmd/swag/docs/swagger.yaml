@@ -99,6 +99,15 @@ definitions:
       user_password:
         type: string
     type: object
+  model.LogoutInput:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user_id:
+        type: string
+    type: object
   model.RefreshTokenInput:
     properties:
       access_token:
@@ -965,7 +974,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/model.RefreshTokenInput'
+          $ref: '#/definitions/model.LogoutInput'
       produces:
       - application/json
       responses:
@@ -1176,6 +1185,36 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Verify OTP bu user when register
+      tags:
+      - accounts management
+  /v1/user/verify_forgot_password/{email}/{token}:
+    post:
+      consumes:
+      - application/json
+      description: Verify Forgot Password with token
+      parameters:
+      - description: token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Verify Forgot Password
       tags:
       - accounts management
 securityDefinitions:
