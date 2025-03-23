@@ -126,54 +126,62 @@ public class SignInActivity extends AppCompatActivity {
 
     /**
      * Save session user when login
-     * @param accessToken String
+     *
+     * @param accessToken  String
      * @param refreshToken String
      */
     private void saveSession(String accessToken, String refreshToken) {
-        // get user info
-        UserProfileSession userInfo = getUserInfo(accessToken);
-        // save user info
-        sessionManager.saveUserProfile(userInfo);
-        // save user token
-        sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
+        getUserInfo(accessToken)
+                .thenAccept(userInfo -> {
+                    sessionManager.saveUserProfile(userInfo);
+                    sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
+                    Log.d("SignIn", "User info saved successfully.");
+                })
+                .exceptionally(e -> {
+                    showToast(e.getMessage());
+                    Log.e("SignIn", e.getMessage());
+                    return null;
+                });
     }
 
     /**
      * Get user info
+     *
      * @param token String
      * @return UserProfileSession
      */
-    private UserProfileSession getUserInfo(String token) {
-        UserProfileSession res = new UserProfileSession();
+    private CompletableFuture<UserProfileSession> getUserInfo(String token) {
+        CompletableFuture<UserProfileSession> future = new CompletableFuture<>();
+
         apiManager.getUserInfo(
-                accessToken, new Callback<ResponseData<Object>>() {
+                token, new Callback<ResponseData<Object>>() {
                     @Override
                     public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-                        int code =  response.body().getCode();
+                        int code = response.body().getCode();
                         if (code != Constants.CODE_SUCCESS) {
-                            showToast("Get user info failed: " + response.body().getMessage());
+                            future.completeExceptionally(new Exception("Get user info failed: " + response.body().getMessage()));
                             return;
                         }
-                        String user_id = Utils.getDataBody(response.body(), "user_id");
-                        String nick_name = Utils.getDataBody(response.body(), "user_nickname");
-                        String user_email = Utils.getDataBody(response.body(), "user_email");
-                        String user_avatar = Utils.getDataBody(response.body(), "user_avatar");
 
-                        res.setId(user_id);
-                        res.setName(nick_name);
-                        res.setEmail(user_email);
-                        res.setAvatarUrl(user_avatar);
-                        res.setDisplayName(nick_name);
+                        UserProfileSession user = new UserProfileSession();
+                        user.setId(Utils.getDataBody(response.body(), "user_id"));
+                        user.setName(Utils.getDataBody(response.body(), "user_nickname"));
+                        user.setEmail(Utils.getDataBody(response.body(), "user_email"));
+                        user.setAvatarUrl(Utils.getDataBody(response.body(), "user_avatar"));
+                        user.setDisplayName(Utils.getDataBody(response.body(), "user_nickname"));
+
+                        future.complete(user);
                     }
 
                     @Override
                     public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-                        showToast("Network error! Please try again.");
-                        Log.e("SignIn", "Get user info error");
+                        future.completeExceptionally(new Exception("Network error! Please try again."));
                     }
                 });
-        return res;
+
+        return future;
     }
+
 
     private void navigateToHome() {
         Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
