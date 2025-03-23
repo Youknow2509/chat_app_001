@@ -51,8 +51,8 @@ func LoadConfigProd() {
 // func load config test
 func LoadConfigTest() {
     viper := viper.New()
-    viper.AddConfigPath("../config") // paht to config
-    viper.SetConfigName("test")    // ten file
+    viper.AddConfigPath("../../config") // paht to config
+    viper.SetConfigName("local")    // ten file
     viper.SetConfigType("yaml")     // loai file
 
     // read config
