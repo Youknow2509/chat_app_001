@@ -1,9 +1,7 @@
-package com.example.chatapp.repo;
+package com.example.chatapp.repository;
 
 import android.content.Context;
 import android.util.Log;
-
-import androidx.lifecycle.LiveData;
 
 import com.example.chatapp.database.AppDatabase;
 import com.example.chatapp.models.ResponRepo;

@@ -1,6 +1,7 @@
 package com.example.chatapp.dao;
 
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,6 +17,15 @@ import java.util.List;
 
 @Dao
 public interface MediaFileDao {
+
+    @Query("SELECT * FROM media_files WHERE messageId = :messageId")
+    LiveData<List<MediaFile>> getMediaFilesForMessage(String messageId);
+
+    @Query("SELECT * FROM media_files WHERE downloadStatus = 'pending' OR downloadStatus = 'failed'")
+    List<MediaFile> getPendingDownloads();
+
+    @Query("SELECT * FROM media_files WHERE downloadStatus = 'downloading'")
+    List<MediaFile> getActiveDownloads();
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(MediaFile mediaFile);
 
@@ -30,6 +40,9 @@ public interface MediaFileDao {
 
     @Query("SELECT * FROM media_files WHERE messageId = :messageId")
     List<MediaFile> getMediaFilesByMessage(String messageId);
+
+    @Query("SELECT * FROM media_files WHERE messageId = :messageId")
+    LiveData<List<MediaFile>> getMediaFilesByMessageLiveData(String messageId);
 
     @Query("SELECT * FROM media_files WHERE fileType = :fileType ORDER BY createdAt DESC")
     List<MediaFile> getMediaFilesByType(String fileType);

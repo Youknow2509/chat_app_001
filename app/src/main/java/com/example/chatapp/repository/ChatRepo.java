@@ -1,8 +1,7 @@
-package com.example.chatapp.repo;
+package com.example.chatapp.repository;
 
 import static com.example.chatapp.database.AppDatabase.*;
 
-import android.app.Application;
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;

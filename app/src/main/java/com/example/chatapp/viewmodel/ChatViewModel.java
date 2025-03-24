@@ -10,7 +10,7 @@ import com.example.chatapp.models.relationship.ConversationWithLastMessage;
 import com.example.chatapp.models.relationship.MessageWithMedia;
 import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.models.sqlite.User;
-import com.example.chatapp.repo.ChatRepo;
+import com.example.chatapp.repository.ChatRepo;
 
 import java.util.List;
 import java.util.UUID;

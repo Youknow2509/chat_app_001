@@ -13,18 +13,11 @@ import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.LoginBinding;
-import com.example.chatapp.models.ResponRepo;
-import com.example.chatapp.models.TokenClient;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
-import com.example.chatapp.network.HttpClient;
-import com.example.chatapp.repo.ChatRepo;
-import com.example.chatapp.repo.TokenClientRepo;
 import com.example.chatapp.utils.Utils;
 import com.example.chatapp.utils.session.SessionManager;
-import com.google.gson.JsonObject;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
