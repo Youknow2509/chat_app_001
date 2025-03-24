@@ -28,9 +28,9 @@ redis:
   pool_size: 10
 
 kafka:
-  host: kafka-0
+  host: kafka
   port_internal: 9092
-  port_external: 9091 # because use network docker
+  port_external: 9092 # because use network docker
 
 kafka_ui:
   host: 127.0.0.1
