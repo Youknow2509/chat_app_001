@@ -43,7 +43,7 @@ public class SignInActivity extends AppCompatActivity {
     private String refreshToken;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) { // TODO: fix use retrofit and save user info to sqlite
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         initVariableUse();
@@ -76,8 +76,28 @@ public class SignInActivity extends AppCompatActivity {
 
     // handle forgot password
     private void forgotPassword() {
-        showToast("Da gui ve email cua ban");
-        // TODO: handle send email
+        progressOverlay.setVisibility(View.VISIBLE);
+        String email = binding.editTextTextEmailAddress.getText().toString().trim();
+        apiManager.forgotPassword(email, new Callback<ResponseData<Object>>() {
+            @Override
+            public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                progressOverlay.setVisibility(View.GONE);
+                int code = response.body().getCode();
+                if (code != Constants.CODE_SUCCESS) {
+                    Log.e("ForgotPassword", "Forgot password failed: " + response.body().getMessage());
+                    showToast("Forgot password failed: " + response.body().getMessage());
+                    return;
+                }
+                showToast("Đã gửi yêu cầu thay đổi mật khẩu về mail của bạn!");
+            }
+
+            @Override
+            public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                progressOverlay.setVisibility(View.GONE);
+                Log.e("ForgotPassword", "Forgot password request failed");
+                showToast("Network error! Please try again.");
+            }
+        });
     }
 
     private void signIn() {
