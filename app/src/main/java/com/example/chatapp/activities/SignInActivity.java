@@ -17,7 +17,6 @@ import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.Utils;
 import com.example.chatapp.utils.session.SessionManager;
-
 import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
@@ -101,8 +100,9 @@ public class SignInActivity extends AppCompatActivity {
         showToast("Logging in...");
 
         // TODO - use in test -> prd
-        if (email.equals("admin") && password.equals("admin")) {
+        if (email.equals("") && password.equals("")) {
             navigateToHome();
+            return;
         }
 
         apiManager.login(

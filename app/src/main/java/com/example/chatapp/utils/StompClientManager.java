@@ -8,6 +8,7 @@ import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.observers.MessageObservable;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.disposables.Disposable;
@@ -33,8 +34,7 @@ public class StompClientManager {
     @SuppressLint("CheckResult")
     private void initStompClient() {
         if (mStompClient == null) {
-            mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP,
-                    "ws://" + Constants.HOST_SERVER + "/ws/websocket");
+            mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.HOST_SERVER + "/ws/websocket");
 
             // Set up lifecycle management
             mStompClient.lifecycle().subscribe(lifecycleEvent -> {

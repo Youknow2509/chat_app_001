@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.adapters.ChatAdapter;
 import com.example.chatapp.databinding.ActivityChatBinding;
+import com.example.chatapp.dto.MessageDTO;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.User;
 import com.example.chatapp.models.Group;
@@ -21,6 +22,8 @@ import com.example.chatapp.consts.Constants;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.utils.PreferenceManager;
+import com.example.chatapp.utils.StompClientManager;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,11 +41,13 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
     private ChatAdapter chatAdapter;
 
     private PreferenceManager preferenceManager;
+    // TODO replace with your own chatId
     private String conversionId = "789e0123-a456-42f5-b678-556655440000";
     private Boolean isReceiverAvailable = true;
 
     private String id_client_test = "0";
     private boolean isGroupChat = false;
+    private StompClientManager stompClientManager = StompClientManager.getInstance();
 
 
     @Override
@@ -110,24 +115,21 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
     }
 
     private void initiateCall(String callType) {
-        if (!isReceiverAvailable) {
-            Intent intent = new Intent(ChatActivity.this, CallingActivity.class);
-            intent.putExtra("CALL_TYPE", callType);
 
-            if (isGroupChat) {
-                intent.putExtra("IS_GROUP_CALL", true);
-                intent.putExtra("GROUP_ID", receiverGroup.id);
-                intent.putExtra("GROUP_NAME", receiverGroup.name);
-            } else {
-                intent.putExtra("IS_GROUP_CALL", false);
-                intent.putExtra("USER_ID", receiverUser.id);
-                intent.putExtra("USER_NAME", receiverUser.name);
-            }
+        Intent intent = new Intent(ChatActivity.this, CallingActivity.class);
+        intent.putExtra("CALL_TYPE", callType);
 
-            startActivity(intent);
+        if (isGroupChat) {
+            intent.putExtra("IS_GROUP_CALL", true);
+            intent.putExtra("GROUP_ID", receiverGroup.id);
+            intent.putExtra("GROUP_NAME", receiverGroup.name);
         } else {
-            showToast("User is not available for calling.");
+            intent.putExtra("IS_GROUP_CALL", false);
+            intent.putExtra("USER_ID", receiverUser.id);
+            intent.putExtra("USER_NAME", receiverUser.name);
         }
+
+        startActivity(intent);
     }
 
 
@@ -137,26 +139,28 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
             return;
         }
 
+        MessageDTO messageDTO = new MessageDTO(messageText, conversionId, "text");
+
+        // parse messageDTO to json string
+        Gson gson = new Gson();
+        String messageJson = gson.toJson(messageDTO);
+
+        // Send message to server
+        stompClientManager.sendMessage(messageJson);
+
         ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSenderId(id_client_test);
+        chatMessage.setSenderId("0");
+        chatMessage.setChatId(conversionId);
         chatMessage.setContent(messageText);
+        chatMessage.setDateTime(getReadableDateTime(new Date())); // Use existing dateTime field
         chatMessage.setDateObject(new Date());
-
-        if (isGroupChat) {
-            chatMessage.setReceiverId(receiverGroup.id);
-            chatMessage.setName("You");
-        } else {
-            chatMessage.setReceiverId(receiverUser.id);
-        }
-
-        chatMessages.add(chatMessage);
+        chatMessages.add(chatMessage); // Add the chatMessage object
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+//        chatAdapter.getChatMessages().add(chatMessage);
+//        chatAdapter.notifyDataSetChanged();
         binding.chatRecycleView.smoothScrollToPosition(chatMessages.size() - 1);
         binding.inputMessage.setText(null);
 
-        if (!isReceiverAvailable) {
-            showToast("Receiver is not available, message sent.");
-        }
     }
 
     private String getReadableDateTime(Date date) {
