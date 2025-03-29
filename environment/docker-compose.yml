@@ -1,4 +1,19 @@
 services:
+  # MongoDB
+  mongo:
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongo_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo_data:/data/db
+    networks:
+      - go-chat-app-dev-network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root123
+      - MONGO_INITDB_DATABASE=cloudinary
+
   # My sql service
   mysql:
     image: mysql:8.0
