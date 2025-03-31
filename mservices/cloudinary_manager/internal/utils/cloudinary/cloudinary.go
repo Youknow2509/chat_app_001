@@ -12,6 +12,12 @@ func CreateSignedParams(paramsToSign map[string]string, apiSecret string) (strin
 	// create params url
 	paramsToSignURL := make(url.Values)
 	for key, value := range paramsToSign {
+		if key == "resource_type" {
+			continue
+		}
+		if key == "max_file_size" {
+			continue
+		}
 		paramsToSignURL.Set(key, value)
 	}
 	// 
