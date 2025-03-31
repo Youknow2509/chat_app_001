@@ -52,15 +52,6 @@ public class Message extends Fragment {
                 intent.putExtra(Constants.KEY_USER, user);
                 startActivity(intent);
             }
-
-            @Override
-            public void onGroupClick(Group group) {
-                Intent intent = new Intent(getContext(), ChatActivity.class);
-                intent.putExtra(Constants.KEY_GROUP, group);
-                intent.putExtra("GROUP_ID", group.id);
-                intent.putExtra("GROUP_NAME", group.name);
-                startActivity(intent);
-            }
         });
 
         chatListRecyclerView.setAdapter(chatListAdapter);
@@ -82,11 +73,6 @@ public class Message extends Fragment {
             chatListItems.add(new ChatListItem(user));
         }
 
-        // Thêm Groups vào danh sách chung
-        for (Group group : getGroups()) {
-            chatListItems.add(new ChatListItem(group));
-        }
-
         return chatListItems;
     }
 
@@ -99,21 +85,21 @@ public class Message extends Fragment {
         return users;
     }
 
-    private List<Group> getGroups() {
-        List<Group> groups = new ArrayList<>();
-        List<User> group1Members = new ArrayList<>();
-        group1Members.add(new User("1", "Alex Linderson", "alex.linderson@example.com", getImageBitmap(R.drawable.user)));
-        group1Members.add(new User("2", "Sabila Sayma", "sabila.sayma@example.com", getImageBitmap(R.drawable.user)));
-
-        List<User> group2Members = new ArrayList<>();
-        group2Members.add(new User("3", "Angel Dayna", "angel.dayna@example.com", getImageBitmap(R.drawable.user)));
-        group2Members.add(new User("4", "John Ahraham", "john.ahraham@example.com", getImageBitmap(R.drawable.user)));
-
-        groups.add(new Group("101", "Android Dev Group", group1Members));
-        groups.add(new Group("102", "Java Enthusiasts", group2Members));
-
-        return groups;
-    }
+//    private List<Group> getGroups() {
+//        List<Group> groups = new ArrayList<>();
+//        List<User> group1Members = new ArrayList<>();
+//        group1Members.add(new User("1", "Alex Linderson", "alex.linderson@example.com", getImageBitmap(R.drawable.user)));
+//        group1Members.add(new User("2", "Sabila Sayma", "sabila.sayma@example.com", getImageBitmap(R.drawable.user)));
+//
+//        List<User> group2Members = new ArrayList<>();
+//        group2Members.add(new User("3", "Angel Dayna", "angel.dayna@example.com", getImageBitmap(R.drawable.user)));
+//        group2Members.add(new User("4", "John Ahraham", "john.ahraham@example.com", getImageBitmap(R.drawable.user)));
+//
+//        groups.add(new Group("101", "Android Dev Group", group1Members));
+//        groups.add(new Group("102", "Java Enthusiasts", group2Members));
+//
+//        return groups;
+//    }
 
     private Bitmap getImageBitmap(int resourceId) {
         return BitmapFactory.decodeResource(getResources(), resourceId);

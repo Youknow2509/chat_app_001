@@ -42,7 +42,7 @@ public class HomeActivity extends AppCompatActivity {
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_message, R.id.nav_settings, R.id.nav_contact)
+                R.id.nav_message,R.id.nav_group,R.id.nav_profile)
                 .build();
         BottomNavigationView navView = findViewById(R.id.nav_view);
         NavigationUI.setupWithNavController(navView, navController);

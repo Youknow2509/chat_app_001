@@ -1,13 +1,14 @@
 package com.example.chatapp.adapters;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.chatapp.databinding.ItemContainerReceivedGroupBinding;
-import com.example.chatapp.databinding.ItemContainerReceivedMessageBinding;
-import com.example.chatapp.databinding.ItemContainerSentMessageBinding;
+import com.example.chatapp.databinding.ItemMessageIncomingBinding;
+import com.example.chatapp.databinding.ItemMessageIncomingWithAvatarBinding;
+import com.example.chatapp.databinding.ItemMessageOutgoingBinding;
 import com.example.chatapp.models.ChatMessage;
 
 import java.util.List;
@@ -51,18 +52,18 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (viewType) {
             case VIEW_TYPE_SENT:
                 return new SentMessageViewHolder(
-                        ItemContainerSentMessageBinding.inflate(inflater, parent, false)
+                        ItemMessageOutgoingBinding.inflate(inflater, parent, false)
                 );
 
             case VIEW_TYPE_GROUP_RECEIVED:
                 return new GroupMessageViewHolder(
-                        ItemContainerReceivedGroupBinding.inflate(inflater, parent, false)
+                        ItemMessageIncomingWithAvatarBinding.inflate(inflater, parent, false)
                 );
 
             case VIEW_TYPE_RECEIVED:
             default:
                 return new ReceiverMessageViewHolder(
-                        ItemContainerReceivedMessageBinding.inflate(inflater, parent, false)
+                        ItemMessageIncomingBinding.inflate(inflater, parent, false)
                 );
         }
     }
@@ -89,52 +90,46 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
-        private final ItemContainerSentMessageBinding binding;
+        private final ItemMessageOutgoingBinding binding;
 
-        SentMessageViewHolder(ItemContainerSentMessageBinding itemContainerSentMessageBinding) {
+        SentMessageViewHolder(ItemMessageOutgoingBinding itemContainerSentMessageBinding) {
             super(itemContainerSentMessageBinding.getRoot());
             binding = itemContainerSentMessageBinding;
         }
 
         void setData(ChatMessage chatMessage) {
             binding.textMessage.setText(chatMessage.getContent());
-            binding.textDateTime.setText(chatMessage.getDateTime());
+            binding.textTime.setText(chatMessage.getDateTime());
         }
     }
 
     static class ReceiverMessageViewHolder extends RecyclerView.ViewHolder {
 
-        private final ItemContainerReceivedMessageBinding binding;
+        private final ItemMessageIncomingBinding binding;
 
-        ReceiverMessageViewHolder(ItemContainerReceivedMessageBinding itemContainerReceivedMessageBinding) {
+        ReceiverMessageViewHolder(ItemMessageIncomingBinding itemContainerReceivedMessageBinding) {
             super(itemContainerReceivedMessageBinding.getRoot());
             binding = itemContainerReceivedMessageBinding;
         }
 
         void setData(ChatMessage chatMessage, Bitmap receiverProfileImage) {
             binding.textMessage.setText(chatMessage.getContent());
-            binding.textDateTime.setText(chatMessage.getDateTime());
-            if (receiverProfileImage != null) {
-                binding.imageProfile.setImageBitmap(receiverProfileImage);
-            }
+            binding.textTime.setText(chatMessage.getDateTime());
         }
     }
 
     static class GroupMessageViewHolder extends RecyclerView.ViewHolder {
-        private final ItemContainerReceivedGroupBinding binding;
+        private final ItemMessageIncomingWithAvatarBinding binding;
 
-        GroupMessageViewHolder(ItemContainerReceivedGroupBinding itemContainerReceivedGroupBinding) {
+        GroupMessageViewHolder(ItemMessageIncomingWithAvatarBinding itemContainerReceivedGroupBinding) {
             super(itemContainerReceivedGroupBinding.getRoot());
             binding = itemContainerReceivedGroupBinding;
         }
 
         void setData(ChatMessage chatMessage, Bitmap receiverProfileImage) {
-            binding.textNameOtherPerson.setText(chatMessage.getChatId());
+            binding.textSenderName.setText(chatMessage.getChatId());
             binding.textMessage.setText(chatMessage.getContent());
-            binding.textDateTime.setText(chatMessage.getDateTime());
-            if (receiverProfileImage != null) {
-                binding.imageProfile.setImageBitmap(receiverProfileImage);
-            }
+            binding.textTime.setText(chatMessage.getDateTime());
 
         }
     }

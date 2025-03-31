@@ -1,0 +1,5 @@
+<!-- res/drawable/circle_blue.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FF5757" />
+    <corners android:radius="14dp"/>
+</shape>

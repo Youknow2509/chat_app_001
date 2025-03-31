@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- Background Header -->
+
+    <!-- Button: Login -->
+
+    <View
+        android:id="@+id/headerBackground2"
+        android:layout_width="541dp"
+        android:layout_height="463dp"
+        android:layout_marginBottom="372dp"
+        android:background="@drawable/bg_header_curve_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="-65dp" />
+
+    <View
+        android:id="@+id/headerBackground"
+        android:layout_width="541dp"
+        android:layout_height="463dp"
+        android:layout_marginBottom="424dp"
+        android:background="@drawable/bg_header_curve"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="-65dp" />
+
+    <Button
+        android:id="@+id/backToLoginButton"
+        android:layout_width="110dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/rounded_button"
+        android:drawableLeft="@drawable/back_white"
+        android:drawablePadding="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="20dp"
+        android:text="Login"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Title: Register -->
+    <TextView
+        android:id="@+id/registerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:textColor="@android:color/white"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@id/backToLoginButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/backToLoginButton"
+        android:layout_marginEnd="24dp" />
+
+    <ImageView
+        android:id="@+id/avatarImage"
+        android:layout_width="153dp"
+        android:layout_height="153dp"
+        android:layout_marginTop="100dp"
+        android:backgroundTint="@android:color/white"
+        android:src="@drawable/user_circle__1_"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backToLoginButton" />
+
+    <!-- Line under EditText -->
+    <ImageView
+        android:id="@+id/editAvatar"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/circle_darkblue"
+        android:padding="6dp"
+        android:src="@drawable/pen"
+        app:layout_constraintBottom_toBottomOf="@id/avatarImage"
+        app:layout_constraintEnd_toEndOf="@id/avatarImage" />
+
+
+    <!-- Send Button -->
+    <LinearLayout
+        android:layout_width="343dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headerBackground2">
+
+        <!-- Hàng chứa icon + EditText -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="43dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/user"
+                android:scaleType="centerInside" />
+
+            <EditText
+                android:id="@+id/nameInput"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/_7sdp"
+                android:background="@null"
+                android:drawablePadding="8dp"
+                android:hint="Your Name"
+                android:inputType="textPersonName"
+                android:textColor="#000000"
+                android:textColorHint="#999999"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <!-- Gạch ngang -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="#333333" />
+    </LinearLayout>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/nextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#03A9F4"
+        android:src="@drawable/continue_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.932"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.715"
+        tools:ignore="MissingConstraints" />
+
+    <FrameLayout
+        android:id="@+id/progress_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="#24786D" />
+
+        <TextView
+            android:id="@+id/progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="48dp"
+            android:text="Đang xử lý..."
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

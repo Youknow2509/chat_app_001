@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.chatapp.R;
+import com.example.chatapp.databinding.ItemGroupChatBinding;
 import com.example.chatapp.listeners.GroupListener;
 import com.example.chatapp.models.Group;
 import java.util.List;
@@ -28,7 +29,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
     @NonNull
     @Override
     public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemContainerGroupBinding binding = ItemContainerGroupBinding.inflate(
+        ItemGroupChatBinding binding = ItemGroupChatBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
@@ -53,15 +54,15 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
     }
 
     class GroupViewHolder extends RecyclerView.ViewHolder {
-        ItemContainerGroupBinding binding;
+        ItemGroupChatBinding binding;
 
-        public GroupViewHolder(ItemContainerGroupBinding itemContainerGroupBinding) {
-            super(itemContainerGroupBinding.getRoot());
-            binding = itemContainerGroupBinding;
+        public GroupViewHolder(ItemGroupChatBinding itemGroupChatBinding) {
+            super(itemGroupChatBinding.getRoot());
+            binding = itemGroupChatBinding;
         }
 
         public void setGroupData(Group group) {
-            binding.textName.setText(group.name);
+            binding.nameText.setText(group.name);
             binding.getRoot().setOnClickListener(v -> groupListener.onGroupClick(group));
         }
     }

@@ -148,7 +148,7 @@ public class SplashActivity extends AppCompatActivity {
      * Chuyển đến màn hình onboarding
      */
     private void startOnboardingActivity() {
-        Intent intent = new Intent(SplashActivity.this, OnboardingActivity.class);
+        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }

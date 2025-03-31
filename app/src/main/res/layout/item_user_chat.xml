@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:paddingHorizontal="16dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <!-- Avatar -->
+    <ImageView
+        android:id="@+id/avatarImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/avatar_circle_bg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- Name -->
+    <TextView
+        android:id="@+id/nameText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="David Wayne"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toTopOf="@id/avatarImage"
+        app:layout_constraintStart_toEndOf="@id/avatarImage"
+        app:layout_constraintEnd_toStartOf="@id/timeText"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:maxLines="1"
+        android:ellipsize="end"/>
+
+    <!-- Message -->
+    <TextView
+        android:id="@+id/messageText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Thanks a bunch! Have a great day! 😊"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintTop_toBottomOf="@id/nameText"
+        app:layout_constraintStart_toStartOf="@id/nameText"
+        app:layout_constraintEnd_toEndOf="@id/nameText" />
+
+    <!-- Time -->
+    <TextView
+        android:id="@+id/timeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10:25"
+        android:textSize="12sp"
+        android:textColor="#888888"
+        app:layout_constraintTop_toTopOf="@id/nameText"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Date -->
+    <TextView
+        android:id="@+id/dateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="05/05"
+        android:textSize="12sp"
+        android:textColor="#888888"
+        app:layout_constraintTop_toBottomOf="@id/timeText"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Unread Badge -->
+    <TextView
+        android:id="@+id/unreadBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="20dp"
+        android:paddingHorizontal="6dp"
+        android:gravity="center"
+        android:background="@drawable/unread_badge_bg"
+        android:text="5"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/dateText"
+        app:layout_constraintStart_toEndOf="@id/dateText"
+        android:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,6 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="popupMenuStyle">@style/PopupMenuStyle</item>
+
     </style>
 
     <style name="Theme.ChatApp.NoActionBar">
@@ -25,6 +27,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ChatApp.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
+        <item name="popupMenuStyle">@style/PopupMenuStyle</item>
+
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 </resources>

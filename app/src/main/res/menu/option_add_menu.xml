@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_add_friend"
+        android:icon="@drawable/user"
+        android:title="@string/add_friend" />
+
+    <item
+        android:id="@+id/action_create_group"
+        android:icon="@drawable/users_group_two_rounded"
+        android:title="@string/create_group" />
+</menu>

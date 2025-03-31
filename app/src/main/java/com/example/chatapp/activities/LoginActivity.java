@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.databinding.ActivityLoginV2Binding;
 import com.example.chatapp.databinding.LoginBinding;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
@@ -24,9 +25,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SignInActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
-    private LoginBinding binding;
+    private ActivityLoginV2Binding binding;
 
     private FrameLayout progressOverlay;
     //
@@ -41,7 +42,7 @@ public class SignInActivity extends AppCompatActivity {
 
         initVariableUse();
 
-        binding = LoginBinding.inflate(getLayoutInflater());
+        binding = ActivityLoginV2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         progressOverlay = findViewById(R.id.progress_overlay);
@@ -49,16 +50,16 @@ public class SignInActivity extends AppCompatActivity {
         // handle if activity before is register
         handleFielMail();
 
-        binding.back.setOnClickListener(v -> back_act());
-        binding.btnLogin.setOnClickListener(v -> signIn());
-        binding.tvForgotPassword.setOnClickListener(v -> forgotPassword());
+        binding.nextButton.setOnClickListener(v -> signIn());
+        binding.registerButton.setOnClickListener(v->register());
+        binding.forgotPasswordText.setOnClickListener(v -> forgotPassword());
     }
 
     // handle if before is register
     private void handleFielMail() {
         Intent intent = getIntent();
         String new_email_acc = intent.getStringExtra("mail");
-        binding.editTextTextEmailAddress.setText(new_email_acc);
+        binding.mailEditText.setText(new_email_acc);
     }
 
     // init var use
@@ -67,10 +68,17 @@ public class SignInActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
     }
 
+    // handle register
+    private void register() {
+        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     // handle forgot password
     private void forgotPassword() {
         progressOverlay.setVisibility(View.VISIBLE);
-        String email = binding.editTextTextEmailAddress.getText().toString().trim();
+        String email = binding.mailEditText.getText().toString().trim();
         apiManager.forgotPassword(email, new Callback<ResponseData<Object>>() {
             @Override
             public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
@@ -95,8 +103,8 @@ public class SignInActivity extends AppCompatActivity {
 
     private void signIn() {
         progressOverlay.setVisibility(View.VISIBLE);
-        String email = binding.editTextTextEmailAddress.getText().toString().trim();
-        String password = binding.editTextTextPassword.getText().toString().trim();
+        String email = binding.mailEditText.getText().toString().trim();
+        String password = binding.passwordEditText.getText().toString().trim();
         // TODO handle input validation
         showToast("Logging in...");
 
@@ -105,36 +113,38 @@ public class SignInActivity extends AppCompatActivity {
             navigateToHome();
         }
 
-        apiManager.login(
-                email,
-                password,
-                new Callback<ResponseData<Object>>() {
-                    @Override
-                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-                        progressOverlay.setVisibility(View.GONE);
-                        int code = response.body().getCode();
-                        if (code != Constants.CODE_SUCCESS) {
-                            showToast("Login failed: " + response.body().getMessage());
-                            return;
-                        }
+//        apiManager.login(
+//                email,
+//                password,
+//                new Callback<ResponseData<Object>>() {
+//                    @Override
+//                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+//                        progressOverlay.setVisibility(View.GONE);
+//                        int code = response.body().getCode();
+//                        if (code != Constants.CODE_SUCCESS) {
+//                            showToast("Login failed: " + response.body().getMessage());
+//                            return;
+//                        }
+//
+//                        accessToken = Utils.getDataBody(response.body(), "token");
+//                        refreshToken = Utils.getDataBody(response.body(), "refresh_token");
+//
+//                        Log.i("SignIn", "AccessToken: " + accessToken);
+//                        Log.i("SignIn", "RefreshToken: " + refreshToken);
+//                        // save session
+//                        saveSession(accessToken, refreshToken);
+//                        navigateToHome();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+//                        progressOverlay.setVisibility(View.GONE);
+//                        Log.e("SignIn", "Login request failed");
+//                        showToast("Network error! Please try again.");
+//                    }
+//                });
 
-                        accessToken = Utils.getDataBody(response.body(), "token");
-                        refreshToken = Utils.getDataBody(response.body(), "refresh_token");
-
-                        Log.i("SignIn", "AccessToken: " + accessToken);
-                        Log.i("SignIn", "RefreshToken: " + refreshToken);
-                        // save session
-                        saveSession(accessToken, refreshToken);
-                        navigateToHome();
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-                        progressOverlay.setVisibility(View.GONE);
-                        Log.e("SignIn", "Login request failed");
-                        showToast("Network error! Please try again.");
-                    }
-                });
+        navigateToHome();
 
     }
 
@@ -198,18 +208,12 @@ public class SignInActivity extends AppCompatActivity {
 
 
     private void navigateToHome() {
-        Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
+        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
     }
 
     private void showToast(String message) {
         runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
-    }
-
-    private void back_act() {
-        Intent intent = new Intent(SignInActivity.this, OnboardingActivity.class);
-        startActivity(intent);
-        finish();
     }
 }

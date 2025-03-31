@@ -14,11 +14,6 @@ import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.SignupBinding;
 import com.example.chatapp.models.request.AccountModels;
 import com.example.chatapp.models.response.ResponseData;
-import com.example.chatapp.network.HttpClient;
-import com.example.chatapp.utils.Utils;
-import com.google.gson.JsonObject;
-
-import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -106,7 +101,7 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
     // change to login activity
     private void back_act() {
-        Intent intent = new Intent(UpdatePasswordRegisterActivity.this, SignInActivity.class);
+        Intent intent = new Intent(UpdatePasswordRegisterActivity.this, LoginActivity.class);
         String email = binding.editTextTextEmailAddress2.getText().toString().trim();
         intent.putExtra("mail", email);
         startActivity(intent);

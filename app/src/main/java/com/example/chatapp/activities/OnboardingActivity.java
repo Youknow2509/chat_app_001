@@ -19,7 +19,7 @@ public class OnboardingActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btn_login).setOnClickListener(v -> {
-            startActivity(new Intent(OnboardingActivity.this, SignInActivity.class));
+            startActivity(new Intent(OnboardingActivity.this, LoginActivity.class));
         });
     }
 }

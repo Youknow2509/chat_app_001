@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.chatapp.activities.SignInActivity;
+import com.example.chatapp.activities.LoginActivity;
 import com.example.chatapp.models.TokenClient;
 import com.example.chatapp.network.HttpClient;
 import com.example.chatapp.utils.Utils;
@@ -70,7 +70,7 @@ public class TokenUtils {
     // Helper change to sign in activity
     private void changeToSignInActivity() {
         Toast.makeText(context, "Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(context, SignInActivity.class);
+        Intent intent = new Intent(context, LoginActivity.class);
         context.startActivity(intent);
     }
 

@@ -132,14 +132,14 @@ public class SearchingActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try {
-            groups.add(new Group("1", "Android Developers",users));
-            groups.add(new Group("2", "Java Lovers",users));
-            groups.add(new Group("3", "Kotlin Enthusiasts",users));
-            groups.add(new Group("4", "Flutter Community",users));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            groups.add(new Group("1", "Android Developers",users,));
+//            groups.add(new Group("2", "Java Lovers",users));
+//            groups.add(new Group("3", "Kotlin Enthusiasts",users));
+//            groups.add(new Group("4", "Flutter Community",users));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         return groups;
     }
