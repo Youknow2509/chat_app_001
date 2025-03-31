@@ -80,7 +80,7 @@ dependencies {
     implementation("com.makeramen:roundedimageview:2.3.0")
     implementation("com.github.NaikSoftware:StompProtocolAndroid:1.6.6")
     implementation("com.squareup.okhttp3:okhttp:3.12.1")
-    implementation("io.getstream:stream-webrtc-android:1.3.8")
+    implementation("io.github.webrtc-sdk:android:125.6422.07")
     // RxJava
     implementation("io.reactivex.rxjava2:rxjava:2.2.5")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.0")

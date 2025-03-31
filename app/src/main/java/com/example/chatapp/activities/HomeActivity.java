@@ -36,15 +36,6 @@ public class HomeActivity extends AppCompatActivity {
 //        stompClientManager.subscribeTopic(sessionManager.getUserId());
         stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
 
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.d("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
-                        return;
-                    }
-                    String token = task.getResult();
-                    Log.d("FCM_DEBUG", "Manual Token: " + token);
-                });
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(

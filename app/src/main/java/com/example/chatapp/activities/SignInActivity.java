@@ -13,10 +13,13 @@ import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.LoginBinding;
+import com.example.chatapp.dto.UserFbToken;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.Utils;
 import com.example.chatapp.utils.session.SessionManager;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
@@ -125,6 +128,20 @@ public class SignInActivity extends AppCompatActivity {
                         Log.i("SignIn", "RefreshToken: " + refreshToken);
                         // save session
                         saveSession(accessToken, refreshToken);
+                        // TODO - get token manually and send to server
+                        FirebaseMessaging.getInstance().getToken()
+                                .addOnCompleteListener(task -> {
+                                    if (!task.isSuccessful()) {
+                                        Log.d("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
+                                        return;
+                                    }
+                                    String token = task.getResult();
+                                    Log.d("FCM_DEBUG", "Manual Token: " + token);
+                                    // TODO Get userId
+                                    UserFbToken userFbToken = new UserFbToken(sessionManager.getUserId(), token, "on", true);
+                                    apiManager.sendToken(userFbToken, null);
+                                });
+
                         navigateToHome();
                     }
 

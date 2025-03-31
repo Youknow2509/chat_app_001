@@ -1,5 +1,6 @@
 package com.example.chatapp.api;
 
+import com.example.chatapp.dto.UserFbToken;
 import com.example.chatapp.models.request.AccountModels.*;
 import com.example.chatapp.models.request.ChatModels.*;
 import com.example.chatapp.models.request.TokenModels.*;
@@ -162,4 +163,8 @@ public interface ChatAppService {
             @Query("chat_id") String chatId,
             @Query("limit") int limit,
             @Query("page") int page);
+
+    // ============ Notification ============
+    @POST("/v1/token")
+    Call<ResponseData<Object>> sendToken(@Body UserFbToken userFbToken);
 }

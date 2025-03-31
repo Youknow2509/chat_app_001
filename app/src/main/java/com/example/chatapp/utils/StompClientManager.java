@@ -8,6 +8,10 @@ import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.observers.MessageObservable;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.webrtc.IceCandidate;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,11 +100,11 @@ public class StompClientManager {
 
     private ChatMessage parseToChatMessage(StompMessage stompMessage) {
         try {
-            ChatMessage obj =  gson.fromJson(stompMessage.getPayload(), ChatMessage.class);
+            ChatMessage obj = gson.fromJson(stompMessage.getPayload(), ChatMessage.class);
 
-//            ChatMessage chatMessage = new ChatMessage();
+            ChatMessage chatMessage = new ChatMessage();
 
-            // set chat id from obj id
+//             set chat id from obj id
 //            chatMessage.
             return obj;
         } catch (Exception e) {
@@ -122,6 +126,71 @@ public class StompClientManager {
         }
     }
 
+    public void sendCallOffer(String receiverId, String offer) {
+        if (mStompClient != null && isConnected) {
+            JSONObject callSignal = new JSONObject();
+            try {
+                callSignal.put("type", "offer");
+                callSignal.put("sdp", offer);
+                callSignal.put("receiverId", receiverId);
+                callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
+
+                mStompClient.send("/app/call/offer", callSignal.toString()).subscribe(() -> {
+                    Log.d(TAG, "Call offer sent successfully");
+                }, throwable -> {
+                    Log.e(TAG, "Error sending call offer", throwable);
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, "Error creating call offer JSON", e);
+            }
+        }
+    }
+
+    public void sendCallAnswer(String receiverId, String answer) {
+        if (mStompClient != null && isConnected) {
+            JSONObject callSignal = new JSONObject();
+            try {
+                callSignal.put("type", "answer");
+                callSignal.put("sdp", answer);
+                callSignal.put("receiverId", receiverId);
+                callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
+
+                mStompClient.send("/app/call/answer", callSignal.toString()).subscribe(() -> {
+                    Log.d(TAG, "Call answer sent successfully");
+                }, throwable -> {
+                    Log.e(TAG, "Error sending call answer", throwable);
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, "Error creating call answer JSON", e);
+            }
+        }
+    }
+
+    public void sendIceCandidate(String receiverId, IceCandidate candidate) {
+        if (mStompClient != null && isConnected) {
+            JSONObject callSignal = new JSONObject();
+            try {
+                JSONObject candidateJson = new JSONObject();
+                candidateJson.put("sdpMid", candidate.sdpMid);
+                candidateJson.put("sdpMLineIndex", candidate.sdpMLineIndex);
+                candidateJson.put("sdp", candidate.sdp);
+
+                callSignal.put("type", "ice_candidate");
+                callSignal.put("candidate", candidateJson);
+                callSignal.put("receiverId", receiverId);
+                callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
+
+                mStompClient.send("/app/call/candidate", callSignal.toString()).subscribe(() -> {
+                    Log.d(TAG, "ICE candidate sent successfully");
+                }, throwable -> {
+                    Log.e(TAG, "Error sending ICE candidate", throwable);
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, "Error creating ICE candidate JSON", e);
+            }
+        }
+    }
+
     public static StompClientManager getInstance() {
         if (instance == null) {
             instance = new StompClientManager();
@@ -129,7 +198,6 @@ public class StompClientManager {
         }
         return instance;
     }
-
 
 
     public StompClient getClient() {
