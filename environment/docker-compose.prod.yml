@@ -127,6 +127,19 @@ services:
     networks:
         - go-chat-app-network
 
+  msv_cloudinary:
+    build: 
+        context: ../mservices/cloudinary_manager
+        dockerfile: Dockerfile
+    container_name: crm_chatapp_msv_cloudinary
+    ports:
+      - "8080:8080"
+    depends_on:
+        redis:
+            condition: service_healthy
+    networks:
+      - go-chat-app-network
+
 networks:
   go-chat-app-network:
     driver: bridge
