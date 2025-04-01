@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
@@ -103,7 +104,9 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     }
 
     private void ShowMore() {
-        // TODO: Implement ShowMore functionality
+        Intent intent = new Intent(getApplicationContext(), UserChatInformationActivity.class);
+        intent.putExtra(Constants.KEY_USER, receiverUser);
+        startActivity(intent);
     }
 
     private void SendMessage() {

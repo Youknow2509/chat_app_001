@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "540881926526",
-    "project_id": "test-6ad9b",
-    "storage_bucket": "test-6ad9b.firebasestorage.app"
+    "project_number": "424448008461",
+    "firebase_url": "https://fcmtest-b20f7-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "fcmtest-b20f7",
+    "storage_bucket": "fcmtest-b20f7.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:540881926526:android:bcf70aeec50af94e739b2f",
+        "mobilesdk_app_id": "1:424448008461:android:6bc21fbe97c0fb2b55d044",
         "android_client_info": {
           "package_name": "com.example.chatapp"
         }
@@ -15,7 +16,121 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBSSrvIfCnUH-gZouz6C36prp7ZjhP708Y"
+          "current_key": "AIzaSyCiqIka6ke3PMLdge3SVASt8Xd5HJdYTE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424448008461:android:171923624ff70c8d55d044",
+        "android_client_info": {
+          "package_name": "com.example.cloudmessagingandroid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiqIka6ke3PMLdge3SVASt8Xd5HJdYTE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424448008461:android:0b9f430a51b6042855d044",
+        "android_client_info": {
+          "package_name": "com.example.fcmtest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiqIka6ke3PMLdge3SVASt8Xd5HJdYTE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424448008461:android:edf6acc764b13e7155d044",
+        "android_client_info": {
+          "package_name": "com.google.firebase.quickstart.fcm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiqIka6ke3PMLdge3SVASt8Xd5HJdYTE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424448008461:android:efe57ec1c452f19655d044",
+        "android_client_info": {
+          "package_name": "com.khanhdew.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiqIka6ke3PMLdge3SVASt8Xd5HJdYTE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424448008461:android:8c207c24a003251455d044",
+        "android_client_info": {
+          "package_name": "com.mikeschvedov.pushnotificationtutorial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiqIka6ke3PMLdge3SVASt8Xd5HJdYTE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424448008461:android:51c4e251a951d97955d044",
+        "android_client_info": {
+          "package_name": "com.nckh_smart_home"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiqIka6ke3PMLdge3SVASt8Xd5HJdYTE4"
         }
       ],
       "services": {

@@ -97,6 +97,8 @@
     <string name="address">Address:</string>
     <string name="logout">Logout</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="report">Report</string>
+    <string name="block">Block</string>
     <array name="gender_array">
         <item name="Name">Name</item>
     </array>

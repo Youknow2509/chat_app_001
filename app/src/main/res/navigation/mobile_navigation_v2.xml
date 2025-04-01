@@ -20,4 +20,9 @@
         android:name="com.example.chatapp.fragments.ProfileFragment"
         tools:layout="@layout/fragment_profile"
         android:label="ProfileFragment" />
+    <fragment
+        android:id="@+id/nav_more"
+        android:name="com.example.chatapp.fragments.MoreFragment"
+        tools:layout="@layout/fragment_more"
+        android:label="MoreFragment" />
 </navigation>
