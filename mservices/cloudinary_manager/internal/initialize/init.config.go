@@ -22,15 +22,62 @@ func InitConfig() {
 		panic(err)
 	}
 
-	InitConfigMongo()
-	InitConfigCloudinary()
-	InitConfigJWT()
+	initConfigMongo()
+	initConfigCloudinary()
+	initConfigJWT()
+	initConfigRedis()
 
 	log.Println("Config initialized")
 }
 
+// init config redis
+func initConfigRedis() {
+    // Get port as string and convert to int
+    portStr := os.Getenv(consts.ENV_REDIS_PORT)
+    port, err := strconv.Atoi(portStr)
+    if err != nil {
+        log.Println("Error converting REDIS_PORT to int:", err)
+        log.Println("Using default port 6379")
+        port = 6379 // Default Redis port
+    }
+
+    // Get DB as string and convert to int
+    dbStr := os.Getenv(consts.ENV_REDIS_DB)
+    db, err := strconv.Atoi(dbStr)
+    if err != nil {
+        log.Println("Error converting REDIS_DB to int:", err)
+        log.Println("Using default DB 0")
+        db = 0 // Default Redis DB
+    }
+
+	// Get pool size as string and convert to int
+	poolSize, err := strconv.Atoi(os.Getenv(consts.ENV_REDIS_POOL_SIZE))
+    if err != nil {
+        log.Println("Error converting REDIS_POOL_SIZE to int:", err)
+        log.Println("Using default pool size 10")
+        poolSize = 10 // Default pool size
+    }
+
+    redisConfig := &setting.RedisSetting{
+        Host:     os.Getenv(consts.ENV_REDIS_HOST),
+        Port:     port,
+        Password: os.Getenv(consts.ENV_REDIS_PASSWORD),
+        Db:       db,
+		PoolSize: poolSize,
+    }
+	// log it 
+	log.Println("RedisHost::", redisConfig.Host)
+	log.Println("RedisPort::", redisConfig.Port)
+	log.Println("RedisPassword::", redisConfig.Password)
+	log.Println("RedisDb::", redisConfig.Db)
+	log.Println("RedisPoolSize::", redisConfig.PoolSize)
+    
+    global.Config.RedisSetting = redisConfig
+    log.Println("Redis config initialized")
+}
+
 // init config jwt
-func InitConfigJWT() {
+func initConfigJWT() {
 	jwtConfig := &setting.JwtSetting{
 		JWT_SECRET: os.Getenv(consts.ENV_JWT_SECRET),
 		JWT_EXPIRED: os.Getenv(consts.ENV_JWT_EXPIRED),
@@ -44,7 +91,7 @@ func InitConfigJWT() {
 }
 
 // init config cloudinary
-func InitConfigCloudinary() {
+func initConfigCloudinary() {
 	cloudinaryConfig := &setting.CloudinarySetting{
 		CloudName: os.Getenv(consts.ENV_CLOUDINARY_CLOUD_NAME),
 		APIKey:    os.Getenv(consts.ENV_CLOUDINARY_API_KEY),
@@ -60,7 +107,7 @@ func InitConfigCloudinary() {
 }
 
 // init config mongo
-func InitConfigMongo() {
+func initConfigMongo() {
 	// Convert MONGO_PORT from string to int
     port, err := strconv.Atoi(os.Getenv(consts.ENV_MONGO_PORT))
     if err != nil {

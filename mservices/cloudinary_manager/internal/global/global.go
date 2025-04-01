@@ -2,12 +2,14 @@ package global
 
 import (
 	"github.com/Youknow2509/cloudinary_manager/pkg/setting"
-	"go.mongodb.org/mongo-driver/mongo"
 	"github.com/cloudinary/cloudinary-go/v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
-	Config     *setting.Config
-	MongoDB    *mongo.Client
-	Cloudinary *cloudinary.Cloudinary
+	Config      *setting.Config
+	MongoDB     *mongo.Client
+	Cloudinary  *cloudinary.Cloudinary
+	RedisClient *redis.Client
 )

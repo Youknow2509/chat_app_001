@@ -5,6 +5,16 @@ type Config struct {
 	JwtSetting        *JwtSetting        `json:"jwt"`
 	Mongo             *MongoSetting      `json:"mongo"`
 	CloudinarySetting *CloudinarySetting `json:"cloudinary"`
+	RedisSetting      *RedisSetting      `json:"redis"`
+}
+
+// Redis setting
+type RedisSetting struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Password string `json:"password"`
+	Db       int    `json:"db"`
+	PoolSize int    `json:"pool_size"`
 }
 
 // Jwt setting
