@@ -12,7 +12,7 @@ func Init() *gin.Engine{
 	
 	InitVariableGlobal()
 	InitConfig()
-	InitDBMongo()
+	// InitDBMongo()
 	InitCloudinary()
 	InitRedis()
 

@@ -2,7 +2,7 @@ package consts
 
 const (
 	PATH_FILE_ENV_DEV = "config/dev.env"
-	PATH_FILE_ENV_PROD = "config/prod.env"
+	PATH_FILE_ENV_PROD = "config/.env"
 )
 
 const (

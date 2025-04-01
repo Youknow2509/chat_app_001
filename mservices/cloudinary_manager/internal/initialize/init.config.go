@@ -15,14 +15,15 @@ import (
 // Initialize config
 func InitConfig() {
 	// Load environment variables from .env file
-	pathFileConfig := consts.PATH_FILE_ENV_DEV
+	// pathFileConfig := consts.PATH_FILE_ENV_DEV
+	pathFileConfig := consts.PATH_FILE_ENV_PROD
 	err := godotenv.Load(pathFileConfig)
 	if err != nil {
 		log.Println("Error loading .env file:", err)
 		panic(err)
 	}
 
-	initConfigMongo()
+	// initConfigMongo()
 	initConfigCloudinary()
 	initConfigJWT()
 	initConfigRedis()

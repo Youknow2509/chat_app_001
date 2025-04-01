@@ -1,0 +1,23 @@
+# Build stage
+FROM golang:alpine AS builder
+
+WORKDIR /build
+
+COPY . .
+
+RUN go mod download
+
+RUN go build -o crm.chatapp.service.cloudinary.com ./cmd/server/main.go
+
+# Final stage 
+# Use alpine as base image for runtime
+FROM alpine:latest  
+
+# Install CA certificates and necessary dependencies
+RUN apk add --no-cache ca-certificates
+
+COPY ./config /config
+
+COPY --from=builder /build/crm.chatapp.service.cloudinary.com /
+
+ENTRYPOINT [ "/crm.chatapp.service.cloudinary.com", "config/.env" ]
