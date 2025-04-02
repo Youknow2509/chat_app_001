@@ -139,10 +139,47 @@ public class Register3Activity extends AppCompatActivity {
     private void CreateNameAccount() {
         binding.progressOverlay.setVisibility(View.VISIBLE);
 
+        CreateAccountBase();
+
+//        Intent intent = new Intent(Register3Activity.this, LoginActivity.class);
+//        startActivity(intent);
+//        finish();
+    }
+
+    /**
+     * Call api create account
+     */
+    private void CreateAccountBase() {
+        apiManager.upgradePasswordRegister(
+                new AccountModels.UpdatePasswordInput(password, token),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+                        int code = response.body().getCode();
+                        if (code != Constants.CODE_SUCCESS) {
+                            showToast(response.body().getMessage());
+                        } else {
+                            UpdateNameAndAvatar();
+                            showToast("Tạo mật khẩu người dùng thành công!");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+                        showToast("Vui lòng kiểm tra lại kết nối mạng!");
+                    }
+                }
+        );
+    }
+
+    /**
+     *
+     */
+    private void UpdateNameAndAvatar() {
         String name = binding.nameInput.getText().toString();
         String url_avatar = Constants.URL_AVATAR_DEFAULT; // TODO: lấy url avatar từ API
-
-
 
         // Call the API
         apiManager.upgradeNameAndAvatarRegister(
@@ -173,39 +210,13 @@ public class Register3Activity extends AppCompatActivity {
                     }
                 }
         );
-
-//        Intent intent = new Intent(Register3Activity.this, LoginActivity.class);
-//        startActivity(intent);
-//        finish();
     }
 
     /**
-     * Call api create account
+     * show toast
+     *
+     * @param message
      */
-    private void CreateAccountBase() {
-        apiManager.upgradePasswordRegister(
-                new AccountModels.UpdatePasswordInput(password, token),
-                new Callback<ResponseData<Object>>() {
-                    @Override
-                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-                        binding.progressOverlay.setVisibility(View.GONE);
-                        int code = response.body().getCode();
-                        if (code != Constants.CODE_SUCCESS) {
-                            showToast(response.body().getMessage());
-                        } else {
-                            showToast("Tạo mật khẩu người dùng thành công!");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-                        binding.progressOverlay.setVisibility(View.GONE);
-                        showToast("Vui lòng kiểm tra lại kết nối mạng!");
-                    }
-                }
-        );
-    }
-
     private void showToast(String message) {
         runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
     }
