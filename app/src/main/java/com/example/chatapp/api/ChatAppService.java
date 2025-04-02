@@ -14,7 +14,7 @@ import retrofit2.http.*;
 public interface ChatAppService {
 
     // ============ Account Management ============
-    @POST("/v1/update_user_name_and_avatar/")
+    @POST("/v1/user/update_user_name_and_avatar/")
     Call<ResponseData<Object>> upgradeNameAndAvatarRegister(@Body UpgradeNameAndAvatarRegisterInput input);
 
     @POST("/v1/user/register")

@@ -48,6 +48,24 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         initVariable();
+        initDataToView();
+        setListener();
+        return view;
+    }
+
+    /**
+     * Init data in view
+     */
+    private void initDataToView() {
+        binding.profileName.setText(sessionManager.getDisplayName());
+        binding.p
+        // TODO
+    }
+
+    /**
+     * listen event in element
+     */
+    private void setListener() {
         // Thiết lập sự kiện click cho nút Edit Profile
         binding.editAvatar.setOnClickListener(v -> editAvatar());
         binding.addButton.setOnClickListener(v->showEditProfileBottomSheet());
@@ -87,7 +105,6 @@ public class ProfileFragment extends Fragment {
             // Hiển thị popup menu
             popupMenu.show();
         });
-        return view;
     }
 
     private void signOut(){
