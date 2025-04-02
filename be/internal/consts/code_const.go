@@ -9,6 +9,7 @@ const (
 	TIME_SAVE_CACHE_OFTEN_USE int = 10
 	TIME_BLOCK_CREATE_FRIEND_REQUEST int = 7 // 7h
 	TIME_BLOCK_FORGOT_PASSWORD_REQUEST int = 12 // 12h
+	TIME_EX_UPDATE_NAME_REGISTER int = 1 // 1h
 
 	EMAIL_HOST = "lytranvinh.work@gmail.com"
 

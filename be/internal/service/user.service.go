@@ -17,6 +17,7 @@ type (
 		RefreshToken(ctx context.Context, in *model.RefreshTokenInput) (codeResult int, out model.LoginOutput, err error)
 		ForgotPassword(ctx context.Context, email string) (codeResult int, err error)
 		VerifyForgotPassword(ctx context.Context, in *model.VerifyForgotPasswordInput) (codeResult int, err error)
+		UpdateNameAndAvatarRegister(ctx context.Context, in *model.UpdateNameAndAvatarRegisterInput) (codeResult int, err error)
 	}
 
 	IUserInfo interface { // handle with token

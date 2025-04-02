@@ -97,12 +97,18 @@ const (
 	ErrCodeGetListUserFriend         = 120015
 	ErrCodeForgotPasswordSpam        = 120016
 	ErrCodeTokenNewPasswordNotFound  = 120017
+	ErrCodeNameOrAvatarEmpty         = 120018
+	ErrCodeUpdateNameAndAvatar       = 120019
 	// redis error codes
 	ErrCodeRedisGetData = 130001
+	ErrCodeRedisSetData = 130002
 )
 
 // message
 var msg = map[int]string{
+	ErrCodeUpdateNameAndAvatar:        "update name and avatar failed",
+	ErrCodeNameOrAvatarEmpty:         "name or avatar empty",
+	ErrCodeRedisSetData:              "redis set data failed",
 	ErrCodeTokenNewPasswordNotFound:  "Token verify new password not found",
 	ErrCodeForgotPasswordSpam:        "forgot password spam",
 	ErrCodeRedisGetData:              "redis error get data",

@@ -1,5 +1,12 @@
 package model
 
+type UpdateNameAndAvatarRegisterInput struct {
+	Token     string `json:"token"`
+	Mail      string `json:"mail"`
+	UserName  string `json:"user_name"`
+	UrlAvatar string `json:"url_avatar"`
+}
+
 type RegisterInput struct {
 	VerifyKey     string `json:"verify_key"`
 	VerifyType    int    `json:"verify_type"`

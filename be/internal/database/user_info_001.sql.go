@@ -445,3 +445,20 @@ func (q *Queries) RemoveUser(ctx context.Context, userID string) error {
 	_, err := q.db.ExecContext(ctx, removeUser, userID)
 	return err
 }
+
+const updateNameAndAvatar = `-- name: UpdateNameAndAvatar :exec
+UPDATE ` + "`" + `user_info` + "`" + `
+SET user_nickname = ?, user_avatar = ?, updated_at = NOW()
+WHERE user_account = ?
+`
+
+type UpdateNameAndAvatarParams struct {
+	UserNickname sql.NullString
+	UserAvatar   sql.NullString
+	UserAccount  string
+}
+
+func (q *Queries) UpdateNameAndAvatar(ctx context.Context, arg UpdateNameAndAvatarParams) error {
+	_, err := q.db.ExecContext(ctx, updateNameAndAvatar, arg.UserNickname, arg.UserAvatar, arg.UserAccount)
+	return err
+}

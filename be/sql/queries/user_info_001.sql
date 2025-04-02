@@ -1,3 +1,8 @@
+-- name: UpdateNameAndAvatar :exec
+UPDATE `user_info`
+SET user_nickname = ?, user_avatar = ?, updated_at = NOW()
+WHERE user_account = ?;
+
 -- name: GetUserWithID :one
 SELECT
     user_info.user_id, 

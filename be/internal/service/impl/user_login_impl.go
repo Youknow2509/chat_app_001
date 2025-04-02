@@ -32,6 +32,57 @@ type sUserLogin struct {
 	r *database.Queries
 }
 
+// new sUserLogin implementation interface for IUserLogin
+func NewSUserLogin(r *database.Queries) service.IUserLogin {
+	return &sUserLogin{
+		r: r,
+	}
+}
+
+// UpdateNameRegister implements service.IUserLogin.
+func (s *sUserLogin) UpdateNameAndAvatarRegister(ctx context.Context, in *model.UpdateNameAndAvatarRegisterInput) (codeResult int, err error) {
+	// check user have updated name register
+	key := fmt.Sprintf("update_register::%s", in.Mail)
+	dataCache, err := global.Rdb.Get(ctx, key).Result()
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return response.ErrCodeGetCache, err
+	}
+	if dataCache != in.Token {
+		global.Logger.Error("don't auth")
+		return response.ErrCodeAuthFailed, fmt.Errorf("token does not exist")
+	} 
+	// validate name and avatar
+	if in.UserName == "" || in.UrlAvatar == "" {
+		global.Logger.Error("name or avatar is empty")
+		return response.ErrCodeNameOrAvatarEmpty, fmt.Errorf("name or avatar is empty")
+	}
+	// update name and avatar
+	err = s.r.UpdateNameAndAvatar(
+		ctx,
+		database.UpdateNameAndAvatarParams{
+			UserNickname: sql.NullString{String: in.UserName, Valid: true},
+			UserAvatar:   sql.NullString{String: in.UrlAvatar, Valid: true},
+			UserAccount:  in.Mail,
+	})
+	if err != nil {
+		global.Logger.Error("Err update name and avatar", zap.Error(err))
+		return response.ErrCodeUpdateNameAndAvatar, err
+	}
+	// delete cache
+	go func ()  {
+		if global.Rdb.Del(context.Background(), key).Err() != nil {
+			fmt.Println("Err delete cache")
+            global.Logger.Error("Err delete cache", zap.Error(err))
+        }
+	}()
+
+	return response.ErrCodeSuccess, err
+}
+
 // VerifyForgotPassword implements service.IUserLogin.
 func (s *sUserLogin) VerifyForgotPassword(ctx context.Context, in *model.VerifyForgotPasswordInput) (codeResult int, err error) {
 	key := fmt.Sprintf("newpassword::%s", in.Token)
@@ -110,13 +161,6 @@ func (s *sUserLogin) blockToken(cUserID string) {
 			global.Logger.Info("Off refresh token user " + cUserID)
 		}
 	}()
-}
-
-// new sUserLogin implementation interface for IUserLogin
-func NewSUserLogin(r *database.Queries) service.IUserLogin {
-	return &sUserLogin{
-		r: r,
-	}
 }
 
 // ForgotPassword implements service.IUserLogin.
@@ -578,6 +622,18 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 	})
 	if err != nil {
 		return response.ErrCodeAddUserInfo, err
+	}
+
+	// save token to cache use update name register information
+	keyTokenUpdateName := fmt.Sprintf("update_register::%s", infoOTP.VerifyKey)
+	err = global.Rdb.Set(
+		ctx,
+		keyTokenUpdateName,
+		in.Token,
+		time.Duration(consts.TIME_EX_UPDATE_NAME_REGISTER)*time.Hour,
+	).Err()
+	if err != nil {
+		return response.ErrCodeRedisSetData, err
 	}
 
 	// delete token
