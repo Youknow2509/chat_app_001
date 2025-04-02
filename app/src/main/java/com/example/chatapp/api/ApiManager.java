@@ -1,6 +1,7 @@
 package com.example.chatapp.api;
 
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.dto.UserFbToken;
 import com.example.chatapp.models.request.AccountModels.*;
 import com.example.chatapp.models.request.ChatModels.*;
 import com.example.chatapp.models.request.TokenModels.*;
@@ -236,6 +237,12 @@ public class ApiManager {
                                           Callback<ResponseData<Object>> callback) {
         Call<ResponseData<Object>> call = apiService.getMicroserviceUserInChat(
                 formatToken(token), chatId, limit, page);
+        call.enqueue(callback);
+    }
+
+    // ======== Notification Management ========
+    public void sendToken(UserFbToken userFbToken, Callback<ResponseData<Object>> callback) {
+        Call<ResponseData<Object>> call = apiService.sendToken(userFbToken);
         call.enqueue(callback);
     }
 }

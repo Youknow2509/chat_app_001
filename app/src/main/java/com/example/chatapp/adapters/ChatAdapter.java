@@ -118,6 +118,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
+    }
+
     static class GroupMessageViewHolder extends RecyclerView.ViewHolder {
         private final ItemMessageIncomingWithAvatarBinding binding;
 

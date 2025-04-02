@@ -12,6 +12,15 @@ public class ChatMessage {
     private Bitmap conversionImage;
     private String mediaUrl;
 
+    public ChatMessage() {
+    }
+
+    public ChatMessage(String content, String chatId, String messageType) {
+        this.content = content;
+        this.chatId = chatId;
+        this.messageType = messageType;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
