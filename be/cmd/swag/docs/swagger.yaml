@@ -131,6 +131,17 @@ definitions:
       user_accept_id:
         type: string
     type: object
+  model.UpdateNameAndAvatarRegisterInput:
+    properties:
+      mail:
+        type: string
+      token:
+        type: string
+      url_avatar:
+        type: string
+      user_name:
+        type: string
+    type: object
   model.UpdatePasswordInput:
     properties:
       password:
@@ -1135,6 +1146,32 @@ paths:
       summary: Update user info
       tags:
       - User Info
+  /v1/user/update_user_name_and_avatar:
+    post:
+      consumes:
+      - application/json
+      description: Update name and avatar when register
+      parameters:
+      - description: payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateNameAndAvatarRegisterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Update name and avatar when register
+      tags:
+      - accounts management
   /v1/user/upgrade_password_register:
     post:
       consumes:

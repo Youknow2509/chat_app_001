@@ -1404,6 +1404,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/user/update_user_name_and_avatar": {
+            "post": {
+                "description": "Update name and avatar when register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts management"
+                ],
+                "summary": "Update name and avatar when register",
+                "parameters": [
+                    {
+                        "description": "payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateNameAndAvatarRegisterInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/upgrade_password_register": {
             "post": {
                 "description": "after verification otp can be updated password",
@@ -1732,6 +1772,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_accept_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UpdateNameAndAvatarRegisterInput": {
+            "type": "object",
+            "properties": {
+                "mail": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "url_avatar": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }

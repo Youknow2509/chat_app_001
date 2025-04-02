@@ -16,6 +16,36 @@ var Login = new(cUserLogin)
 type cUserLogin struct {
 }
 
+
+// @Summary      Update name and avatar when register
+// @Description  Update name and avatar when register 
+// @Tags         accounts management
+// @Accept       json
+// @Produce      json
+// @Param        body body model.UpdateNameAndAvatarRegisterInput true "payload"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /v1/user/update_user_name_and_avatar [post]
+func (u *cUserLogin) UpdateUserNameAndAvatar(c *gin.Context) {
+	var params model.UpdateNameAndAvatarRegisterInput
+	if err := c.ShouldBindJSON(&params); err != nil {
+		response.ErrorResponse(c, response.ErrCodeBindVerifyInput, err.Error())
+		return
+	}
+	codeStatus, err := service.UserLogin().UpdateNameAndAvatarRegister(c, &params)
+	if codeStatus != response.ErrCodeSuccess {
+		global.Logger.Error("Error update user name and avatar", zap.Error(err))
+        response.ErrorResponse(c, codeStatus, response.GetMessageCode(codeStatus))
+        return
+	}
+	if err != nil {
+		global.Logger.Error("Error update user name and avatar", zap.Error(err))
+		response.ErrorResponse(c, codeStatus, err.Error())
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}
+
 // Login godoc
 // @Summary      Login user
 // @Description  Login user by account and password
