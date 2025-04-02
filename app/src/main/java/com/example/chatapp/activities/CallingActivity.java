@@ -13,6 +13,19 @@ import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.R;
+import com.example.chatapp.models.WebRTCMessage;
+import com.example.chatapp.observers.SdpObservable;
+import com.example.chatapp.observers.SignalingObserver;
+import com.example.chatapp.utils.StompClientManager;
+import com.example.chatapp.utils.WebRTCManager;
+import com.google.gson.Gson;
+
+import org.webrtc.IceCandidate;
+import org.webrtc.MediaConstraints;
+import org.webrtc.SdpObserver;
+import org.webrtc.SessionDescription;
+
+import java.util.Objects;
 
 public class CallingActivity extends AppCompatActivity {
 
@@ -24,18 +37,22 @@ public class CallingActivity extends AppCompatActivity {
     private ImageView btnEndCall, btnMute, btnCameraOff;
     private TextureView btnSwitchCamera;
 
-
     private static boolean isCallActive = false;
 
     private VideoView videoView;
     private View videoBackground;
     private static String callType = "";
     private static String userName = "";
+    private WebRTCManager webRTCManager;
+    private StompClientManager stompClientManager = StompClientManager.getInstance();
+    private Gson gson = new Gson();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calling);
+        setupWebRTC();
 
         textCallerName = findViewById(R.id.textCallerName);
         textCallStatus = findViewById(R.id.textCallStatus);
@@ -85,6 +102,49 @@ public class CallingActivity extends AppCompatActivity {
         btnCameraOff.setOnClickListener(v -> switchCameraOff());
     }
 
+    private void setupWebRTC() {
+        webRTCManager = WebRTCManager.getInstance();
+        webRTCManager.init(this, false);
+        setupSignaling();
+    }
+
+    private void setupSignaling() {
+        stompClientManager.setOnSignalingEventListener(new SignalingObserver() {
+
+            @Override
+            public void onOfferReceived(SessionDescription offer) {
+                webRTCManager.setRemoteDescription(new SdpObservable(), offer);
+            }
+
+            @Override
+            public void onAnswerReceived(SessionDescription answer) {
+                webRTCManager.setRemoteDescription(new SdpObservable(), answer);
+            }
+
+            @Override
+            public void onIceCandidateReceived(IceCandidate iceCandidate) {
+                webRTCManager.addIceCandidate(iceCandidate);
+            }
+
+            @Override
+            public void onSignalingEvent(WebRTCMessage message) {
+                if(message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
+                    // parse message payload to SessionDescription
+                    SessionDescription offer = gson.fromJson(message.getPayload(), SessionDescription.class);
+                    onOfferReceived(offer);
+                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.ANSWER.getType())) {
+                    // parse message payload to SessionDescription
+                    SessionDescription answer = gson.fromJson(message.getPayload(), SessionDescription.class);
+                    onAnswerReceived(answer);
+                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.CANDIDATE.getType())) {
+                    // parse message payload to IceCandidate
+                    IceCandidate iceCandidate = gson.fromJson(message.getPayload(), IceCandidate.class);
+                    onIceCandidateReceived(iceCandidate);
+                }
+            }
+        });
+    }
+
 
     private void switchCameraOff() {
         isCameraOff = !isCameraOff;
@@ -94,6 +154,48 @@ public class CallingActivity extends AppCompatActivity {
         } else {
             btnCameraOff.setBackgroundResource(R.drawable.ellipse_1191);
         }
+    }
+
+    private void createOffer() {
+        MediaConstraints constraints = new MediaConstraints();
+        constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
+        constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
+
+        webRTCManager.createOffer(constraints, new SdpObserver() {
+            @Override
+            public void onCreateSuccess(SessionDescription sdp) {
+                webRTCManager.setLocalDescription(new SdpObservable(), sdp);
+                SessionDescription offer = new SessionDescription(SessionDescription.Type.OFFER, sdp.description);
+                WebRTCMessage message = new WebRTCMessage();
+                message.setSenderId("123e4567-e89b-12d3-a456-426614174000");
+                message.setChatId("789e4567-e89b-12d3-a456-426614174000");
+                message.setType("offer");
+                message.setPayload(gson.toJson(offer));
+                stompClientManager.sendCallOffer(message);
+            }
+
+            @Override
+            public void onSetSuccess() {
+                // Gửi SDP đến server
+                SessionDescription localDescription = webRTCManager.getLocalDescription();
+                WebRTCMessage message = new WebRTCMessage();
+                message.setSenderId("123e4567-e89b-12d3-a456-426614174000");
+                message.setChatId("789e4567-e89b-12d3-a456-426614174000");
+                message.setType("answer");
+                message.setPayload(gson.toJson(localDescription));
+                stompClientManager.sendCallAnswer(message);
+            }
+
+            @Override
+            public void onCreateFailure(String s) {
+                Toast.makeText(CallingActivity.this, "Create offer failed: " + s, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSetFailure(String s) {
+                Toast.makeText(CallingActivity.this, "Set local description failed: " + s, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void minimizeCall() {

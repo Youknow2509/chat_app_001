@@ -1,11 +1,15 @@
 package com.example.chatapp.utils;
 
 import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.ChatMessage;
+import com.example.chatapp.models.WebRTCMessage;
 import com.example.chatapp.observers.MessageObservable;
+import com.example.chatapp.observers.SignalingObserver;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -29,6 +33,12 @@ public class StompClientManager {
     private final MessageObservable messageObservable;
     private final Gson gson = new Gson();
     private static final String TAG = "StompClientManager";
+    // Add these variables
+    private static final int MAX_RECONNECT_ATTEMPTS = 5;
+    private static final long RECONNECT_DELAY_MS = 5000; // 5 seconds
+    private int reconnectAttempts = 0;
+    private Handler reconnectHandler = new Handler(Looper.getMainLooper());
+    private Runnable reconnectRunnable;
 
     private StompClientManager() {
         // Initialize your StompClient here
@@ -69,6 +79,53 @@ public class StompClientManager {
             StompHeader header = new StompHeader("Authorization", "Bearer " + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlcl9pZCI6IjEyM2U0NTY3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMCIsImlhdCI6MTUxNjIzOTAyMn0.iA1Q2NbaWUhs60yei-3dQdDwuQfcO7R5y6yYD-vSAvo");
             mStompClient.connect(List.of(header));
         }
+    }
+
+    // Add a method to manually trigger reconnection
+    public void reconnect() {
+        reconnectAttempts = 0;
+        scheduleReconnect();
+    }
+
+    private void scheduleReconnect() {
+        // Cancel any pending reconnection attempts
+        if (reconnectRunnable != null) {
+            reconnectHandler.removeCallbacks(reconnectRunnable);
+        }
+
+        // Create a new reconnection task
+        reconnectRunnable = () -> {
+            if (!isConnected && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                reconnectAttempts++;
+                long delay = RECONNECT_DELAY_MS * reconnectAttempts; // Exponential backoff
+
+                Log.d(TAG, "Attempting to reconnect... Attempt #" + reconnectAttempts +
+                        " (waiting " + delay/1000 + " seconds)");
+
+                // Disconnect first if needed
+                if (mStompClient != null) {
+                    try {
+                        mStompClient.disconnect();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error disconnecting before reconnect", e);
+                    }
+                }
+
+                // Recreate the client and connect
+                mStompClient = null;
+                initStompClient();
+
+                // Schedule next attempt if this fails
+                if (!isConnected) {
+                    reconnectHandler.postDelayed(this.reconnectRunnable, delay);
+                }
+            } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+                Log.e(TAG, "Max reconnection attempts reached. Giving up automatic reconnection.");
+            }
+        };
+
+        // Schedule first reconnection attempt
+        reconnectHandler.postDelayed(reconnectRunnable, RECONNECT_DELAY_MS);
     }
 
     @SuppressLint("CheckResult")
@@ -126,13 +183,13 @@ public class StompClientManager {
         }
     }
 
-    public void sendCallOffer(String receiverId, String offer) {
+    public void sendCallOffer(WebRTCMessage webRTCMessage) {
         if (mStompClient != null && isConnected) {
             JSONObject callSignal = new JSONObject();
             try {
                 callSignal.put("type", "offer");
-                callSignal.put("sdp", offer);
-                callSignal.put("receiverId", receiverId);
+                callSignal.put("payload", webRTCMessage.getPayload());
+                callSignal.put("chatId", webRTCMessage.getChatId());
                 callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
 
                 mStompClient.send("/app/call/offer", callSignal.toString()).subscribe(() -> {
@@ -146,13 +203,13 @@ public class StompClientManager {
         }
     }
 
-    public void sendCallAnswer(String receiverId, String answer) {
+    public void sendCallAnswer(WebRTCMessage webRTCMessage) {
         if (mStompClient != null && isConnected) {
             JSONObject callSignal = new JSONObject();
             try {
                 callSignal.put("type", "answer");
-                callSignal.put("sdp", answer);
-                callSignal.put("receiverId", receiverId);
+                callSignal.put("payload", webRTCMessage.getPayload());
+                callSignal.put("chatId", webRTCMessage.getChatId());
                 callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
 
                 mStompClient.send("/app/call/answer", callSignal.toString()).subscribe(() -> {
@@ -163,6 +220,18 @@ public class StompClientManager {
             } catch (JSONException e) {
                 Log.e(TAG, "Error creating call answer JSON", e);
             }
+        }
+    }
+
+    public void setOnSignalingEventListener(SignalingObserver listener){
+        if (mStompClient != null && isConnected) {
+            mStompClient.topic("/topic/call/123e4567-e89b-12d3-a456-426614174000").subscribe(topicMessage -> {
+                Log.d(TAG, "Received signaling message: " + topicMessage.getPayload());
+                WebRTCMessage webRTCMessage = gson.fromJson(topicMessage.getPayload(), WebRTCMessage.class);
+                listener.onSignalingEvent(webRTCMessage);
+            }, throwable -> {
+                Log.e(TAG, "Error on subscribe signaling topic", throwable);
+            });
         }
     }
 

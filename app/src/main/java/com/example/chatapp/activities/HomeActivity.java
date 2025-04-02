@@ -34,7 +34,11 @@ public class HomeActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
         // TODO lay id nguoi dung nem vao topic
 //        stompClientManager.subscribeTopic(sessionManager.getUserId());
-        stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
+        try {
+            stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);

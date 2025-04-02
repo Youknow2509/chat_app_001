@@ -246,4 +246,11 @@ public class WebRTCManager {
 
         instance = null;
     }
+
+    public SessionDescription getLocalDescription() {
+        if (peerConnection != null) {
+            return peerConnection.getLocalDescription();
+        }
+        return null;
+    }
 }
