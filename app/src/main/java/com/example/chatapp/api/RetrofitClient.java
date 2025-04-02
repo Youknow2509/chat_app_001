@@ -15,6 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
     private static RetrofitClient instance;
     private Retrofit retrofit;
+    private Retrofit retrofitCloudinary;
     private ChatAppService chatAppService;
     private CloudinaryService cloudinaryService;
 
@@ -44,8 +45,15 @@ public class RetrofitClient {
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build();
 
+        retrofitCloudinary = new Retrofit.Builder()
+                .baseUrl(Constants.URL_HOST_SERVER_SIGN)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+                .build();
+
         chatAppService = retrofit.create(ChatAppService.class);
-        cloudinaryService = retrofit.create(CloudinaryService.class);
+        cloudinaryService = retrofitCloudinary.create(CloudinaryService.class);
     }
 
     public static synchronized RetrofitClient getInstance() {
