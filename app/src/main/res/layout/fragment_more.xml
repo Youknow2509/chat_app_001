@@ -403,7 +403,6 @@
                 android:layout_marginBottom="16dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-                admin
 
                 <ImageView
                     android:layout_width="24dp"

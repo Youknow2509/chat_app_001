@@ -1,36 +1,27 @@
 package com.example.chatapp.fragments;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.R;
 import com.example.chatapp.activities.AddFriendActivity;
-import com.example.chatapp.activities.ChatConversationActivity;
 import com.example.chatapp.activities.ChatGroupConversationActivity;
 import com.example.chatapp.activities.CreateNewGroupActivity;
+import com.example.chatapp.activities.LoginActivity;
 import com.example.chatapp.activities.SearchingActivity;
-import com.example.chatapp.adapters.ChatListAdapter;
 import com.example.chatapp.adapters.GroupListAdapter;
-import com.example.chatapp.databinding.FragmentGroupBinding;
 import com.example.chatapp.databinding.FragmentMoreBinding;
-import com.example.chatapp.models.ChatListItem;
 import com.example.chatapp.models.GroupListItem;
-import com.example.chatapp.models.User;
 import com.example.chatapp.models.Group;
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.utils.session.SessionManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MoreFragment extends Fragment {
@@ -39,6 +30,9 @@ public class MoreFragment extends Fragment {
 
     private FragmentMoreBinding binding;
     private List<GroupListItem> chatListItems;
+    //
+    private SessionManager sessionManager;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,6 +47,24 @@ public class MoreFragment extends Fragment {
             }
         });
 
+        initVariable();
+        // add listener to elemenet
+        listenEventHandle();
+
+        return view;
+    }
+
+    /**
+     * Init variable use
+     */
+    private void initVariable() {
+        sessionManager = new SessionManager(getContext());
+    }
+
+    /**
+     * Handle event of element - click, ...
+     */
+    private void listenEventHandle() {
         // Cau hinh option menu tren toolbar
         binding.addIcon.setOnClickListener(v -> {
             // Tạo popup menu
@@ -96,6 +108,13 @@ public class MoreFragment extends Fragment {
             startActivity(intent);
         });
 
-        return view;
+        // logout
+        binding.logoutLayout.setOnClickListener(v -> {
+            this.sessionManager.logout();
+
+            // redirect to OnboardingActivity
+            startActivity(new Intent(this.getContext(), LoginActivity.class));
+            this.getActivity().finish();
+        });
     }
 }

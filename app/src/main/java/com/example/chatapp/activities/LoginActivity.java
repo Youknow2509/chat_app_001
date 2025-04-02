@@ -13,7 +13,6 @@ import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityLoginV2Binding;
-import com.example.chatapp.databinding.LoginBinding;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.Utils;
