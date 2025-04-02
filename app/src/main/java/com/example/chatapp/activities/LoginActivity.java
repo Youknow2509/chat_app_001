@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         handleFielMail();
 
         binding.nextButton.setOnClickListener(v -> signIn());
-        binding.registerButton.setOnClickListener(v->register());
+        binding.registerButton.setOnClickListener(v -> register());
         binding.forgotPasswordText.setOnClickListener(v -> forgotPassword());
     }
 
@@ -112,39 +112,34 @@ public class LoginActivity extends AppCompatActivity {
             navigateToHome();
         }
 
-//        apiManager.login(
-//                email,
-//                password,
-//                new Callback<ResponseData<Object>>() {
-//                    @Override
-//                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-//                        progressOverlay.setVisibility(View.GONE);
-//                        int code = response.body().getCode();
-//                        if (code != Constants.CODE_SUCCESS) {
-//                            showToast("Login failed: " + response.body().getMessage());
-//                            return;
-//                        }
-//
-//                        accessToken = Utils.getDataBody(response.body(), "token");
-//                        refreshToken = Utils.getDataBody(response.body(), "refresh_token");
-//
-//                        Log.i("SignIn", "AccessToken: " + accessToken);
-//                        Log.i("SignIn", "RefreshToken: " + refreshToken);
-//                        // save session
-//                        saveSession(accessToken, refreshToken);
-//                        navigateToHome();
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-//                        progressOverlay.setVisibility(View.GONE);
-//                        Log.e("SignIn", "Login request failed");
-//                        showToast("Network error! Please try again.");
-//                    }
-//                });
+        apiManager.login(email, password, new Callback<ResponseData<Object>>() {
+            @Override
+            public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                progressOverlay.setVisibility(View.GONE);
+                int code = response.body().getCode();
+                if (code != Constants.CODE_SUCCESS) {
+                    showToast("Login failed: " + response.body().getMessage());
+                    return;
+                }
 
-        navigateToHome();
+                accessToken = Utils.getDataBody(response.body(), "token");
+                refreshToken = Utils.getDataBody(response.body(), "refresh_token");
 
+                Log.i("SignIn", "AccessToken: " + accessToken);
+                Log.i("SignIn", "RefreshToken: " + refreshToken);
+                // save session
+                saveSession(accessToken, refreshToken);
+                navigateToHome();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                progressOverlay.setVisibility(View.GONE);
+                Log.e("SignIn", "Login request failed");
+                showToast("Network error! Please try again.");
+            }
+        });
+//        navigateToHome();
     }
 
     /**
@@ -154,17 +149,15 @@ public class LoginActivity extends AppCompatActivity {
      * @param refreshToken String
      */
     private void saveSession(String accessToken, String refreshToken) {
-        getUserInfo(accessToken)
-                .thenAccept(userInfo -> {
-                    sessionManager.saveUserProfile(userInfo);
-                    sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
-                    Log.d("SignIn", "User info saved successfully.");
-                })
-                .exceptionally(e -> {
-                    showToast(e.getMessage());
-                    Log.e("SignIn", e.getMessage());
-                    return null;
-                });
+        getUserInfo(accessToken).thenAccept(userInfo -> {
+            sessionManager.saveUserProfile(userInfo);
+            sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
+            Log.d("SignIn", "User info saved successfully.");
+        }).exceptionally(e -> {
+            showToast(e.getMessage());
+            Log.e("SignIn", e.getMessage());
+            return null;
+        });
     }
 
     /**
@@ -176,31 +169,30 @@ public class LoginActivity extends AppCompatActivity {
     private CompletableFuture<UserProfileSession> getUserInfo(String token) {
         CompletableFuture<UserProfileSession> future = new CompletableFuture<>();
 
-        apiManager.getUserInfo(
-                token, new Callback<ResponseData<Object>>() {
-                    @Override
-                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-                        int code = response.body().getCode();
-                        if (code != Constants.CODE_SUCCESS) {
-                            future.completeExceptionally(new Exception("Get user info failed: " + response.body().getMessage()));
-                            return;
-                        }
+        apiManager.getUserInfo(token, new Callback<ResponseData<Object>>() {
+            @Override
+            public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                int code = response.body().getCode();
+                if (code != Constants.CODE_SUCCESS) {
+                    future.completeExceptionally(new Exception("Get user info failed: " + response.body().getMessage()));
+                    return;
+                }
 
-                        UserProfileSession user = new UserProfileSession();
-                        user.setId(Utils.getDataBody(response.body(), "user_id"));
-                        user.setName(Utils.getDataBody(response.body(), "user_nickname"));
-                        user.setEmail(Utils.getDataBody(response.body(), "user_email"));
-                        user.setAvatarUrl(Utils.getDataBody(response.body(), "user_avatar"));
-                        user.setDisplayName(Utils.getDataBody(response.body(), "user_nickname"));
+                UserProfileSession user = new UserProfileSession();
+                user.setId(Utils.getDataBody(response.body(), "user_id"));
+                user.setName(Utils.getDataBody(response.body(), "user_nickname"));
+                user.setEmail(Utils.getDataBody(response.body(), "user_email"));
+                user.setAvatarUrl(Utils.getDataBody(response.body(), "user_avatar"));
+                user.setDisplayName(Utils.getDataBody(response.body(), "user_nickname"));
 
-                        future.complete(user);
-                    }
+                future.complete(user);
+            }
 
-                    @Override
-                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-                        future.completeExceptionally(new Exception("Network error! Please try again."));
-                    }
-                });
+            @Override
+            public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                future.completeExceptionally(new Exception("Network error! Please try again."));
+            }
+        });
 
         return future;
     }

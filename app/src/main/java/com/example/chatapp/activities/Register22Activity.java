@@ -96,6 +96,7 @@ public class Register22Activity extends AppCompatActivity {
 //                            intent.putExtra("password", password);
 //                            intent.putExtra("token", token);
 //                            startActivity(intent);
+//                            finish();
 //                        }
 //                    }
 //
@@ -111,6 +112,7 @@ public class Register22Activity extends AppCompatActivity {
         intent.putExtra("password", password);
         intent.putExtra("token", token);
         startActivity(intent);
+        finish();
     }
 
     private Boolean isValidSignUp(String email, String password, String confirmPassword) {

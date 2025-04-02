@@ -3,6 +3,7 @@ package com.example.chatapp.consts;
 import java.util.HashMap;
 
 public class Constants {
+    public static final String URL_AVATAR_DEFAULT = "https://res.cloudinary.com/dan8zea37/image/upload/v1743573154/avatar_default_k7t5oq.png";
     public static final int DEFAULT_MEDIA_RETENTION_DAYS = 30; // 1 m
     public static final int DEFAULT_MESSAGE_RETENTION_DAYS = 90; // 3 m
     public static final String PREF_LAST_PURGE = "last_data_purge_time";

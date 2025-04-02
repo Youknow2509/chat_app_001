@@ -7,21 +7,32 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.chatapp.R;
+import com.example.chatapp.api.ApiManager;
+import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityRegisterV23Binding;
+import com.example.chatapp.models.request.AccountModels;
+import com.example.chatapp.models.response.ResponseData;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Register3Activity extends AppCompatActivity {
     private ActivityRegisterV23Binding binding;
+    //
+    private String mail;
+    private String token;
+    private String password;
+    private ApiManager apiManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityRegisterV23Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        binding.backToLoginButton.setOnClickListener(v -> onBackPressed());
-        binding.nextButton.setOnClickListener(v -> CreateNameAccount());
 
         // Theo dõi sự kiện thay đổi layout (để biết khi nào bàn phím mở)
         final View rootView = binding.getRoot();
@@ -39,7 +50,37 @@ public class Register3Activity extends AppCompatActivity {
                 switchToFullLayout();
             }
         });
-        binding.backToLoginButton.setOnClickListener(v-> BackToIntent());
+
+        initVariable();
+        getIntentData();
+        setListeners();
+    }
+
+    /**
+     * initVariable
+     */
+    private void initVariable() {
+        apiManager = new ApiManager();
+    }
+
+    /**
+     * listen event element
+     */
+    private void setListeners() {
+        binding.backToLoginButton.setOnClickListener(v -> BackToIntent());
+//        binding.backToLoginButton.setOnClickListener(v -> onBackPressed());
+        binding.nextButton.setOnClickListener(v -> CreateNameAccount());
+
+    }
+
+    /**
+     * Get data intent
+     */
+    private void getIntentData() {
+        Intent intent = getIntent();
+        mail = intent.getStringExtra("mail");
+        token = intent.getStringExtra("token");
+        password = intent.getStringExtra("password");
     }
 
     private void BackToIntent() {
@@ -95,21 +136,77 @@ public class Register3Activity extends AppCompatActivity {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
-
-
     private void CreateNameAccount() {
+        binding.progressOverlay.setVisibility(View.VISIBLE);
+
         String name = binding.nameInput.getText().toString();
-        String email = getIntent().getStringExtra("email");
-        String password = getIntent().getStringExtra("password");
-        String token = getIntent().getStringExtra("token");
+        String url_avatar = Constants.URL_AVATAR_DEFAULT; // TODO: lấy url avatar từ API
 
-        // Call the API to create an account with the provided name, email, and password
-        // You can use the apiManager to make the API call
-        // Example:
-        // apiManager.createAccount(name, email, password, new ApiCallback() {
 
-        Intent intent = new Intent(Register3Activity.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
+
+        // Call the API
+        apiManager.upgradeNameAndAvatarRegister(
+                new AccountModels.UpgradeNameAndAvatarRegisterInput(mail, token, url_avatar, name),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+
+                        int code = response.body().getCode();
+                        if (code != Constants.CODE_SUCCESS) {
+                            Toast.makeText(Register3Activity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(Register3Activity.this, "Tạo tài khoản thành công!", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(Register3Activity.this, LoginActivity.class);
+                            intent.putExtra("email", mail);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+
+                        Toast.makeText(Register3Activity.this, "Vui lòng kiểm tra lại kết nối mạng!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+//        Intent intent = new Intent(Register3Activity.this, LoginActivity.class);
+//        startActivity(intent);
+//        finish();
+    }
+
+    /**
+     * Call api create account
+     */
+    private void CreateAccountBase() {
+        apiManager.upgradePasswordRegister(
+                new AccountModels.UpdatePasswordInput(password, token),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+                        int code = response.body().getCode();
+                        if (code != Constants.CODE_SUCCESS) {
+                            showToast(response.body().getMessage());
+                        } else {
+                            showToast("Tạo mật khẩu người dùng thành công!");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+                        showToast("Vui lòng kiểm tra lại kết nối mạng!");
+                    }
+                }
+        );
+    }
+
+    private void showToast(String message) {
+        runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
     }
 }

@@ -2,6 +2,20 @@ package com.example.chatapp.models.request;
 
 public class AccountModels {
 
+    public static class UpgradeNameAndAvatarRegisterInput {
+        private String mail;
+        private String token;
+        private String url_avatar;
+        private String user_name;
+
+        public UpgradeNameAndAvatarRegisterInput(String mail, String token, String url_avatar, String user_name){
+            this.mail = mail;
+            this.token = token;
+            this.url_avatar = url_avatar;
+            this.user_name = user_name;
+        }
+    }
+
     public static class RegisterInput {
         private String verify_key;
         private String verify_purpose;

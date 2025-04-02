@@ -29,6 +29,10 @@ public class ApiManager {
     }
 
     // ======== Account Management ========
+    public void upgradeNameAndAvatarRegister(UpgradeNameAndAvatarRegisterInput input, Callback<ResponseData<Object>> callback){
+        Call<ResponseData<Object>> call = apiService.upgradeNameAndAvatarRegister(input);
+        call.enqueue(callback);
+    }
 
     public void registerUser(RegisterInput input, Callback<ResponseData<Object>> callback) {
         Call<ResponseData<Object>> call = apiService.registerUser(input);

@@ -74,35 +74,39 @@ public class RegisterActivity extends AppCompatActivity {
     // handle click next button
     private void next() {
         String emailInput = binding.mailEditText.getText().toString().trim();
-//        apiManager.registerUser(
-//                new AccountModels.RegisterInput(emailInput, PURPOSE_REGISTER_PROD, 1),
-//                new Callback<ResponseData<Object>>() {
-//                    @Override
-//                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-//                        binding.progressOverlay.setVisibility(View.GONE);
-//                        int code = response.body().getCode();
-//                        if (code != Constants.CODE_SUCCESS) {
-//                            String message = Utils.getMessageByCode(code);
-//                            showToast(message);
-//                        } else {
-//                            showToast("Vui lòng kiểm tra email để nhận mã xác nhận");
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-//                        binding.progressOverlay.setVisibility(View.GONE);
-//
-//                        showToast("Lỗi kết nối đến máy chủ");
-//                    }
-//                }
-//        );
+        apiManager.registerUser(
+                new AccountModels.RegisterInput(emailInput, PURPOSE_REGISTER_PROD, 1),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+                        int code = response.body().getCode();
+                        if (code != Constants.CODE_SUCCESS) {
+                            String message = Utils.getMessageByCode(code);
+                            showToast(message);
+                        } else {
+                            showToast("Vui lòng kiểm tra email để nhận mã xác nhận");
+                        }
+                        Intent intent = new Intent(RegisterActivity.this, Register2Activity.class);
+                        intent.putExtra("email", binding.mailEditText.getText().toString());
+                        startActivity(intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+
+                        showToast("Lỗi kết nối đến máy chủ");
+                    }
+                }
+        );
 
         // Forward to OTP screen
-        Intent intent = new Intent(RegisterActivity.this, Register2Activity.class);
-        intent.putExtra("email", binding.mailEditText.getText().toString());
-        startActivity(intent);
-        finish();
+//        Intent intent = new Intent(RegisterActivity.this, Register2Activity.class);
+//        intent.putExtra("email", binding.mailEditText.getText().toString());
+//        startActivity(intent);
+//        finish();
     }
 
 

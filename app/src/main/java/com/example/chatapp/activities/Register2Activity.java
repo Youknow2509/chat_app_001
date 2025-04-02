@@ -33,24 +33,20 @@ public class Register2Activity extends AppCompatActivity {
     private ActivityRegisterV22Binding binding;
 
     private String tokenVerifyOTP;
+    private String emailRegister;
     private ApiManager apiManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // TODO: ui time and block send otp dup
         super.onCreate(savedInstanceState);
         binding = ActivityRegisterV22Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         initVariableUse();
+        initView();
 
-        codeInputs = new EditText[]{
-                binding.otp1,
-                binding.otp2,
-                binding.otp3,
-                binding.otp4,
-                binding.otp5,
-                binding.otp6
-        };
+        codeInputs = new EditText[]{binding.otp1, binding.otp2, binding.otp3, binding.otp4, binding.otp5, binding.otp6};
 
         for (EditText codeInput : codeInputs) {
             codeInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)});
@@ -58,10 +54,17 @@ public class Register2Activity extends AppCompatActivity {
         }
         setupOtpInputs();
         binding.nextButton.setOnClickListener(v -> handleBtnRegister());
-        binding.backToLoginButton.setOnClickListener(v-> BackToIntent());
+        binding.backToLoginButton.setOnClickListener(v -> BackToIntent());
     }
 
-
+    /**
+     * initView from activity before
+     */
+    private void initView() {
+        Intent intent = getIntent();
+        emailRegister = intent.getStringExtra("email");
+        binding.sendToMail.setText("Sent to: " + emailRegister);
+    }
 
     private void BackToIntent() {
         Intent intent = new Intent(Register2Activity.this, RegisterActivity.class);
@@ -69,7 +72,7 @@ public class Register2Activity extends AppCompatActivity {
         finish();
     }
 
-    private void initVariableUse(){
+    private void initVariableUse() {
         apiManager = new ApiManager();
     }
 
@@ -117,51 +120,50 @@ public class Register2Activity extends AppCompatActivity {
 
     // verify otp to server
     private void verifyOtp(String email, String otp) {
-//        apiManager.verifyAccount(
-//                new AccountModels.VerifyInput(otp, email),
-//                new Callback<ResponseData<Object>>() {
-//                    @Override
-//                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-//                        binding.progressOverlay.setVisibility(View.GONE);
-//                        int code = response.body().getCode();
-//                        if (code != Constants.CODE_SUCCESS) {
-//                            String message = Utils.getMessageByCode(code);
-//                            showToast(message);
-//                            deleteOtp();
-//                            return;
-//                        }
-//                        try {
-//                            tokenVerifyOTP = Utils.getDataBody(response.body(), "token");
-//                            if (tokenVerifyOTP.isEmpty()) {
-//                                showToast("Lỗi xử lý dữ liệu");
-//                                deleteOtp();
-//                                return;
-//                            }
-//                            Log.d("SignUp", "Token verify otp: " + tokenVerifyOTP);
-//                            // OTP hợp lệ, điều hướng sang màn hình tiếp theo
-//                            Intent intent = new Intent(Register2Activity.this, Register22Activity.class);
-//                            intent.putExtra("email", email);
-//                            intent.putExtra("token", tokenVerifyOTP);
-//                            startActivity(intent);
-//                            finish();
-//                        } catch (Exception e) {
-//                            Log.e("VerifyOTP", "Error parsing response data", e);
-//                            showToast("Lỗi xử lý dữ liệu");
-//                            deleteOtp();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-//                        binding.progressOverlay.setVisibility(View.GONE);
-//                        showToast("Lỗi kết nối đến máy chủ");
-//                    }
-//                });
-        Intent intent = new Intent(Register2Activity.this, Register22Activity.class);
-        intent.putExtra("email", email);
-        intent.putExtra("token", tokenVerifyOTP);
-        startActivity(intent);
-        finish();
+        apiManager.verifyAccount(new AccountModels.VerifyInput(otp, email), new Callback<ResponseData<Object>>() {
+            @Override
+            public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                binding.progressOverlay.setVisibility(View.GONE);
+                int code = response.body().getCode();
+                if (code != Constants.CODE_SUCCESS) {
+                    String message = Utils.getMessageByCode(code);
+                    showToast(message);
+                    deleteOtp();
+                    return;
+                }
+                try {
+                    tokenVerifyOTP = Utils.getDataBody(response.body(), "token");
+                    if (tokenVerifyOTP.isEmpty()) {
+                        showToast("Lỗi xử lý dữ liệu");
+                        deleteOtp();
+                        return;
+                    }
+                    Log.d("SignUp", "Token verify otp: " + tokenVerifyOTP);
+                    // OTP hợp lệ, điều hướng sang màn hình tiếp theo
+                    Intent intent = new Intent(Register2Activity.this, Register22Activity.class);
+                    intent.putExtra("email", email);
+                    intent.putExtra("token", tokenVerifyOTP);
+                    startActivity(intent);
+                    finish();
+                } catch (Exception e) {
+                    Log.e("VerifyOTP", "Error parsing response data", e);
+                    showToast("Lỗi xử lý dữ liệu");
+                    deleteOtp();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                binding.progressOverlay.setVisibility(View.GONE);
+                showToast("Lỗi kết nối đến máy chủ");
+            }
+        });
+
+//        Intent intent = new Intent(Register2Activity.this, Register22Activity.class);
+//        intent.putExtra("email", email);
+//        intent.putExtra("token", tokenVerifyOTP);
+//        startActivity(intent);
+//        finish();
     }
 
     private void handleBtnRegister() {
