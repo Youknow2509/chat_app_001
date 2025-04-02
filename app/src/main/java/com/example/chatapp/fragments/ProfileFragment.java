@@ -58,7 +58,7 @@ public class ProfileFragment extends Fragment {
      */
     private void initDataToView() {
         binding.profileName.setText(sessionManager.getDisplayName());
-        binding.p
+//        binding.p
         // TODO
     }
 

@@ -154,7 +154,7 @@ public class ChatActivity extends AppCompatActivity implements MessageObserver {
         chatMessage.setContent(messageText);
         chatMessage.setDateTime(getReadableDateTime(new Date())); // Use existing dateTime field
         chatMessage.setDateObject(new Date());
-        chatMessages.add(chatMessage); // Add the chatMessage object
+//        chatMessages.add(chatMessage); // Add the chatMessage object
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
 //        chatAdapter.getChatMessages().add(chatMessage);
 //        chatAdapter.notifyDataSetChanged();

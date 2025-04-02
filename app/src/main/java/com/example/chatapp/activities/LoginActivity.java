@@ -108,8 +108,9 @@ public class LoginActivity extends AppCompatActivity {
         showToast("Logging in...");
 
         // TODO - use in test -> prd
-        if (email.equals("admin") && password.equals("admin")) {
+        if (email.equals("") && password.equals("")) {
             navigateToHome();
+            return;
         }
 
         apiManager.login(email, password, new Callback<ResponseData<Object>>() {
