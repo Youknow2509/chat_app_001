@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     // handle if before is register
     private void handleFielMail() {
         Intent intent = getIntent();
-        String new_email_acc = intent.getStringExtra("mail");
+        String new_email_acc = intent.getStringExtra("email");
         binding.mailEditText.setText(new_email_acc);
     }
 
