@@ -16,6 +16,7 @@ public class RetrofitClient {
     private static RetrofitClient instance;
     private Retrofit retrofit;
     private ChatAppService chatAppService;
+    private CloudinaryService cloudinaryService;
 
     private RetrofitClient() {
         // Setup logging interceptor
@@ -44,6 +45,7 @@ public class RetrofitClient {
                 .build();
 
         chatAppService = retrofit.create(ChatAppService.class);
+        cloudinaryService = retrofit.create(CloudinaryService.class);
     }
 
     public static synchronized RetrofitClient getInstance() {
@@ -55,5 +57,9 @@ public class RetrofitClient {
 
     public ChatAppService getService() {
         return chatAppService;
+    }
+
+    public CloudinaryService getCloudinaryService() {
+        return cloudinaryService;
     }
 }

@@ -7,8 +7,10 @@ import com.example.chatapp.models.request.ChatModels.*;
 import com.example.chatapp.models.request.TokenModels.*;
 import com.example.chatapp.models.request.UserModels.*;
 import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.utils.Utils;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -16,10 +18,12 @@ import retrofit2.Callback;
 public class ApiManager {
     private final String TOKEN_PREFIX;
     private final ChatAppService apiService;
+    private final CloudinaryService apiCloudinaryService;
 
     public ApiManager() {
         TOKEN_PREFIX = Constants.TOKEN_PREFIX_REQUEST;
         apiService = RetrofitClient.getInstance().getService();
+        apiCloudinaryService = RetrofitClient.getInstance().getCloudinaryService();
     }
 
     private String formatToken(String token) {
@@ -27,6 +31,13 @@ public class ApiManager {
             return TOKEN_PREFIX + token;
         }
         return token;
+    }
+    // ======== Cloudinary Management ========
+    public void getSignatur(String token, Map<String, Object> config, Callback<ResponseData<Object>> callback) {
+        String tokenWithPrefix = Utils.formatToken(token);
+        String configUrl = Utils.getConfigUrl(config);
+        Call<ResponseData<Object>> call = apiCloudinaryService.getSignatur(tokenWithPrefix, configUrl);
+        call.enqueue(callback);
     }
 
     // ======== Account Management ========
