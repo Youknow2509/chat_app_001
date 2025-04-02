@@ -637,13 +637,13 @@ func (s *sUserLogin) UpdatePasswordRegister(ctx context.Context, in *model.Updat
 	}
 
 	// delete token
-	go func() {
-		err_del := s.r.DeleteTokenVerifyRegister(context.Background(), infoOTP.VerifyKeyHash)
-		if err_del != nil {
-			global.Logger.Info(fmt.Sprintf("Delete token verify register failed: %v", err_del))
-		}
-		global.Logger.Info(fmt.Sprintf("Deleted token verify register: %s", infoOTP.VerifyKeyHash))
-	}()
+	// go func() {
+	// 	err_del := s.r.DeleteTokenVerifyRegister(context.Background(), infoOTP.VerifyKeyHash)
+	// 	if err_del != nil {
+	// 		global.Logger.Info(fmt.Sprintf("Delete token verify register failed: %v", err_del))
+	// 	}
+	// 	global.Logger.Info(fmt.Sprintf("Deleted token verify register: %s", infoOTP.VerifyKeyHash))
+	// }()
 
 	return response.ErrCodeSuccess, nil
 }
