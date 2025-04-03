@@ -4,10 +4,21 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"example.com/be/global"
 	"github.com/google/uuid"
 )
+
+/**
+ * String to time 
+ * Format string input DD-MM-YYYY HH:MM:SS
+ */
+func StringToTime(str string) (time.Time, error) {
+	layout := "02-01-2006 15:04:05" // Correct Go time layout
+    t, err := time.Parse(layout, str)
+    return t, err
+}
 
 /**
  * Get key OTP 2FA Auth send

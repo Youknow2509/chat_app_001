@@ -14,6 +14,7 @@ const (
 
 	ErrCodeInvalidInput = 40002 // Invalid input
 	ErrCodeBadRequest   = 40003 // Bad request
+	ErrCodeTimeIsValid  = 40004 // Time is valid
 
 	// Register Code
 	ErrCodeUserHasExist            = 50001 // User has exist
@@ -106,7 +107,8 @@ const (
 
 // message
 var msg = map[int]string{
-	ErrCodeUpdateNameAndAvatar:        "update name and avatar failed",
+	ErrCodeTimeIsValid:               "time is valid",
+	ErrCodeUpdateNameAndAvatar:       "update name and avatar failed",
 	ErrCodeNameOrAvatarEmpty:         "name or avatar empty",
 	ErrCodeRedisSetData:              "redis set data failed",
 	ErrCodeTokenNewPasswordNotFound:  "Token verify new password not found",

@@ -60,11 +60,11 @@ func (s *sUserInfo) ListFriendUser(ctx context.Context, in *model.ListUserFriend
 	}
 	// 3. get list friend
 	listFriendUser, err := s.r.GetFriendUser(ctx, database.GetFriendUserParams{
-		UserID:  sql.NullString{String: in.UserID, Valid: true},
+		UserID:   sql.NullString{String: in.UserID, Valid: true},
 		UserID_2: in.UserID,
 		FriendID: sql.NullString{String: in.UserID, Valid: true},
-		Limit:  int32(in.Limit),
-		Offset: int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+		Limit:    int32(in.Limit),
+		Offset:   int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
 	})
 	if err != nil {
 		global.Logger.Error("Err get list friend user", zap.Error(err))
@@ -532,7 +532,7 @@ func (s *sUserInfo) GetUserInfo(ctx context.Context, userID string) (out model.U
 			UserID:       iUser.UserID,
 			UserAccount:  iUser.UserAccount,
 			UserNickname: iUser.UserNickname.String,
-			UserAvatar:   iUser.UserAccount,
+			UserAvatar:   iUser.UserAvatar.String,
 			UserState:    string(iUser.UserState),
 			UserMobile:   iUser.UserMobile.String,
 			UserGender:   string(iUser.UserGender.UserInfoUserGender),
@@ -622,6 +622,14 @@ func (s *sUserInfo) UpdateUserInfo(ctx context.Context, in *model.UpdateUserInfo
 		global.Logger.Error("User not found", zap.Error(err))
 		return response.ErrCodeUserNotFound, fmt.Errorf("user not found")
 	}
+	// validate time birthday
+	timeBirthday, err := utils.StringToTime(in.UserBirthday)
+	if err != nil {
+		global.Logger.Error("Err convert string to time", zap.Error(err))
+		return response.ErrCodeTimeIsValid, fmt.Errorf("user birthday invalid")
+	}
+	// validate gender
+
 	// 2. update user info
 	go func() {
 		err := s.r.EditUserByUserIdForUser(context.Background(), database.EditUserByUserIdForUserParams{
@@ -629,6 +637,11 @@ func (s *sUserInfo) UpdateUserInfo(ctx context.Context, in *model.UpdateUserInfo
 			UserNickname: sql.NullString{String: in.UserNickName, Valid: true},
 			UserAvatar:   sql.NullString{String: in.UserAvatar, Valid: true},
 			UserMobile:   sql.NullString{String: "", Valid: true},
+			UserGender: database.NullUserInfoUserGender{
+				UserInfoUserGender: database.UserInfoUserGender(in.UserGender),
+				Valid: true,
+			},
+			UserBirthday: sql.NullTime{Time: timeBirthday, Valid: true},
 		})
 		if err != nil {
 			fmt.Println("Err when updating user info")

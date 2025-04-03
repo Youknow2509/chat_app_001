@@ -153,6 +153,10 @@ definitions:
     properties:
       user_avatar:
         type: string
+      user_birthday:
+        type: string
+      user_gender:
+        type: string
       user_id:
         type: string
       user_nickname:
@@ -1126,7 +1130,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Update user info
+      - description: Update user info input date format dd-MM-yyyy HH:mm:ss
         in: body
         name: body
         required: true

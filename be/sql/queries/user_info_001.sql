@@ -81,7 +81,11 @@ WHERE user_id = ?;
 
 -- name: EditUserByUserIdForUser :exec
 UPDATE `user_info`
-SET user_nickname =?, user_avatar = ?, user_mobile = ?,
+SET user_nickname =?, 
+    user_avatar = ?, 
+    user_mobile = ?,
+    user_gender = ?, 
+    user_birthday =?, 
     updated_at = NOW()
 WHERE user_id = ?;
 

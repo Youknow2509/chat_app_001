@@ -162,7 +162,7 @@ func (cU *cUser) GetUserInfo(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization  header  string  true  "Bearer token"
-// @Param        body body  model.UpdateUserInfoInput  true  "Update user info"
+// @Param        body body  model.UpdateUserInfoInput  true  "Update user info input date format dd-MM-yyyy HH:mm:ss"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /v1/user/update_user_info [put]

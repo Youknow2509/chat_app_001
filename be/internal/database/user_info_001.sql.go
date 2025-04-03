@@ -77,7 +77,11 @@ func (q *Queries) EditUserByUserId(ctx context.Context, arg EditUserByUserIdPara
 
 const editUserByUserIdForUser = `-- name: EditUserByUserIdForUser :exec
 UPDATE ` + "`" + `user_info` + "`" + `
-SET user_nickname =?, user_avatar = ?, user_mobile = ?,
+SET user_nickname =?, 
+    user_avatar = ?, 
+    user_mobile = ?,
+    user_gender = ?, 
+    user_birthday =?, 
     updated_at = NOW()
 WHERE user_id = ?
 `
@@ -86,6 +90,8 @@ type EditUserByUserIdForUserParams struct {
 	UserNickname sql.NullString
 	UserAvatar   sql.NullString
 	UserMobile   sql.NullString
+	UserGender   NullUserInfoUserGender
+	UserBirthday sql.NullTime
 	UserID       string
 }
 
@@ -94,6 +100,8 @@ func (q *Queries) EditUserByUserIdForUser(ctx context.Context, arg EditUserByUse
 		arg.UserNickname,
 		arg.UserAvatar,
 		arg.UserMobile,
+		arg.UserGender,
+		arg.UserBirthday,
 		arg.UserID,
 	)
 	return err

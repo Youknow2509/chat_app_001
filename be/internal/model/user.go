@@ -50,6 +50,8 @@ type UpdateUserInfoInput struct {
 	UserID       string `json:"user_id"`
 	UserNickName string `json:"user_nickname"`
 	UserAvatar   string `json:"user_avatar"`
+	UserBirthday string `json:"user_birthday"`
+	UserGender   string `json:"user_gender"`
 }
 
 // handle add user friend request input

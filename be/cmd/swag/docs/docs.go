@@ -1379,7 +1379,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Update user info",
+                        "description": "Update user info input date format dd-MM-yyyy HH:mm:ss",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -1808,6 +1808,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "user_avatar": {
+                    "type": "string"
+                },
+                "user_birthday": {
+                    "type": "string"
+                },
+                "user_gender": {
                     "type": "string"
                 },
                 "user_id": {
