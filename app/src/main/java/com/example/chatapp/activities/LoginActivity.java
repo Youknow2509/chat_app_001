@@ -135,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.i("SignIn", "RefreshToken: " + refreshToken);
                 // save session
                 saveSession(accessToken, refreshToken);
+//                navigateToHome();
             }
 
             @Override
@@ -144,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                 showToast("Network error! Please try again.");
             }
         });
-        navigateToHome();
+
     }
 
     /**
@@ -154,9 +155,12 @@ public class LoginActivity extends AppCompatActivity {
      * @param refreshToken String
      */
     private void saveSession(String accessToken, String refreshToken) {
+        Log.d("Login success", "Test1");
         getUserInfo(accessToken).thenAccept(userInfo -> {
             sessionManager.saveUserProfile(userInfo);
             sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
+            Log.d("Login success", "Test2");
+            navigateToHome();
             Log.d("SignIn", "User info saved successfully.");
         }).exceptionally(e -> {
             showToast(e.getMessage());

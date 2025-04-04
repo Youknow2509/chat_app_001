@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -32,7 +33,9 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sessionManager = new SessionManager(this);
-        stompClientManager = StompClientManager.getInstance(sessionManager);
+        Log.d("Login success", "Test3");
+//        Toast.makeText(this, "User ID: " + sessionManager.getAccessToken(), Toast.LENGTH_SHORT).show();
+//        stompClientManager = StompClientManager.getInstance(sessionManager);
 
 
         // Thiết lập NavController
