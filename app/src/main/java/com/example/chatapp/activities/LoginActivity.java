@@ -13,7 +13,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.chatapp.R;
 import com.example.chatapp.databinding.ActivityLoginV2Binding;
+import com.example.chatapp.models.TokenClient;
 import com.example.chatapp.models.UserProfileSession;
+import com.example.chatapp.repository.TokenClientRepo;
 import com.example.chatapp.utils.session.SessionManager;
 import com.example.chatapp.viewmodel.LoginViewModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -46,6 +48,15 @@ public class LoginActivity extends AppCompatActivity {
         observeLiveData();
 
         setListener();
+
+        TokenClientRepo tokenClientRepo = new TokenClientRepo(this);
+        tokenClientRepo.insertToken(new TokenClient(
+                "123",
+                "343",
+                "34242"
+        ));
+//        TokenClient t = tokenClientRepo.getToken();
+//        Log.d("LoginActivity", "TokenClient: " + t.getAccessToken());
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.example.chatapp.utils;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -8,8 +9,10 @@ import android.util.Log;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.WebRTCMessage;
+import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.observers.SignalingObserver;
+import com.example.chatapp.repository.ChatRepo;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.gson.Gson;
 
@@ -43,14 +46,17 @@ public class StompClientManager {
     private Handler reconnectHandler = new Handler(Looper.getMainLooper());
     private Runnable reconnectRunnable;
     private SessionManager sessionManager;
+    private ChatRepo chatRepo;
+    private Context context;
 
     private StompClientManager() {
         // Initialize your StompClient here
         messageObservable = MessageObservable.getInstance();
     }
 
-    public void setSessionManager(SessionManager sessionManager) {
+    public void setSessionManager(SessionManager sessionManager, Context context) {
         this.sessionManager = sessionManager;
+        this.chatRepo = new ChatRepo(context);
         initStompClient();
     }
 
@@ -161,6 +167,13 @@ public class StompClientManager {
                 .subscribe(topicMessage -> {
                     Log.d(TAG, "Received message: " + topicMessage.getPayload());
                     ChatMessage chatMessage = parseToChatMessage(topicMessage);
+                    Message message = new Message(
+                            chatMessage.getChatId(),
+                            chatMessage.getSenderId(),
+                            chatMessage.getReceiverId(),
+                            "test"
+                    );
+                    chatRepo.sendMessage(message);
                     if (chatMessage != null) {
                         messageObservable.notifyMessageReceived(chatMessage);
                         Log.d(TAG, "Message notified to observers: " + chatMessage.getChatId());

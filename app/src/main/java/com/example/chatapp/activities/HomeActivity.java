@@ -36,7 +36,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sessionManager = new SessionManager(this);
         stompClientManager = StompClientManager.getInstance();
-        stompClientManager.setSessionManager(sessionManager);
+        stompClientManager.setSessionManager(sessionManager, this);
 
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
