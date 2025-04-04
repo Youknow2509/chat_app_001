@@ -1,8 +1,10 @@
 package com.example.chatapp.activities;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,7 +13,9 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.content.BroadcastReceiver;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -30,7 +34,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class HomeActivity extends AppCompatActivity {
 
     private StompClientManager stompClientManager;
-
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     private ActivityMainBinding binding;
     private SessionManager sessionManager;
     private final String TAG = "HomeActivity";
@@ -49,6 +53,23 @@ public class HomeActivity extends AppCompatActivity {
         }
     };
 
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.CAMERA},
+                CAMERA_PERMISSION_REQUEST_CODE
+        );
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: HomeActivity");
@@ -66,7 +87,7 @@ public class HomeActivity extends AppCompatActivity {
                 R.id.nav_message, R.id.nav_group, R.id.nav_profile, R.id.nav_more)
                 .build();
         NavigationUI.setupWithNavController(binding.navView, navController);
-
+        requestCameraPermission();
         stompClientManager.subscribeTopic(sessionManager.getUserId());
         stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
     }

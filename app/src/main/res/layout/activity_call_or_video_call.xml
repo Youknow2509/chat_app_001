@@ -91,10 +91,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextureView
-            android:id="@+id/localVideoView"
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+
     </FrameLayout>
 
     <!-- Các nút điều khiển -->

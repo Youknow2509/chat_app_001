@@ -4,10 +4,13 @@ import static android.content.ContentValues.TAG;
 
 import static com.example.chatapp.consts.Constants.*;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,6 +29,7 @@ import com.example.chatapp.models.Group;
 import com.example.chatapp.models.User;
 import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.observers.MessageObservable;
+import com.example.chatapp.utils.MediaUtils;
 import com.example.chatapp.utils.PreferenceManager;
 import com.example.chatapp.utils.StompClientManager;
 import com.example.chatapp.utils.session.SessionManager;
@@ -170,6 +174,44 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         intent.putExtra(KEY_USER_NAME, receiverUser.name);
         startActivity(intent);
     }
+
+    // Activity result launcher for picking image/video from gallery
+//    private final ActivityResultLauncher<String[]> pickMediaLauncher = registerForActivityResult(
+//            new ActivityResultContracts.OpenDocument(),
+//            uri -> {
+//                if (uri != null) {
+//                    // Persist permission for this URI
+//                    getContentResolver().takePersistableUriPermission(uri,
+//                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//
+//                    // Determine media type
+//                    currentMediaType = MediaUtils.getMediaType(ChatConversationActivity.this, uri);
+//
+//                    Log.i(TAG, "Selected media type: " + currentMediaType);
+//                    Log.i(TAG, "Selected media URI: " + uri.toString());
+//                    handleMediaResult(uri);
+//                }
+//            });
+
+    // Activity result launcher for taking photo with camera
+//    private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(
+//            new ActivityResultContracts.TakePicture(),
+//            success -> {
+//                if (success && currentMediaUri != null) {
+//                    currentMediaType = "image";
+//                    handleMediaResult(currentMediaUri);
+//                }
+//            });
+//
+//    // Activity result launcher for recording video with camera
+//    private final ActivityResultLauncher<Uri> takeVideoLauncher = registerForActivityResult(
+//            new ActivityResultContracts.CaptureVideo(),
+//            success -> {
+//                if (success && currentMediaUri != null) {
+//                    currentMediaType = "video";
+//                    handleMediaResult(currentMediaUri);
+//                }
+//            });
 
     private void TakeCamera() {
         // TODO: Implement TakeCamera functionality
