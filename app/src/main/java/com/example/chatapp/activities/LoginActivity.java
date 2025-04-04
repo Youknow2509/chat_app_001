@@ -193,6 +193,7 @@ public class LoginActivity extends AppCompatActivity {
                         )
                 );
 
+                // FirebaseMessaging
                 Log.i("USERELKSDNKFS", "onResponse: " + user.getId());
                 FirebaseMessaging.getInstance().getToken()
                         .addOnCompleteListener(task -> {
