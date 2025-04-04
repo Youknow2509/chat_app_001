@@ -44,11 +44,14 @@ public class StompClientManager {
     private Runnable reconnectRunnable;
     private SessionManager sessionManager;
 
-    private StompClientManager(SessionManager sessionManager) {
+    private StompClientManager() {
         // Initialize your StompClient here
         messageObservable = MessageObservable.getInstance();
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
-        instance.initStompClient();
+        initStompClient();
     }
 
     @SuppressLint("CheckResult")
@@ -74,6 +77,7 @@ public class StompClientManager {
                 Log.e(TAG, "Error in lifecycle subscription", throwable);
             });
         }
+        // display log
         connect();
     }
 
@@ -143,6 +147,11 @@ public class StompClientManager {
                 reconnect();
                 attempts++;
                 Log.d(TAG, "Attempting to reconnect... Attempt #" + attempts);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
@@ -277,9 +286,9 @@ public class StompClientManager {
         }
     }
 
-    public static StompClientManager getInstance(SessionManager sessionManager) {
+    public static StompClientManager getInstance() {
         if (instance == null) {
-            instance = new StompClientManager(sessionManager);
+            instance = new StompClientManager();
         }
         return instance;
     }

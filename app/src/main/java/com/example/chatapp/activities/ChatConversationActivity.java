@@ -57,7 +57,7 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sessionManager = SessionManager.getInstance();
-        stompClientManager = StompClientManager.getInstance(sessionManager);
+        stompClientManager = StompClientManager.getInstance();
         binding = ActivityChatV2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();

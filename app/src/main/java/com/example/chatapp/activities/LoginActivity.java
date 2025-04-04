@@ -16,6 +16,7 @@ import com.example.chatapp.databinding.ActivityLoginV2Binding;
 import com.example.chatapp.dto.UserFbToken;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.utils.StompClientManager;
 import com.example.chatapp.utils.Utils;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -39,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private String accessToken;
     private String refreshToken;
+    private StompClientManager stompClientManager = StompClientManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,11 +157,12 @@ public class LoginActivity extends AppCompatActivity {
      * @param refreshToken String
      */
     private void saveSession(String accessToken, String refreshToken) {
-        Log.d("Login success", "Test1");
         getUserInfo(accessToken).thenAccept(userInfo -> {
             sessionManager.saveUserProfile(userInfo);
             sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
-            Log.d("Login success", "Test2");
+            Toast.makeText(getApplicationContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+//            stompClientManager.setSessionManager(sessionManager);
+//            stompClientManager.subscribeTopic(sessionManager.getUserId());
             navigateToHome();
             Log.d("SignIn", "User info saved successfully.");
         }).exceptionally(e -> {

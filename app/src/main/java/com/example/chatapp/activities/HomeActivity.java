@@ -33,10 +33,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sessionManager = new SessionManager(this);
-        Log.d("Login success", "Test3");
-//        Toast.makeText(this, "User ID: " + sessionManager.getAccessToken(), Toast.LENGTH_SHORT).show();
-//        stompClientManager = StompClientManager.getInstance(sessionManager);
-
+        stompClientManager = StompClientManager.getInstance();
+        stompClientManager.setSessionManager(sessionManager);
 
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
@@ -58,8 +56,8 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-//        stompClientManager.subscribeTopic(sessionManager.getUserId());
-//        stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
+        stompClientManager.subscribeTopic(sessionManager.getUserId());
+        stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
     }
 
     private void checkOngoingCall() {

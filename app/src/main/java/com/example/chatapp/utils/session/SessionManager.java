@@ -45,10 +45,13 @@ public class SessionManager {
 
     private Context context;
 
-    private static SessionManager instance;
+    private volatile static SessionManager instance;
 
     public SessionManager(Context context) {
         this.context = context;
+        if (instance == null) {
+            instance = this;
+        }
         try {
             // Khởi tạo SharedPreferences có mã hóa cho thông tin xác thực
             String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
@@ -64,7 +67,7 @@ public class SessionManager {
             // Khởi tạo SharedPreferences thông thường cho thông tin không nhạy cảm
             userPreferences = context.getSharedPreferences(USER_PREF_NAME, Context.MODE_PRIVATE);
             userEditor = userPreferences.edit();
-            instance = this;
+
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
             // Handle the exception appropriately in your app
@@ -72,6 +75,9 @@ public class SessionManager {
     }
 
     public static SessionManager getInstance() {
+        if(instance == null) {
+            throw new IllegalStateException("SessionManager is not initialized, call initialize() method first.");
+        }
         return instance;
     }
 
