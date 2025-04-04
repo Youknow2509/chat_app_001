@@ -21,6 +21,8 @@ public class UserProfileSession {
     private long lastOnlineTimestamp;
     private long createdAtTimestamp;
     private JSONObject settings;
+    private String accessToken;
+    private String refreshToken;
 
     public UserProfileSession() {
         // Constructor mặc định
@@ -129,6 +131,22 @@ public class UserProfileSession {
 
     public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @Override
