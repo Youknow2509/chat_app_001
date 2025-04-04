@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/chat/add-member-to-chat": {
+        "/api/v1/chat/add-member-to-chat": {
             "post": {
                 "description": "Add member to chat by admin group member",
                 "consumes": [
@@ -71,7 +71,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/change-admin-group-chat": {
+        "/api/v1/chat/change-admin-group-chat": {
             "put": {
                 "description": "Change admin chat status from old admin to new admin",
                 "consumes": [
@@ -118,7 +118,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/create-chat-group": {
+        "/api/v1/chat/create-chat-group": {
             "post": {
                 "description": "Create a chat group with user after auth, user create is admin and others users are members",
                 "consumes": [
@@ -165,7 +165,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/create-chat-private": {
+        "/api/v1/chat/create-chat-private": {
             "post": {
                 "description": "Create a chat private both user",
                 "consumes": [
@@ -212,7 +212,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/del-chat": {
+        "/api/v1/chat/del-chat": {
             "delete": {
                 "description": "Delete chat by admin group chat",
                 "consumes": [
@@ -259,7 +259,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/del-men-from-chat": {
+        "/api/v1/chat/del-men-from-chat": {
             "delete": {
                 "description": "Delete member from chat by admin group chat",
                 "consumes": [
@@ -306,7 +306,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/get-chat-info": {
+        "/api/v1/chat/get-chat-info": {
             "get": {
                 "description": "Get chat information by chat id",
                 "consumes": [
@@ -351,7 +351,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/get-list-chat-for-user": {
+        "/api/v1/chat/get-list-chat-for-user": {
             "get": {
                 "description": "Get list chat from user",
                 "consumes": [
@@ -403,7 +403,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/get-user-in-chat": {
+        "/api/v1/chat/get-user-in-chat": {
             "get": {
                 "description": "Get information user in chat with chat id",
                 "consumes": [
@@ -462,7 +462,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/chat/upgrade-chat-info": {
+        "/api/v1/chat/upgrade-chat-info": {
             "put": {
                 "description": "Update chat info by admin group chat",
                 "consumes": [
@@ -509,7 +509,66 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/mservice/get-user-in-chat": {
+        "/api/v1/mservice/get-chats-user": {
+            "get": {
+                "description": "Get list chat of user with user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Microservice"
+                ],
+                "summary": "Hanlde get list chat of user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token microservice (Eg: Bearer 123456)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit number of chat",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mservice/get-user-in-chat": {
             "get": {
                 "description": "Get information user in chat with chat id",
                 "consumes": [
@@ -568,7 +627,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/token/create_refresh_token": {
+        "/api/v1/token/create_refresh_token": {
             "post": {
                 "description": "Testing create a new refresh JWT token",
                 "consumes": [
@@ -608,7 +667,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/token/create_token": {
+        "/api/v1/token/create_token": {
             "post": {
                 "description": "Testing create a new JWT token",
                 "consumes": [
@@ -648,7 +707,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/token/valid_token": {
+        "/api/v1/token/valid_token": {
             "post": {
                 "description": "Validate token for access token and refresh token",
                 "consumes": [
@@ -688,7 +747,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/accept_friend_request": {
+        "/api/v1/user/accept_friend_request": {
             "post": {
                 "description": "Accept friend request from another user",
                 "consumes": [
@@ -735,7 +794,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/create_friend_request": {
+        "/api/v1/user/create_friend_request": {
             "post": {
                 "description": "Create friend request to another user",
                 "consumes": [
@@ -782,7 +841,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/delete_friend": {
+        "/api/v1/user/delete_friend": {
             "delete": {
                 "description": "Delete friend user information from the service",
                 "consumes": [
@@ -829,7 +888,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/end_friend_request": {
+        "/api/v1/user/end_friend_request": {
             "delete": {
                 "description": "End friend request to another user",
                 "consumes": [
@@ -876,7 +935,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/find_user": {
+        "/api/v1/user/find_user": {
             "get": {
                 "description": "Find a user by mail address",
                 "consumes": [
@@ -923,7 +982,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/forgot_password": {
+        "/api/v1/user/forgot_password": {
             "post": {
                 "description": "Forgot Password",
                 "consumes": [
@@ -961,7 +1020,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/get_list_friend": {
+        "/api/v1/user/get_list_friend": {
             "get": {
                 "description": "Get list user friend",
                 "consumes": [
@@ -1013,7 +1072,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/get_list_friend_request": {
+        "/api/v1/user/get_list_friend_request": {
             "get": {
                 "description": "Get list friend request of user",
                 "consumes": [
@@ -1065,7 +1124,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/get_user_info": {
+        "/api/v1/user/get_user_info": {
             "get": {
                 "description": "Get user information after login",
                 "consumes": [
@@ -1103,7 +1162,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/login": {
+        "/api/v1/user/login": {
             "post": {
                 "description": "Login user by account and password",
                 "consumes": [
@@ -1143,7 +1202,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/logout": {
+        "/api/v1/user/logout": {
             "post": {
                 "description": "Logout",
                 "consumes": [
@@ -1183,7 +1242,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/refresh_token": {
+        "/api/v1/user/refresh_token": {
             "post": {
                 "description": "Refresh token for user",
                 "consumes": [
@@ -1223,7 +1282,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/register": {
+        "/api/v1/user/register": {
             "post": {
                 "description": "When user register, system will send OTP to user's phone number or email address",
                 "consumes": [
@@ -1263,7 +1322,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/reject_friend_request": {
+        "/api/v1/user/reject_friend_request": {
             "post": {
                 "description": "Reject friend request from another user",
                 "consumes": [
@@ -1310,7 +1369,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/update_password": {
+        "/api/v1/user/update_password": {
             "put": {
                 "description": "Update password user for user",
                 "consumes": [
@@ -1357,7 +1416,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/update_user_info": {
+        "/api/v1/user/update_user_info": {
             "put": {
                 "description": "Update nick name, ... information user",
                 "consumes": [
@@ -1404,7 +1463,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/update_user_name_and_avatar": {
+        "/api/v1/user/update_user_name_and_avatar": {
             "post": {
                 "description": "Update name and avatar when register",
                 "consumes": [
@@ -1444,7 +1503,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/upgrade_password_register": {
+        "/api/v1/user/upgrade_password_register": {
             "post": {
                 "description": "after verification otp can be updated password",
                 "consumes": [
@@ -1484,7 +1543,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/verify_account": {
+        "/api/v1/user/verify_account": {
             "post": {
                 "description": "Verify OTP bu user when register",
                 "consumes": [
@@ -1524,7 +1583,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/verify_forgot_password/{email}/{token}": {
+        "/api/v1/user/verify_forgot_password/{email}/{token}": {
             "get": {
                 "description": "Verify Forgot Password with token",
                 "consumes": [

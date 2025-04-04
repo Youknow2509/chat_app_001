@@ -27,7 +27,7 @@ type cUser struct {
 // @Param        page  query  int  true  "Page number"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/get_list_friend [get]
+// @Router       /api/v1/user/get_list_friend [get]
 func (cU *cUser) GetListUserFriend(c *gin.Context) {
 	// get user id from token in headers
 	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
@@ -92,7 +92,7 @@ func (cU *cUser) GetListUserFriend(c *gin.Context) {
 // @Param        body body  model.UserFindInput  true  "Find user by email"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/find_user [get]
+// @Router       /api/v1/user/find_user [get]
 func (cU *cUser) FindUser(c *gin.Context) {
 	// get input
 	var parameters model.UserFindInput
@@ -137,7 +137,7 @@ func (cU *cUser) FindUser(c *gin.Context) {
 // @Param        Authorization  header  string  true  "Bearer token"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/get_user_info [get]
+// @Router       /api/v1/user/get_user_info [get]
 func (cU *cUser) GetUserInfo(c *gin.Context) {
 	// get user id from token in headers
 	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
@@ -165,7 +165,7 @@ func (cU *cUser) GetUserInfo(c *gin.Context) {
 // @Param        body body  model.UpdateUserInfoInput  true  "Update user info input date format dd-MM-yyyy HH:mm:ss"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/update_user_info [put]
+// @Router       /api/v1/user/update_user_info [put]
 func (cU *cUser) UpdateUserInfo(c *gin.Context) {
 	var parameters model.UpdateUserInfoInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -205,7 +205,7 @@ func (cU *cUser) UpdateUserInfo(c *gin.Context) {
 // @Param        body body  model.CreateFriendRequestInput  true  "Create friend request"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/create_friend_request [post]
+// @Router       /api/v1/user/create_friend_request [post]
 func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 	var parameters model.CreateFriendRequestInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -245,7 +245,7 @@ func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 // @Param        body body  model.EndFriendRequestInput  true  "End friend request"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/end_friend_request [delete]
+// @Router       /api/v1/user/end_friend_request [delete]
 func (cU *cUser) EndFriendRequest(c *gin.Context) {
 	var parameters model.EndFriendRequestInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -285,7 +285,7 @@ func (cU *cUser) EndFriendRequest(c *gin.Context) {
 // @Param        body body  model.AcceptFriendRequestInput  true  "Accept friend request"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/accept_friend_request [post]
+// @Router       /api/v1/user/accept_friend_request [post]
 func (cU *cUser) AcceptFriendRequest(c *gin.Context) {
 	var parameters model.AcceptFriendRequestInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -325,7 +325,7 @@ func (cU *cUser) AcceptFriendRequest(c *gin.Context) {
 // @Param        body body  model.RejectFriendRequestInput  true  "request id"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/reject_friend_request [post]
+// @Router       /api/v1/user/reject_friend_request [post]
 func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 	var parameters model.RejectFriendRequestInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -365,7 +365,7 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 // @Param        body body  model.DeleteFriendInput  true  "delete friend user information"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/delete_friend [delete]
+// @Router       /api/v1/user/delete_friend [delete]
 func (cU *cUser) DeleteFriend(c *gin.Context) {
 	var parameters model.DeleteFriendInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -406,7 +406,7 @@ func (cU *cUser) DeleteFriend(c *gin.Context) {
 // @Param        page  query  int  true  "Page number"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/get_list_friend_request [get]
+// @Router       /api/v1/user/get_list_friend_request [get]
 func (cU *cUser) GetListFriendRequet(c *gin.Context) {
 	// query limit and page
 	limit := c.Query("limit")
@@ -461,7 +461,7 @@ func (cU *cUser) GetListFriendRequet(c *gin.Context) {
 // @Param        body body  model.UserChangePasswordInput  true  "Update password user for user"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/update_password [put]
+// @Router       /api/v1/user/update_password [put]
 func (cU *cUser) UpdatePassword(c *gin.Context) {
 	var parameters model.UserChangePasswordInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {

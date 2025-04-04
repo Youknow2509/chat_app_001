@@ -236,7 +236,7 @@ info:
   title: API Documentation Chat App
   version: 1.0.0
 paths:
-  /v1/chat/add-member-to-chat:
+  /api/v1/chat/add-member-to-chat:
     post:
       consumes:
       - application/json
@@ -267,7 +267,7 @@ paths:
       summary: Add member to chat
       tags:
       - Chat
-  /v1/chat/change-admin-group-chat:
+  /api/v1/chat/change-admin-group-chat:
     put:
       consumes:
       - application/json
@@ -298,7 +298,7 @@ paths:
       summary: Change admin chat status
       tags:
       - Chat
-  /v1/chat/create-chat-group:
+  /api/v1/chat/create-chat-group:
     post:
       consumes:
       - application/json
@@ -330,7 +330,7 @@ paths:
       summary: Create a chat group with user after auth
       tags:
       - Chat
-  /v1/chat/create-chat-private:
+  /api/v1/chat/create-chat-private:
     post:
       consumes:
       - application/json
@@ -361,7 +361,7 @@ paths:
       summary: Create a chat private
       tags:
       - Chat
-  /v1/chat/del-chat:
+  /api/v1/chat/del-chat:
     delete:
       consumes:
       - application/json
@@ -392,7 +392,7 @@ paths:
       summary: Delete chat
       tags:
       - Chat
-  /v1/chat/del-men-from-chat:
+  /api/v1/chat/del-men-from-chat:
     delete:
       consumes:
       - application/json
@@ -423,7 +423,7 @@ paths:
       summary: Delete member from chat
       tags:
       - Chat
-  /v1/chat/get-chat-info:
+  /api/v1/chat/get-chat-info:
     get:
       consumes:
       - application/json
@@ -453,7 +453,7 @@ paths:
       summary: Get chat information
       tags:
       - Chat
-  /v1/chat/get-list-chat-for-user:
+  /api/v1/chat/get-list-chat-for-user:
     get:
       consumes:
       - application/json
@@ -488,7 +488,7 @@ paths:
       summary: Get list of chat
       tags:
       - Chat
-  /v1/chat/get-user-in-chat:
+  /api/v1/chat/get-user-in-chat:
     get:
       consumes:
       - application/json
@@ -528,7 +528,7 @@ paths:
       summary: Hanlde get infomation user in chat
       tags:
       - Chat
-  /v1/chat/upgrade-chat-info:
+  /api/v1/chat/upgrade-chat-info:
     put:
       consumes:
       - application/json
@@ -559,7 +559,47 @@ paths:
       summary: Update chat info
       tags:
       - Chat
-  /v1/mservice/get-user-in-chat:
+  /api/v1/mservice/get-chats-user:
+    get:
+      consumes:
+      - application/json
+      description: Get list chat of user with user id
+      parameters:
+      - description: 'Authorization Bearer token microservice (Eg: Bearer 123456)'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: limit number of chat
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Hanlde get list chat of user
+      tags:
+      - Microservice
+  /api/v1/mservice/get-user-in-chat:
     get:
       consumes:
       - application/json
@@ -599,7 +639,7 @@ paths:
       summary: Hanlde get infomation user in chat
       tags:
       - Microservice
-  /v1/token/create_refresh_token:
+  /api/v1/token/create_refresh_token:
     post:
       consumes:
       - application/json
@@ -625,7 +665,7 @@ paths:
       summary: Create a new JWT token test
       tags:
       - Token
-  /v1/token/create_token:
+  /api/v1/token/create_token:
     post:
       consumes:
       - application/json
@@ -651,7 +691,7 @@ paths:
       summary: Create a new JWT token test
       tags:
       - Token
-  /v1/token/valid_token:
+  /api/v1/token/valid_token:
     post:
       consumes:
       - application/json
@@ -677,7 +717,7 @@ paths:
       summary: Validate token for access token and refresh token
       tags:
       - Token
-  /v1/user/accept_friend_request:
+  /api/v1/user/accept_friend_request:
     post:
       consumes:
       - application/json
@@ -708,7 +748,7 @@ paths:
       summary: Accept friend request
       tags:
       - User Info
-  /v1/user/create_friend_request:
+  /api/v1/user/create_friend_request:
     post:
       consumes:
       - application/json
@@ -739,7 +779,7 @@ paths:
       summary: Create friend request
       tags:
       - User Info
-  /v1/user/delete_friend:
+  /api/v1/user/delete_friend:
     delete:
       consumes:
       - application/json
@@ -770,7 +810,7 @@ paths:
       summary: Delete friend user
       tags:
       - User Info
-  /v1/user/end_friend_request:
+  /api/v1/user/end_friend_request:
     delete:
       consumes:
       - application/json
@@ -801,7 +841,7 @@ paths:
       summary: End friend request
       tags:
       - User Info
-  /v1/user/find_user:
+  /api/v1/user/find_user:
     get:
       consumes:
       - application/json
@@ -832,7 +872,7 @@ paths:
       summary: Find user
       tags:
       - User Info
-  /v1/user/forgot_password:
+  /api/v1/user/forgot_password:
     post:
       consumes:
       - application/json
@@ -857,7 +897,7 @@ paths:
       summary: Forgot Password
       tags:
       - accounts management
-  /v1/user/get_list_friend:
+  /api/v1/user/get_list_friend:
     get:
       consumes:
       - application/json
@@ -892,7 +932,7 @@ paths:
       summary: Get list user friend
       tags:
       - User Info
-  /v1/user/get_list_friend_request:
+  /api/v1/user/get_list_friend_request:
     get:
       consumes:
       - application/json
@@ -927,7 +967,7 @@ paths:
       summary: Get list friend request
       tags:
       - User Info
-  /v1/user/get_user_info:
+  /api/v1/user/get_user_info:
     get:
       consumes:
       - application/json
@@ -952,7 +992,7 @@ paths:
       summary: Get user info
       tags:
       - User Info
-  /v1/user/login:
+  /api/v1/user/login:
     post:
       consumes:
       - application/json
@@ -978,7 +1018,7 @@ paths:
       summary: Login user
       tags:
       - accounts management
-  /v1/user/logout:
+  /api/v1/user/logout:
     post:
       consumes:
       - application/json
@@ -1004,7 +1044,7 @@ paths:
       summary: Logout
       tags:
       - accounts management
-  /v1/user/refresh_token:
+  /api/v1/user/refresh_token:
     post:
       consumes:
       - application/json
@@ -1030,7 +1070,7 @@ paths:
       summary: Refresh token
       tags:
       - accounts management
-  /v1/user/register:
+  /api/v1/user/register:
     post:
       consumes:
       - application/json
@@ -1057,7 +1097,7 @@ paths:
       summary: Register a new account
       tags:
       - accounts management
-  /v1/user/reject_friend_request:
+  /api/v1/user/reject_friend_request:
     post:
       consumes:
       - application/json
@@ -1088,7 +1128,7 @@ paths:
       summary: Reject friend request
       tags:
       - User Info
-  /v1/user/update_password:
+  /api/v1/user/update_password:
     put:
       consumes:
       - application/json
@@ -1119,7 +1159,7 @@ paths:
       summary: Update password user for user
       tags:
       - User Info
-  /v1/user/update_user_info:
+  /api/v1/user/update_user_info:
     put:
       consumes:
       - application/json
@@ -1150,7 +1190,7 @@ paths:
       summary: Update user info
       tags:
       - User Info
-  /v1/user/update_user_name_and_avatar:
+  /api/v1/user/update_user_name_and_avatar:
     post:
       consumes:
       - application/json
@@ -1176,7 +1216,7 @@ paths:
       summary: Update name and avatar when register
       tags:
       - accounts management
-  /v1/user/upgrade_password_register:
+  /api/v1/user/upgrade_password_register:
     post:
       consumes:
       - application/json
@@ -1202,7 +1242,7 @@ paths:
       summary: update password when register
       tags:
       - accounts management
-  /v1/user/verify_account:
+  /api/v1/user/verify_account:
     post:
       consumes:
       - application/json
@@ -1228,7 +1268,7 @@ paths:
       summary: Verify OTP bu user when register
       tags:
       - accounts management
-  /v1/user/verify_forgot_password/{email}/{token}:
+  /api/v1/user/verify_forgot_password/{email}/{token}:
     get:
       consumes:
       - application/json

@@ -25,7 +25,8 @@ func InitRouter() *gin.Engine {
 	chatRouter := routers.RouterGroupApp.Chat
 	mServiceRouter := routers.RouterGroupApp.MService
 
-	MainGroup := router.Group("/v1")
+	MainGroup := router.Group("api/v1")
+	// MainGroup := router.Group("v1")
 	{
 		MainGroup.GET("/checkStatus", func(c *gin.Context) {
 			c.JSON(200, gin.H{

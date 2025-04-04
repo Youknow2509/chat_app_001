@@ -17,5 +17,6 @@ func (r *ChatServiceRouter) InitChatServiceRouter(Router *gin.RouterGroup) {
 	baseRouter.Use(middlewares.AuthenMServiceMiddleware())
 	{
 		baseRouter.GET("get-user-in-chat", mservice.Chat.GetUserInChat)
+		baseRouter.GET("get-chats-user", mservice.Chat.GetChatsUser)
 	}
 }

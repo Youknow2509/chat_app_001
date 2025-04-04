@@ -27,7 +27,7 @@ func (s *SendGridImpl) SendTemplateEmailNewPasswork(from, to, token, password st
 		map[string]interface{}{
 			"userName": to,
 			"resetPasswordLink": 
-				consts.APP_URL + "/v1/user/verify_forgot_password/" + to + "/" + token, 
+				consts.APP_URL + "/api/v1/user/verify_forgot_password/" + to + "/" + token, 
 			"temporaryPassword": password,
 			"userEmail": to,
 			"privacyPolicyUrl": "https://www.freeprivacypolicy.com/live/051ebb07-d8a6-490c-a003-58bc332234d0",
@@ -53,7 +53,7 @@ func (s *SendGridImpl) SendTemplateEmailOTP(from, to, data string) error {
 		map[string]interface{}{
 			"userName": to,
 			"otpCode": data,
-			"verificationLink": consts.APP_URL + "/v1/user/verify_account?verify_code=" + data + "&verify_key=" + to,
+			"verificationLink": consts.APP_URL + "/api/v1/user/verify_account?verify_code=" + data + "&verify_key=" + to,
 			"userEmail": to,
 			"privacyPolicyUrl": "https://www.freeprivacypolicy.com/live/051ebb07-d8a6-490c-a003-58bc332234d0",
 			"termsOfServiceUrl": "https://www.freeprivacypolicy.com/live/1fa8c319-1480-402f-ac5d-5eb9261db25e",

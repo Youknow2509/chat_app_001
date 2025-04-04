@@ -25,7 +25,7 @@ type cUserLogin struct {
 // @Param        body body model.UpdateNameAndAvatarRegisterInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/update_user_name_and_avatar [post]
+// @Router       /api/v1/user/update_user_name_and_avatar [post]
 func (u *cUserLogin) UpdateUserNameAndAvatar(c *gin.Context) {
 	var params model.UpdateNameAndAvatarRegisterInput
 	if err := c.ShouldBindJSON(&params); err != nil {
@@ -55,7 +55,7 @@ func (u *cUserLogin) UpdateUserNameAndAvatar(c *gin.Context) {
 // @Param        payload body model.LoginInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/login [post]
+// @Router       /api/v1/user/login [post]
 func (cU *cUserLogin) Login(c *gin.Context) {
 
 	var params model.LoginInput
@@ -88,7 +88,7 @@ func (cU *cUserLogin) Login(c *gin.Context) {
 // @Param        payload body model.RegisterInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/register [post]
+// @Router       /api/v1/user/register [post]
 func (cU *cUserLogin) Register(c *gin.Context) {
 	var params model.RegisterInput
 	if err := c.ShouldBindJSON(&params); err != nil {
@@ -120,7 +120,7 @@ func (cU *cUserLogin) Register(c *gin.Context) {
 // @Param        payload body model.VerifyInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/verify_account [post]
+// @Router       /api/v1/user/verify_account [post]
 func (cU *cUserLogin) VerifyOTP(c *gin.Context) {
 	var params model.VerifyInput
 	if err := c.ShouldBindJSON(&params); err != nil {
@@ -147,7 +147,7 @@ func (cU *cUserLogin) VerifyOTP(c *gin.Context) {
 // @Param        payload body model.UpdatePasswordInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/upgrade_password_register [post]
+// @Router       /api/v1/user/upgrade_password_register [post]
 func (cU *cUserLogin) UpgradePasswordRegister(c *gin.Context) {
 	var params model.UpdatePasswordInput
 	if err := c.ShouldBindJSON(&params); err != nil {
@@ -173,7 +173,7 @@ func (cU *cUserLogin) UpgradePasswordRegister(c *gin.Context) {
 // @Param        payload body model.RefreshTokenInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/refresh_token [post]
+// @Router       /api/v1/user/refresh_token [post]
 func (cU *cUserLogin) RefreshToken(c *gin.Context) {
 	var parameters model.RefreshTokenInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -204,7 +204,7 @@ func (cU *cUserLogin) RefreshToken(c *gin.Context) {
 // @Param        mail query string true "Mail address"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/forgot_password [post]
+// @Router       /api/v1/user/forgot_password [post]
 func (cU *cUserLogin) ForgotPassword(c *gin.Context) {
 	// query email address
 	mail := c.Query("mail")
@@ -237,7 +237,7 @@ func (cU *cUserLogin) ForgotPassword(c *gin.Context) {
 // @Param        payload body model.LogoutInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/logout [post]
+// @Router       /api/v1/user/logout [post]
 func (cU *cUserLogin) Logout(c *gin.Context) {
 	var parameters model.LogoutInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -270,7 +270,7 @@ func (cU *cUserLogin) Logout(c *gin.Context) {
 // @Param        email path string true "email"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/user/verify_forgot_password/{email}/{token} [get]
+// @Router       /api/v1/user/verify_forgot_password/{email}/{token} [get]
 func (cU *cUserLogin) VerifyForgotPassword(c *gin.Context) {
 	// get token and email from path
 	token := c.Param("token")

@@ -27,7 +27,7 @@ type cJwtToken struct {
 // @Param        payload body model.JwtInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/token/create_token [post]
+// @Router       /api/v1/token/create_token [post]
 func (cJ *cJwtToken) CreateToken(c *gin.Context) {
 
 	var params model.JwtInput
@@ -58,7 +58,7 @@ func (cJ *cJwtToken) CreateToken(c *gin.Context) {
 // @Param        payload body model.JwtInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/token/create_refresh_token [post]
+// @Router       /api/v1/token/create_refresh_token [post]
 func (cJ *cJwtToken) CreateRefreshToken(c *gin.Context) {
 
 	var params model.JwtInput
@@ -88,7 +88,7 @@ func (cJ *cJwtToken) CreateRefreshToken(c *gin.Context) {
 // @Param        payload body model.JwtValidateInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/token/valid_token [post]
+// @Router       /api/v1/token/valid_token [post]
 func (cJ *cJwtToken) JwtValidToken(c *gin.Context) {
 
 	var params model.JwtValidateInput

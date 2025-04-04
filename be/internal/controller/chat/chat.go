@@ -28,7 +28,7 @@ type cChat struct {
 // @Param        payload body model.CreateChatGroupInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/create-chat-group [post]
+// @Router       /api/v1/chat/create-chat-group [post]
 func (ct *cChat) CreateChatGroup(c *gin.Context) {
 	var inputChatGroup model.CreateChatGroupInput
 	if err := c.ShouldBindJSON(&inputChatGroup); err != nil {
@@ -69,7 +69,7 @@ func (ct *cChat) CreateChatGroup(c *gin.Context) {
 // @Param        payload body model.CreateChatPrivateInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/create-chat-private [post]
+// @Router       /api/v1/chat/create-chat-private [post]
 func (ct *cChat) CreateChatPrivate(c *gin.Context) {
 	var inputChatGroup model.CreateChatPrivateInput
 	if err := c.ShouldBindJSON(&inputChatGroup); err != nil {
@@ -108,7 +108,7 @@ func (ct *cChat) CreateChatPrivate(c *gin.Context) {
 // @Param        payload body model.AddMemberToChatInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/add-member-to-chat [post]
+// @Router       /api/v1/chat/add-member-to-chat [post]
 func (ct *cChat) AddMemberToChat(c *gin.Context) {
 	var parameters *model.AddMemberToChatInput
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -153,7 +153,7 @@ func (ct *cChat) AddMemberToChat(c *gin.Context) {
 // @Param        chat_id query string true "Chat ID"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/get-chat-info [get]
+// @Router       /api/v1/chat/get-chat-info [get]
 func (ct *cChat) GetChatInfo(c *gin.Context) {
 	// query chat id
 	chatID := c.Query("chat_id")
@@ -192,7 +192,7 @@ func (ct *cChat) GetChatInfo(c *gin.Context) {
 // @Param        page query string true "page number"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/get-list-chat-for-user [get]
+// @Router       /api/v1/chat/get-list-chat-for-user [get]
 func (ct *cChat) GetListChatForUser(c *gin.Context) {
 	// query limit and page
 	limit := c.Query("limit")
@@ -249,7 +249,7 @@ func (ct *cChat) GetListChatForUser(c *gin.Context) {
 // @Param        page query string true "page number"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/get-user-in-chat [get]
+// @Router       /api/v1/chat/get-user-in-chat [get]
 func (ct *cChat) GetUserInChat(c *gin.Context) {
 	// query chat id
 	chatID := c.Query("chat_id")
@@ -317,7 +317,7 @@ func (ct *cChat) GetUserInChat(c *gin.Context) {
 // @Param        payload body model.ChangeAdminGroupChatInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/change-admin-group-chat [put]
+// @Router       /api/v1/chat/change-admin-group-chat [put]
 func (ct *cChat) ChangeAdminGroupChat(c *gin.Context) {
 	// get body input
 	var parameters *model.ChangeAdminGroupChatInput
@@ -359,7 +359,7 @@ func (ct *cChat) ChangeAdminGroupChat(c *gin.Context) {
 // @Param        payload body model.DelChatInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/del-chat [delete]
+// @Router       /api/v1/chat/del-chat [delete]
 func (ct *cChat) DelChat(c *gin.Context) {
 	// get body input
 	var parameters *model.DelChatInput
@@ -401,7 +401,7 @@ func (ct *cChat) DelChat(c *gin.Context) {
 // @Param        payload body model.DelMenForChatInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/del-men-from-chat [delete]
+// @Router       /api/v1/chat/del-men-from-chat [delete]
 func (ct *cChat) DelMemberForChat(c *gin.Context) {
 	// get body input
 	var parameters *model.DelMenForChatInput
@@ -443,7 +443,7 @@ func (ct *cChat) DelMemberForChat(c *gin.Context) {
 // @Param        payload body model.UpgradeChatInfoInput true "payload"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/chat/upgrade-chat-info [PUT]
+// @Router       /api/v1/chat/upgrade-chat-info [PUT]
 func (ct *cChat) UpdateChatInfo(c *gin.Context) {
 	// get body input
 	var parameters *model.UpgradeChatInfoInput

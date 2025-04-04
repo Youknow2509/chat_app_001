@@ -27,7 +27,7 @@ type cChat struct {
 // @Param        page query string true "page number"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
-// @Router       /v1/mservice/get-user-in-chat [get]
+// @Router       /api/v1/mservice/get-user-in-chat [get]
 func (ct *cChat) GetUserInChat(c *gin.Context) {
 	// query chat id
 	chatID := c.Query("chat_id")
@@ -76,4 +76,67 @@ func (ct *cChat) GetUserInChat(c *gin.Context) {
 	}
 
 	response.SuccessResponse(c, response.ErrCodeSuccess, outPutData)
+}
+
+
+// @Summary      Hanlde get list chat of user
+// @Description  Get list chat of user with user id
+// @Tags         Microservice
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer token microservice (Eg: Bearer 123456)"
+// @Param        user_id query string true "user ID"
+// @Param        limit query string true "limit number of chat"
+// @Param        page query string true "page number"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /api/v1/mservice/get-chats-user [get]
+func (ct *cChat) GetChatsUser(c *gin.Context) {
+	// query user id
+    userID := c.Query("user_id")
+    if userID == "" {
+        response.ErrorResponse(c, response.ErrCodeBindTokenInput, "User ID is required")
+        return
+    }
+    // query limit and page
+    limmit := c.Query("limit")
+    if limmit == "" {
+        response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Limit is required")
+        return
+    }
+    page := c.Query("page")
+    if page == "" {
+        response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Page is required")
+        return
+    }
+    // convert limmit and page to int
+    limmitInt, err := strconv.Atoi(limmit)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid limmit value")
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid page value")
+		return
+	}
+	if limmitInt < 0 || pageInt < 0 {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Limmit and page must be greater than 0")
+		return
+	}
+	// model input to service
+	// create model input
+	p := &model.InputGetChatForUser{
+		UserID: userID,
+		Limit:  limmitInt,
+		Page:   pageInt,
+	}
+	// call to service
+	outputData, _, err := service.ChatService().GetListChatForUser(c, p)
+	if err != nil {
+		global.Logger.Error("Error getting list chat", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeGetListChat, err.Error())
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
 }

@@ -34,4 +34,4 @@ const (
 	TOPIC_SERVICE_NOTIFICATION = "user-request-notification"
 	TOPIC_SERVICE_SEND_NEW_PASSWORD = "go-service-send-mail-new-password"
 )
-var TCP_KAFKA = "localhost:9094"
+var TCP_KAFKA = "kafka-0:9094"
