@@ -10,8 +10,10 @@ import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.WebRTCMessage;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.observers.SignalingObserver;
+import com.example.chatapp.utils.session.SessionManager;
 import com.google.gson.Gson;
 
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.IceCandidate;
@@ -26,6 +28,7 @@ import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
 public class StompClientManager {
+    private static final org.apache.commons.logging.Log log = LogFactory.getLog(StompClientManager.class);
     private static StompClientManager instance;
     private StompClient mStompClient;
     private boolean isConnected = false;
@@ -39,17 +42,19 @@ public class StompClientManager {
     private int reconnectAttempts = 0;
     private Handler reconnectHandler = new Handler(Looper.getMainLooper());
     private Runnable reconnectRunnable;
+    private SessionManager sessionManager;
 
-    private StompClientManager() {
+    private StompClientManager(SessionManager sessionManager) {
         // Initialize your StompClient here
         messageObservable = MessageObservable.getInstance();
+        this.sessionManager = sessionManager;
+        instance.initStompClient();
     }
 
     @SuppressLint("CheckResult")
     private void initStompClient() {
         if (mStompClient == null) {
             mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.HOST_SERVER + "/ws/websocket");
-
             // Set up lifecycle management
             mStompClient.lifecycle().subscribe(lifecycleEvent -> {
                 switch (lifecycleEvent.getType()) {
@@ -69,14 +74,13 @@ public class StompClientManager {
                 Log.e(TAG, "Error in lifecycle subscription", throwable);
             });
         }
-
         connect();
     }
 
     public void connect() {
         // TODO: Replace the token with user token
         if (mStompClient != null && !isConnected) {
-            StompHeader header = new StompHeader("Authorization", "Bearer " + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlcl9pZCI6IjEyM2U0NTY3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMCIsImlhdCI6MTUxNjIzOTAyMn0.iA1Q2NbaWUhs60yei-3dQdDwuQfcO7R5y6yYD-vSAvo");
+            StompHeader header = new StompHeader("Authorization", "Bearer " + sessionManager.getAccessToken());
             mStompClient.connect(List.of(header));
         }
     }
@@ -130,10 +134,16 @@ public class StompClientManager {
 
     @SuppressLint("CheckResult")
     public void subscribeTopic(String userId) {
-        if (mStompClient == null || !isConnected) {
+
+        if (mStompClient == null ) {
             Log.e(TAG, "Cannot subscribe: client not connected. Attempting to reconnect...");
             initStompClient(); // Try to reinitialize
-            return;
+            int attempts = 0;
+            while (!mStompClient.isConnected()){
+                reconnect();
+                attempts++;
+                Log.d(TAG, "Attempting to reconnect... Attempt #" + attempts);
+            }
         }
 
         Log.d(TAG, "Subscribing to topic: /topic/" + userId);
@@ -172,15 +182,22 @@ public class StompClientManager {
 
     @SuppressLint("CheckResult")
     public void sendMessage(String message) {
-        if (mStompClient != null && isConnected) {
-            mStompClient.send(SEND_MESSAGE_DESTINATION, message).subscribe(() -> {
-                Log.d(TAG, "Message sent successfully");
-            }, throwable -> {
-                Log.e(TAG, "Error sending message", throwable);
-            });
-        } else {
-            Log.e(TAG, "Cannot send message: client not connected");
+        if(!mStompClient.isConnected()){
+            Log.e(TAG, "Cannot send message: client not connected. Attempting to reconnect...");
+            initStompClient(); // Try to reinitialize
+            int attempts = 0;
+            while (!mStompClient.isConnected()){
+                reconnect();
+                attempts++;
+                Log.d(TAG, "Attempting to reconnect... Attempt #" + attempts);
+            }
         }
+
+        mStompClient.send(SEND_MESSAGE_DESTINATION, message).subscribe(() -> {
+            Log.d(TAG, "Message sent successfully");
+        }, throwable -> {
+            Log.e(TAG, "Error sending message", throwable);
+        });
     }
 
     public void sendCallOffer(WebRTCMessage webRTCMessage) {
@@ -260,10 +277,9 @@ public class StompClientManager {
         }
     }
 
-    public static StompClientManager getInstance() {
+    public static StompClientManager getInstance(SessionManager sessionManager) {
         if (instance == null) {
-            instance = new StompClientManager();
-            instance.initStompClient();
+            instance = new StompClientManager(sessionManager);
         }
         return instance;
     }

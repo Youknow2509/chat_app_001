@@ -25,6 +25,7 @@ import com.example.chatapp.models.User;
 import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.utils.PreferenceManager;
+import com.example.chatapp.utils.session.SessionManager;
 
 
 import java.text.SimpleDateFormat;
@@ -49,11 +50,13 @@ public class ChatGroupConversationActivity extends AppCompatActivity implements 
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
     private String id_client_test = "0";
+    private SessionManager sessionManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sessionManager = SessionManager.getInstance();
         binding = ActivityChatGroupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();
@@ -171,7 +174,8 @@ public class ChatGroupConversationActivity extends AppCompatActivity implements 
                 chatMessages,
                 receiverGroup.image,
                 preferenceManager.getString(Constants.KEY_GROUP_ID),
-                isGroupChat
+                isGroupChat,
+                sessionManager
         );
         binding.chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.chatRecyclerView.setAdapter(chatAdapter);

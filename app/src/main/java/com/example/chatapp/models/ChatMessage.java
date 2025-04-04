@@ -25,6 +25,23 @@ public class ChatMessage {
         this.id = id;
     }
 
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "id='" + id + '\'' +
+                ", senderId='" + senderId + '\'' +
+                ", content='" + content + '\'' +
+                ", dateTime='" + dateTime + '\'' +
+                ", receiverId='" + receiverId + '\'' +
+                ", dateObject=" + dateObject +
+                ", chatId='" + chatId + '\'' +
+                ", messageType='" + messageType + '\'' +
+                ", name='" + name + '\'' +
+                ", conversionImage=" + conversionImage +
+                ", mediaUrl='" + mediaUrl + '\'' +
+                '}';
+    }
+
     public void setReceiverId(String receiverId) {
         this.receiverId = receiverId;
     }

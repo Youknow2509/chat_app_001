@@ -18,12 +18,16 @@ import com.example.chatapp.adapters.ChatAdapter;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityChatV2Binding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
+import com.example.chatapp.dto.MessageDTO;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.Group;
 import com.example.chatapp.models.User;
 import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.utils.PreferenceManager;
+import com.example.chatapp.utils.StompClientManager;
+import com.example.chatapp.utils.session.SessionManager;
+import com.google.gson.Gson;
 
 
 import java.text.SimpleDateFormat;
@@ -45,18 +49,22 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     private boolean isReceiverAvailable = true;
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
-    private String id_client_test = "0";
+    private StompClientManager stompClientManager ;
+    private SessionManager sessionManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sessionManager = SessionManager.getInstance();
+        stompClientManager = StompClientManager.getInstance(sessionManager);
         binding = ActivityChatV2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();
         loadChatDetails();
         binding.progressBar.setVisibility(View.GONE);
         init();
+        Log.i(TAG, "onCreate: CREREASDSDASDAS");
 
         binding.messageEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -78,7 +86,6 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         // Subscribe to message observable
         messageObservable = MessageObservable.getInstance();
         messageObservable.addObserver(this);
-
 
     }
 
@@ -115,8 +122,15 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
             return;
         }
 
+        MessageDTO messageDTO = new MessageDTO(messageText, conversionId, "text");
+
+        // parse messageDTO to json string
+        Gson gson = new Gson();
+        String messageJson = gson.toJson(messageDTO);
+        stompClientManager.sendMessage(messageJson);
+
         ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSenderId(id_client_test);
+        chatMessage.setSenderId(sessionManager.getUserId());
         chatMessage.setContent(messageText);
         Date currentDate = new Date();
         // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
@@ -170,7 +184,8 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
                 chatMessages,
                 receiverUser.image,
                 preferenceManager.getString(Constants.KEY_USER_ID),
-                false
+                false,
+                sessionManager
         );
         binding.chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.chatRecyclerView.setAdapter(chatAdapter);
@@ -220,6 +235,11 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         if (isMessageRelevantToThisChat(message)) {
             Log.d(TAG, "Message is relevant to this chat, updating UI");
             runOnUiThread(() -> {
+                // get message with id null
+                chatMessages.stream().filter( chatMessage -> chatMessage.getId() == null).findFirst().ifPresent(chatMessage -> {
+                    chatMessages.remove(chatMessage);
+                });
+
                 Date currentDate = new Date();
                 String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
                 message.setDateTime(formattedDate);
@@ -227,7 +247,6 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
                 ItemUserChatBinding binding1 = ItemUserChatBinding.inflate(getLayoutInflater());
                 binding1.dateText.setText(message.getDateTime());
                 binding1.messageText.setText(message.getContent());
-                
                 
                 chatAdapter.notifyDataSetChanged();
             });

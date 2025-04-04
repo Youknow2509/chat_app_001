@@ -44,7 +44,7 @@ public class CallingActivity extends AppCompatActivity {
     private static String callType = "";
     private static String userName = "";
     private WebRTCManager webRTCManager;
-    private StompClientManager stompClientManager = StompClientManager.getInstance();
+    private StompClientManager stompClientManager;
     private Gson gson = new Gson();
 
 

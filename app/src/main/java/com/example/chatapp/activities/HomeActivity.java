@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -22,7 +23,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private StompClientManager stompClientManager = StompClientManager.getInstance();
+    private StompClientManager stompClientManager;
     private SessionManager sessionManager ;
 
     private Button btnReturnToCall; // Nút quay lại cuộc gọi
@@ -32,13 +33,10 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sessionManager = new SessionManager(this);
-        // TODO lay id nguoi dung nem vao topic
-//        stompClientManager.subscribeTopic(sessionManager.getUserId());
-        try {
-            stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Log.d("Login success", "Test3");
+//        Toast.makeText(this, "User ID: " + sessionManager.getAccessToken(), Toast.LENGTH_SHORT).show();
+//        stompClientManager = StompClientManager.getInstance(sessionManager);
+
 
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
@@ -59,6 +57,9 @@ public class HomeActivity extends AppCompatActivity {
             intent.putExtra("USER_NAME", CallingActivity.getCallerName());
             startActivity(intent);
         });
+
+//        stompClientManager.subscribeTopic(sessionManager.getUserId());
+//        stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
     }
 
     private void checkOngoingCall() {

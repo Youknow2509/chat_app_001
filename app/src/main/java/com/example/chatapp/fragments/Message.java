@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.R;
-import com.example.chatapp.activities.ChatActivity;
+import com.example.chatapp.activities.ChatConversationActivity;
 import com.example.chatapp.activities.SearchingActivity;
 import com.example.chatapp.adapters.ChatListAdapter;
 import com.example.chatapp.models.ChatListItem;
@@ -48,7 +48,7 @@ public class Message extends Fragment {
         chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
             @Override
             public void onUserClick(User user) {
-                Intent intent = new Intent(getContext(), ChatActivity.class);
+                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
                 intent.putExtra(Constants.KEY_USER, user);
                 startActivity(intent);
             }

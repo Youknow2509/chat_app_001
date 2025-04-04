@@ -13,10 +13,14 @@ import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityLoginV2Binding;
+import com.example.chatapp.dto.UserFbToken;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.Utils;
 import com.example.chatapp.utils.session.SessionManager;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.apache.commons.logging.LogFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,6 +30,7 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final org.apache.commons.logging.Log log = LogFactory.getLog(LoginActivity.class);
     private ActivityLoginV2Binding binding;
 
     private FrameLayout progressOverlay;
@@ -130,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.i("SignIn", "RefreshToken: " + refreshToken);
                 // save session
                 saveSession(accessToken, refreshToken);
-                navigateToHome();
+//                navigateToHome();
             }
 
             @Override
@@ -140,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                 showToast("Network error! Please try again.");
             }
         });
-//        navigateToHome();
+
     }
 
     /**
@@ -150,9 +155,12 @@ public class LoginActivity extends AppCompatActivity {
      * @param refreshToken String
      */
     private void saveSession(String accessToken, String refreshToken) {
+        Log.d("Login success", "Test1");
         getUserInfo(accessToken).thenAccept(userInfo -> {
             sessionManager.saveUserProfile(userInfo);
             sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
+            Log.d("Login success", "Test2");
+            navigateToHome();
             Log.d("SignIn", "User info saved successfully.");
         }).exceptionally(e -> {
             showToast(e.getMessage());
@@ -185,7 +193,31 @@ public class LoginActivity extends AppCompatActivity {
                 user.setEmail(Utils.getDataBody(response.body(), "user_email"));
                 user.setAvatarUrl(Utils.getDataBody(response.body(), "user_avatar"));
                 user.setDisplayName(Utils.getDataBody(response.body(), "user_nickname"));
+                String userId = Utils.getDataBody(response.body(), "user_id");
+                Log.i("USERELKSDNKFS", "onResponse: " + userId);
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) {
+                                Log.d("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
+                                return;
+                            }
+                            String token = task.getResult();
+                            Log.d("FCM_DEBUG", "Manual Token: " + token);
+                            // TODO Get userId
+                            UserFbToken userFbToken = new UserFbToken(userId, token, "on", true);
+                            apiManager.sendToken(userFbToken, new Callback<ResponseData<Object>>() {
+                                @Override
+                                public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                                    log.info("Send token success");
+                                }
 
+                                @Override
+                                public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                                    log.error("Send token failed: " + t.getMessage());
+                                    showToast("Send token failed: " + t.getMessage());
+                                }
+                            });
+                        });
                 future.complete(user);
             }
 

@@ -76,7 +76,7 @@ public class SearchingActivity extends AppCompatActivity {
         userAdapter = new UserAdapter(allUsers, new UserListener() {
             @Override
             public void onUserClick(User user) {
-                Intent intent = new Intent(SearchingActivity.this, ChatActivity.class);
+                Intent intent = new Intent(SearchingActivity.this, ChatConversationActivity.class);
                 intent.putExtra("USER_ID", user.getId());
                 intent.putExtra("USER_NAME", user.getName());
                 intent.putExtra("USER_IMAGE", user.getImage());
@@ -109,7 +109,7 @@ public class SearchingActivity extends AppCompatActivity {
         groupAdapter = new GroupAdapter(allGroups, new GroupListener() {
             @Override
             public void onGroupClick(Group group) {
-                Intent intent = new Intent(SearchingActivity.this, ChatActivity.class);
+                Intent intent = new Intent(SearchingActivity.this, ChatConversationActivity.class);
                 intent.putExtra(Constants.KEY_GROUP, group);
                 intent.putExtra("GROUP_ID", group.id);
                 intent.putExtra("GROUP_NAME", group.name);

@@ -45,6 +45,8 @@ public class SessionManager {
 
     private Context context;
 
+    private static SessionManager instance;
+
     public SessionManager(Context context) {
         this.context = context;
         try {
@@ -62,10 +64,15 @@ public class SessionManager {
             // Khởi tạo SharedPreferences thông thường cho thông tin không nhạy cảm
             userPreferences = context.getSharedPreferences(USER_PREF_NAME, Context.MODE_PRIVATE);
             userEditor = userPreferences.edit();
+            instance = this;
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
             // Handle the exception appropriately in your app
         }
+    }
+
+    public static SessionManager getInstance() {
+        return instance;
     }
 
     // Các phương thức xử lý thông tin xác thực (giữ nguyên như cũ)
