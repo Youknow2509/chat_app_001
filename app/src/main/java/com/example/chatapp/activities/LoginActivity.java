@@ -48,15 +48,6 @@ public class LoginActivity extends AppCompatActivity {
         observeLiveData();
 
         setListener();
-
-        TokenClientRepo tokenClientRepo = new TokenClientRepo(this);
-        tokenClientRepo.insertToken(new TokenClient(
-                "123",
-                "343",
-                "34242"
-        ));
-//        TokenClient t = tokenClientRepo.getToken();
-//        Log.d("LoginActivity", "TokenClient: " + t.getAccessToken());
     }
 
     /**
