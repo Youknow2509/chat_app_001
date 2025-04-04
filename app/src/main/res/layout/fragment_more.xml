@@ -102,38 +102,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Language -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_language" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:text="Language"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/languageValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableEnd="@drawable/ic_dropdown"
-                    android:drawablePadding="8dp"
-                    android:padding="8dp"
-                    android:text="English"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
             <!-- Dark Mode -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -241,7 +209,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:text="Invite Friends"
+                    android:text="My Friends"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -278,7 +246,39 @@
                     android:src="@drawable/ic_arrow_right" />
             </LinearLayout>
 
-            <!-- Security -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="16dp"
+                android:background="#EEEEEE" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_language" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:text="Clear Cache"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_arrow_right" />
+            </LinearLayout>
+
+            <!-- Term of Service -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -303,15 +303,8 @@
                     android:id="@+id/securitySwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/ic_arrow_right" />
             </LinearLayout>
 
-            <!-- Term of Service -->
             <LinearLayout
                 android:id="@+id/termOfServiceLayout"
                 android:layout_width="match_parent"
