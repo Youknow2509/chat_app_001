@@ -2,6 +2,7 @@ package com.example.chatapp.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -13,6 +14,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -242,5 +248,38 @@ public class Utils {
             configUrl.append(entry.getKey()).append("=").append(entry.getValue());
         }
         return configUrl.toString();
+    }
+
+    // parseDate
+    public static Date parseDate(String date) {
+        try {
+            return new Date(date);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // date to string /dd/mm/yy. Eg 2004-09-25T00:00:00Z -> 25/09/2004
+    public static String parseDateToString(Date date) {
+        if (date == null) {
+            return "";
+        }
+        return String.format("%02d/%02d/%02d", date.getDate(), date.getMonth() + 1, date.getYear() % 100);
+    }
+
+    // parse string birthday -> /dd/mm/yy. Eg: /dd/mm/yy. Eg 2004-09-25T00:00:00Z -> 25/09/2004
+    public static String parseBirthday(String birthday) {
+        try {
+            LocalDateTime dateTime = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                dateTime = LocalDateTime.parse(birthday, DateTimeFormatter.ISO_DATE_TIME);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                return dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            }
+        } catch (Exception e) {
+            return "";
+        }
+        return "";
     }
 }

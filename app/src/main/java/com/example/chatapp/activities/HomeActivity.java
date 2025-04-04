@@ -24,12 +24,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class HomeActivity extends AppCompatActivity {
 
     private StompClientManager stompClientManager;
-    private SessionManager sessionManager ;
+    private SessionManager sessionManager;
+    private final String TAG = "HomeActivity";
 
     private Button btnReturnToCall; // Nút quay lại cuộc gọi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: HomeActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sessionManager = new SessionManager(this);
@@ -41,7 +43,7 @@ public class HomeActivity extends AppCompatActivity {
         // Thiết lập NavController
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_message,R.id.nav_group,R.id.nav_profile, R.id.nav_more)
+                R.id.nav_message, R.id.nav_group, R.id.nav_profile, R.id.nav_more)
                 .build();
         BottomNavigationView navView = findViewById(R.id.nav_view);
         NavigationUI.setupWithNavController(navView, navController);

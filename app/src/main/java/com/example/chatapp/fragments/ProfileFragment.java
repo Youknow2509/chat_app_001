@@ -4,11 +4,13 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,21 +22,26 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
 
+import com.bumptech.glide.Glide;
 import com.example.chatapp.R;
 import com.example.chatapp.activities.AddFriendActivity;
 import com.example.chatapp.activities.CreateNewGroupActivity;
 import com.example.chatapp.activities.OnboardingActivity;
 import com.example.chatapp.databinding.FragmentProfileBinding;
 import com.example.chatapp.models.UserProfileSession;
+import com.example.chatapp.utils.Utils;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.io.File;
 
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private SessionManager sessionManager;
     private UserProfileSession userProfileSession;
+    private final String TAG = "ProfileFragment";
 
     private void initVariable() {
         this.sessionManager = new SessionManager(this.getContext());
@@ -58,9 +65,29 @@ public class ProfileFragment extends Fragment {
      */
     private void initDataToView() {
         binding.profileName.setText(sessionManager.getDisplayName());
-//        binding.p
-        // TODO
+        binding.emailDetail.setText(sessionManager.getUserEmail());
+        binding.genderDetail.setText(sessionManager.getUserProfile().getUserGender());
+        binding.birthdayDetail.setText(sessionManager.getUserProfile().getDateOfBirth());
+//        binding.addressDetail.setText(sessionManager.getUserProfile().get);
+
+//        String urlAvatar = sessionManager.getUserProfile().getAvatarUrl();
+//        Log.d("TAG", "initDataToView: " + urlAvatar);
+        // set view image with url host
+//        Glide.with(this)
+//                .load(urlAvatar)
+//                .placeholder(R.drawable.user2) // Optional: Loading placeholder
+//                .error(R.drawable.user2) // Optional: Error image
+//                .into(binding.avatarImage);
+        String url_avatar_local = sessionManager.getPathFileAvatarUser();
+        File avatar_file = new File(url_avatar_local);
+        if (avatar_file.exists()) {
+            Log.d(TAG, "Load avatar from local: " + url_avatar_local + "success");
+            binding.avatarImage.setImageURI(Uri.fromFile(avatar_file));
+        } else {
+           Log.d(TAG, "Load avatar from local: " + url_avatar_local + "error");
+        }
     }
+
 
     /**
      * listen event in element

@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 
 import com.example.chatapp.models.UserProfileSession;
+import com.example.chatapp.utils.Utils;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -35,7 +36,10 @@ public class SessionManager {
     private static final String KEY_USER_BIO = "user_bio";
     private static final String KEY_USER_LAST_ONLINE = "user_last_online";
     private static final String KEY_USER_CREATED_AT = "user_created_at";
+    private static final String KEY_USER_GENDER = "user_gender";
+    private static final String KEY_USER_BIRTHDAY = "user_birthday";
     private static final String KEY_USER_SETTINGS = "user_settings"; // Store as JSON string
+    private static final String KEY_USER_AVATAR_FILE_PATH = "user_avatar_file_path";
 
     private SharedPreferences sharedPreferences; // Mã hóa cho thông tin nhạy cảm
     private SharedPreferences.Editor editor;
@@ -194,6 +198,8 @@ public class SessionManager {
         userEditor.putString(KEY_USER_BIO, userProfile.getBio());
         userEditor.putLong(KEY_USER_LAST_ONLINE, userProfile.getLastOnlineTimestamp());
         userEditor.putLong(KEY_USER_CREATED_AT, userProfile.getCreatedAtTimestamp());
+        userEditor.putString(KEY_USER_GENDER, userProfile.getUserGender());
+        userEditor.putString(KEY_USER_BIRTHDAY, userProfile.getDateOfBirth());
 
         // Lưu trữ settings dưới dạng JSON
         if (userProfile.getSettings() != null) {
@@ -248,6 +254,8 @@ public class SessionManager {
         profile.setBio(userPreferences.getString(KEY_USER_BIO, ""));
         profile.setLastOnlineTimestamp(userPreferences.getLong(KEY_USER_LAST_ONLINE, 0));
         profile.setCreatedAtTimestamp(userPreferences.getLong(KEY_USER_CREATED_AT, 0));
+        profile.setUserGender(userPreferences.getString(KEY_USER_GENDER, ""));
+        profile.setDateOfBirth(userPreferences.getString(KEY_USER_BIRTHDAY, ""));
 
         // Khôi phục settings từ chuỗi JSON
         String settingsJson = userPreferences.getString(KEY_USER_SETTINGS, null);
@@ -260,6 +268,23 @@ public class SessionManager {
         }
 
         return profile;
+    }
+
+    /**
+     * Lấy đường dẫn thư mục ảnh đại diện người dùng
+     * @return path
+     */
+    public String getPathFileAvatarUser() {
+        return userPreferences.getString(KEY_USER_AVATAR_FILE_PATH, "");
+    }
+
+    /**
+     * Set đường dẫn thư mục ảnh đại diện người dùng
+     */
+    public String setPathFileAvatarUser(String path) {
+        userEditor.putString(KEY_USER_AVATAR_FILE_PATH, path);
+        userEditor.apply();
+        return path;
     }
 
     /**
