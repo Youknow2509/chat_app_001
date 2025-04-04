@@ -99,6 +99,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="report">Report</string>
     <string name="block">Block</string>
+    <string name="return_to_call">Return to call</string>
     <array name="gender_array">
         <item name="Name">Name</item>
     </array>

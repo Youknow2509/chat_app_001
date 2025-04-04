@@ -27,6 +27,8 @@ public class Constants {
     public static final String KEY_PREFERENCE_NAME = "chatAppReference";
     public static final String KEY_IS_SIGNED_IN = "isSignedIn";
     public static final String KEY_USER_ID = "userID";
+
+    public static final String KEY_USER_NAME = "userName";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_FCM_TOKEN = "fcmToken";
     public static final String KEY_USER = "user";
@@ -49,6 +51,16 @@ public class Constants {
     public static final String KEY_GROUP = "group";
     public static final String KEY_GROUP_ID = "groupId";
     public static final String KEY_IS_GROUP_CHAT = "isGroupChat";
+
+    public static final String KEY_GROUP_NAME = "groupName";
+
+    public static final String KEY_TYPE_CALL = "callType";
+
+    public static final String ACTION_CALL_STATE_CHANGED = "com.example.chatapp.ACTION_CALL_STATE_CHANGED";
+    public static final String EXTRA_CALL_ACTIVE = "com.example.chatapp.EXTRA_CALL_ACTIVE";
+    public static final String EXTRA_CALL_TYPE = "com.example.chatapp.EXTRA_CALL_TYPE";
+    public static final String EXTRA_CALLER_NAME = "com.example.chatapp.EXTRA_CALLER_NAME";
+
 
     // Update this with your actual FCM server key
     private static final String FCM_SERVER_KEY = "";

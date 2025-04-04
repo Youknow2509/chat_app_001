@@ -1,5 +1,9 @@
 package com.example.chatapp.activities;
 
+import static android.view.View.VISIBLE;
+import static com.example.chatapp.consts.Constants.KEY_TYPE_CALL;
+
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -10,8 +14,14 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.chatapp.R;
 import com.example.chatapp.databinding.ActivityCallOrVideoCallBinding;
+import com.example.chatapp.databinding.ActivityCallReturnBinding;
+import com.example.chatapp.databinding.ToolbarChatBinding;
+import com.example.chatapp.fragments.ChatFragment;
+
 import android.os.Handler;
 import android.view.View;
+import android.widget.FrameLayout;
+
 import androidx.appcompat.app.AlertDialog;
 
 public class CallOrVideoCallActivity extends AppCompatActivity {
@@ -24,16 +34,20 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
     boolean isVideoCall = false;
     boolean isCallStarted = false;
 
+    private static boolean isCallActive = false;
+    private static String callType = "";
+    private static String userName = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         binding = ActivityCallOrVideoCallBinding.inflate(getLayoutInflater());
+        isCallActive = true;
         setContentView(binding.getRoot());
-        binding.backButton.setOnClickListener(v -> onBackPressed());
+        binding.backButton.setOnClickListener(v -> callingResume());
         binding.toggleMicButton.setOnClickListener(v -> switchOptionMicrophone());
         binding.toggleCameraButton.setOnClickListener(v -> switchOptionCamera());
-        binding.endCallButton.setOnClickListener(v -> endCall());
+        binding.endCallButton.setOnClickListener(v -> onBackPressed());
     }
 
     private void switchOptionMicrophone() {
@@ -46,6 +60,11 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
         }
     }
 
+    private void callingResume(){
+        Intent intent = new Intent(this, HomeActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
 
     private void switchOptionCamera() {
@@ -57,7 +76,7 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
         } else {
             // Bật camera
             binding.toggleCameraButton.setBackgroundResource(R.drawable.cancel_button_background);
-            binding.localVideoContainer.setVisibility(View.VISIBLE);
+            binding.localVideoContainer.setVisibility(VISIBLE);
             isCameraEnabled = true;
         }
     }
@@ -73,7 +92,7 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
 
         // Hiển thị thông báo kết thúc cuộc gọi
         binding.callingText.setText("Call ended");
-
+        isCallActive = false;
         // Đóng activity sau một khoảng thời gian
         new Handler().postDelayed(() -> {
             finish();
@@ -89,21 +108,38 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
             isVideoCall = extras.getBoolean("IS_VIDEO_CALL", false);
             setupCallUI(isVideoCall);
         }
+        isCallActive = true;
+        if (getIntent().hasExtra("USER_NAME")) {
+            userName = getIntent().getStringExtra("USER_NAME");
+        }
+        Intent intent = getIntent();
+        String callType = intent.getStringExtra(KEY_TYPE_CALL);
+        if (callType != null && callType.equals("voice")) {
+            this.callType = "voice";
+            isVideoCall = false;
+            binding.remoteVideoContainer.setVisibility(View.GONE);
+            binding.localVideoContainer.setVisibility(View.GONE);
+            binding.toggleCameraButton.setBackgroundResource(R.drawable.background_chat_input);
+        } else {
+            this.callType = "video";
+            isVideoCall = true;
+            binding.remoteVideoContainer.setVisibility(VISIBLE);
+            binding.localVideoContainer.setVisibility(VISIBLE);
+        }
     }
 
     private void setupCallUI(boolean isVideoCall) {
         if (isVideoCall) {
             // Thiết lập giao diện cho cuộc gọi video
-            binding.toggleCameraButton.setVisibility(View.VISIBLE);
-            binding.remoteVideoContainer.setVisibility(View.VISIBLE);
-            binding.localVideoContainer.setVisibility(View.VISIBLE);
+            this.isVideoCall = false;
+            binding.remoteVideoContainer.setVisibility(VISIBLE);
+            binding.localVideoContainer.setVisibility(VISIBLE);
         } else {
             // Thiết lập giao diện cho cuộc gọi audio
-            binding.toggleCameraButton.setVisibility(View.GONE);
+            this.isVideoCall = true;
             binding.remoteVideoContainer.setVisibility(View.GONE);
             binding.localVideoContainer.setVisibility(View.GONE);
-            // Hiển thị avatar người gọi
-            binding.remoteAvatarContainer.setVisibility(View.VISIBLE);
+            binding.remoteAvatarContainer.setVisibility(VISIBLE);
         }
 
         // Bắt đầu cuộc gọi
@@ -118,26 +154,53 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
         new Handler().postDelayed(() -> {
             binding.callingText.setText("Connected");
         }, 2000);
-
-        // Khởi tạo các thành phần cần thiết cho cuộc gọi
-        // Ví dụ: kết nối WebRTC, khởi tạo stream, v.v.
     }
+
+    public static boolean isCallOngoing() {
+        return isCallActive;
+    }
+
+    public static String getCallType() {
+        return callType;
+    }
+
+    public static String getCallerName() {
+        return userName;
+    }
+
 
     @Override
     public void onBackPressed() {
-        // Hiển thị dialog xác nhận kết thúc cuộc gọi
         if (isCallStarted && !isCallEnded) {
             new AlertDialog.Builder(this)
                     .setTitle("End Call")
                     .setMessage("Are you sure you want to end this call?")
                     .setPositiveButton("Yes", (dialog, which) -> {
                         endCall();
+                        isCallActive = false;
                         super.onBackPressed();
                     })
                     .setNegativeButton("No", null)
                     .show();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+
+        // Nếu quay lại từ nút Return to Call
+        if (intent.getBooleanExtra("RETURN_TO_CALL", false)) {
+            // Khôi phục trạng thái cuộc gọi nếu cần
+            if (isVideoCall) {
+                binding.remoteVideoContainer.setVisibility(VISIBLE);
+                if (isCameraEnabled) {
+                    binding.localVideoContainer.setVisibility(VISIBLE);
+                }
+            }
         }
     }
 

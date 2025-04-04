@@ -2,6 +2,8 @@ package com.example.chatapp.activities;
 
 import static android.content.ContentValues.TAG;
 
+import static com.example.chatapp.consts.Constants.*;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -153,11 +155,20 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     }
 
     private void VoiceCall() {
-        // TODO: Implement VoiceCall functionality
+        Intent intent = new Intent(getApplicationContext(), CallOrVideoCallActivity.class);
+        intent.putExtra(KEY_TYPE_CALL, "voice");
+        intent.putExtra(KEY_USER_ID, receiverUser.id);
+        intent.putExtra(KEY_USER_NAME, receiverUser.name);
+        startActivity(intent);
+
     }
 
     private void VideoCall() {
-        // TODO: Implement VideoCall functionality
+        Intent intent = new Intent(getApplicationContext(), CallOrVideoCallActivity.class);
+        intent.putExtra(KEY_TYPE_CALL, "video");
+        intent.putExtra(KEY_USER_ID, receiverUser.id);
+        intent.putExtra(KEY_USER_NAME, receiverUser.name);
+        startActivity(intent);
     }
 
     private void TakeCamera() {

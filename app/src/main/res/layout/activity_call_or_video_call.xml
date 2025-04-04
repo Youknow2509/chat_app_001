@@ -83,8 +83,10 @@
         android:id="@+id/localVideoContainer"
         android:layout_width="120dp"
         android:layout_height="160dp"
-        android:layout_margin="16dp"
-        android:background="@drawable/rounded_image"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_header_squar"
+        app:tint="@android:color/background_dark"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -127,7 +129,6 @@
             android:layout_height="56dp"
             android:background="@drawable/cancel_button_background"
             app:tint="@android:color/background_dark"
-
             android:src="@drawable/video"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

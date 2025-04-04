@@ -1,5 +1,7 @@
 package com.example.chatapp.fragments;
 
+import static com.example.chatapp.consts.Constants.KEY_TYPE_CALL;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.R;
 import com.example.chatapp.activities.AddFriendActivity;
+import com.example.chatapp.activities.CallOrVideoCallActivity;
 import com.example.chatapp.activities.ChatConversationActivity;
 import com.example.chatapp.activities.CreateNewGroupActivity;
 import com.example.chatapp.activities.SearchingActivity;
@@ -112,7 +115,6 @@ public class ChatFragment extends Fragment {
 
         return view;
     }
-
     private List<ChatListItem> getChatListItems() {
         List<ChatListItem> chatListItems = new ArrayList<>();
 
