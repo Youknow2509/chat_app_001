@@ -31,7 +31,7 @@ public class EndPoint {
     public static final String FORGOT_PASSWORD = "/v1/user/forgot_password";
     public static final String GET_LIST_FRIEND_REQUEST = "/v1/user/get_list_friend_request";
     public static final String GET_USER_INFO = "/v1/user/get_user_info";
-    public static final String LOGIN = "/v1/user/login";
+    public static final String LOGIN = "/api/v1/user/login";
     public static final String LOGOUT = "/v1/user/logout";
     public static final String REFRESH_TOKEN = "/v1/user/refresh_token";
     public static final String REGISTER = "/v1/user/register";

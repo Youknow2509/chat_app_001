@@ -9,27 +9,28 @@ import androidx.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity(tableName = "messages",
-        foreignKeys = {
-                @ForeignKey(entity = Conversation.class,
-                        parentColumns = "conversationId",
-                        childColumns = "conversationId",
-                        onDelete = ForeignKey.CASCADE),
-                @ForeignKey(entity = User.class,
-                        parentColumns = "userId",
-                        childColumns = "senderId",
-                        onDelete = ForeignKey.CASCADE)
-        },
-        indices = {@Index("conversationId"), @Index("senderId")})
+@Entity(tableName = "messages"
+//        foreignKeys = {
+//                @ForeignKey(entity = Conversation.class,
+//                        parentColumns = "conversationId",
+//                        childColumns = "conversationId",
+//                        onDelete = ForeignKey.CASCADE),
+//                @ForeignKey(entity = User.class,
+//                        parentColumns = "userId",
+//                        childColumns = "senderId",
+//                        onDelete = ForeignKey.CASCADE)
+//        },
+//        indices = {@Index("conversationId"), @Index("senderId")}
+)
 public class Message {
     @PrimaryKey
     @NonNull
     private String messageId;
 
-    @NonNull
+    //    @NonNull
     private String conversationId;
 
-    @NonNull
+    //    @NonNull
     private String senderId;
 
     private String messageText;
@@ -46,8 +47,22 @@ public class Message {
 
     // Constructors, Getters and Setters
 
-    public Message(@NonNull String messageId, @NonNull String conversationId,
-                   @NonNull String senderId, String messageText) {
+    //    public Message(@NonNull String messageId, @NonNull String conversationId,
+//                   @NonNull String senderId, String messageText) {
+//        this.messageId = messageId;
+//        this.conversationId = conversationId;
+//        this.senderId = senderId;
+//        this.messageText = messageText;
+//        this.timestamp = new Date();
+//        this.status = "sent";
+//        this.messageType = "text";
+//        this.isDeleted = false;
+//        this.isEdited = false;
+//        this.createdAt = new Date();
+//        this.updatedAt = new Date();
+//    }
+    public Message(String messageId, String conversationId,
+                   String senderId, String messageText) {
         this.messageId = messageId;
         this.conversationId = conversationId;
         this.senderId = senderId;
