@@ -193,6 +193,30 @@ public class LoginActivity extends AppCompatActivity {
                         )
                 );
 
+                Log.i("USERELKSDNKFS", "onResponse: " + user.getId());
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) {
+                                Log.d("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
+                                return;
+                            }
+                            String token = task.getResult();
+                            Log.d("FCM_DEBUG", "Manual Token: " + token);
+                            // TODO Get userId
+                            UserFbToken userFbToken = new UserFbToken(user.getId(), token, "on", true);
+                            apiManager.sendToken(userFbToken, new Callback<ResponseData<Object>>() {
+                                @Override
+                                public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                                    log.info("Send token success");
+                                }
+                                @Override
+                                public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                                    log.error("Send token failed: " + t.getMessage());
+                                    showToast("Send token failed: " + t.getMessage());
+                                }
+                            });
+                        });
+
 //                 create image avatar to file
                 MediaUtils.getMediaFromHost(context, user.getAvatarUrl(), sessionManager.getAccessToken())
                         .thenAccept(a -> {
@@ -242,6 +266,7 @@ public class LoginActivity extends AppCompatActivity {
                 user.setAvatarUrl(Utils.getDataBody(response.body(), "user_avatar"));
                 user.setDisplayName(Utils.getDataBody(response.body(), "user_nickname"));
                 user.setUserGender(Utils.getDataBody(response.body(), "user_gender"));
+
                 String userId = Utils.getDataBody(response.body(), "user_id");
                 Log.i("USERELKSDNKFS", "onResponse: " + userId);
                 FirebaseMessaging.getInstance().getToken()
