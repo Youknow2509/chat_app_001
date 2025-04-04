@@ -182,15 +182,6 @@ definitions:
       user_id:
         type: string
     type: object
-  model.UserFindInput:
-    properties:
-      limit:
-        type: integer
-      page:
-        type: integer
-      user_email:
-        type: string
-    type: object
   model.VerifyInput:
     properties:
       verify_code:
@@ -852,12 +843,21 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Find user by email
-        in: body
-        name: body
+      - description: Email of user
+        in: query
+        name: email
         required: true
-        schema:
-          $ref: '#/definitions/model.UserFindInput'
+        type: string
+      - description: limit number
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: string
       produces:
       - application/json
       responses:

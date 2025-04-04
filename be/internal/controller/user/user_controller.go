@@ -18,7 +18,7 @@ type cUser struct {
 }
 
 // @Summary      Get list user friend
-// @Description  Get list user friend 
+// @Description  Get list user friend
 // @Tags         User Info
 // @Accept       json
 // @Produce      json
@@ -67,7 +67,7 @@ func (cU *cUser) GetListUserFriend(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Page must be greater than 0")
 		return
 	}
-	// create input model	
+	// create input model
 	input := &model.ListUserFriendInput{
 		UserID: userIDReq,
 		Limit:  limitInt,
@@ -89,17 +89,39 @@ func (cU *cUser) GetListUserFriend(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization  header  string  true  "Bearer token"
-// @Param        body body  model.UserFindInput  true  "Find user by email"
+// @Param        email query string  true  "Email of user"
+// @Param        limit query string true  "limit number"
+// @Param        page query string  true  "page number"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /api/v1/user/find_user [get]
 func (cU *cUser) FindUser(c *gin.Context) {
-	// get input
-	var parameters model.UserFindInput
-	if err := c.ShouldBindJSON(&parameters); err != nil {
-		global.Logger.Error("Error binding data", zap.Error(err))
+	// get query params
+	emailInput := c.Query("email")
+	limit := c.Query("limit")
+	page := c.Query("page")
+	// validate input
+	if emailInput == "" {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Email is required")
+		return
+	}
+	// convert to int
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		global.Logger.Error("Error converting limit to int", zap.Error(err))
 		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
 		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		global.Logger.Error("Error converting page to int", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	parameters := model.UserFindInput{
+		UserEmail: emailInput,
+		Limit:     limitInt,
+		Page:      pageInt,
 	}
 	// validate input
 	if parameters.UserEmail == "" {
@@ -192,7 +214,7 @@ func (cU *cUser) UpdateUserInfo(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeUpdateUserInfo, err.Error())
 		return
 	}
-	
+
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -232,7 +254,7 @@ func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeCreateFriendRequest, err.Error())
 		return
 	}
-	
+
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -272,7 +294,7 @@ func (cU *cUser) EndFriendRequest(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
 		return
 	}
-	
+
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -312,7 +334,7 @@ func (cU *cUser) AcceptFriendRequest(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
 		return
 	}
-	
+
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -352,7 +374,7 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeEndFriendRequest, err.Error())
 		return
 	}
-	
+
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -392,7 +414,7 @@ func (cU *cUser) DeleteFriend(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeDeleteFriend, err.Error())
 		return
 	}
-	
+
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
 
@@ -488,6 +510,6 @@ func (cU *cUser) UpdatePassword(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeUpdatePassword, err.Error())
 		return
 	}
-	
+
 	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
 }
