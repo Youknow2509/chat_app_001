@@ -1,5 +1,6 @@
 package com.example.chatapp.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,13 +17,13 @@ import com.example.chatapp.databinding.ActivityLoginV2Binding;
 import com.example.chatapp.dto.UserFbToken;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
-import com.example.chatapp.utils.StompClientManager;
+import com.example.chatapp.utils.MediaUtils;
 import com.example.chatapp.utils.Utils;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.apache.commons.logging.LogFactory;
-
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
@@ -40,11 +41,14 @@ public class LoginActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private String accessToken;
     private String refreshToken;
-    private StompClientManager stompClientManager = StompClientManager.getInstance();
+    private Context context;
+    private final String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        context = this;
 
         initVariableUse();
 
@@ -137,7 +141,6 @@ public class LoginActivity extends AppCompatActivity {
                 Log.i("SignIn", "RefreshToken: " + refreshToken);
                 // save session
                 saveSession(accessToken, refreshToken);
-//                navigateToHome();
             }
 
             @Override
@@ -157,18 +160,85 @@ public class LoginActivity extends AppCompatActivity {
      * @param refreshToken String
      */
     private void saveSession(String accessToken, String refreshToken) {
-        getUserInfo(accessToken).thenAccept(userInfo -> {
-            sessionManager.saveUserProfile(userInfo);
-            sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
-            Toast.makeText(getApplicationContext(), "Login successful!", Toast.LENGTH_SHORT).show();
-//            stompClientManager.setSessionManager(sessionManager);
-//            stompClientManager.subscribeTopic(sessionManager.getUserId());
-            navigateToHome();
-            Log.d("SignIn", "User info saved successfully.");
-        }).exceptionally(e -> {
-            showToast(e.getMessage());
-            Log.e("SignIn", e.getMessage());
-            return null;
+//        getUserInfo(accessToken).thenAccept(userInfo -> {
+//            sessionManager.saveUserProfile(userInfo);
+//            sessionManager.saveAuthData(accessToken, refreshToken, userInfo.getId());
+//            Log.d("SignIn", "User info saved successfully.");
+//        }).exceptionally(e -> {
+//            showToast(e.getMessage());
+//            Log.e("SignIn", e.getMessage());
+//            return null;
+//        });
+        apiManager.getUserInfo(accessToken, new Callback<ResponseData<Object>>() {
+            @Override
+            public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                int code = response.body().getCode();
+                if (code != Constants.CODE_SUCCESS) {
+                    showToast("Error get infor user: " + response.body().getMessage());
+                    return;
+                }
+
+                UserProfileSession user = new UserProfileSession();
+                user.setId(Utils.getDataBody(response.body(), "user_id"));
+                user.setName(Utils.getDataBody(response.body(), "user_nickname"));
+                user.setEmail(Utils.getDataBody(response.body(), "user_email"));
+                user.setAvatarUrl(Utils.getDataBody(response.body(), "user_avatar"));
+                user.setDisplayName(Utils.getDataBody(response.body(), "user_nickname"));
+                user.setUserGender(Utils.getDataBody(response.body(), "user_gender"));
+
+                user.setDateOfBirth(
+                        Utils.parseBirthday(
+                                Utils.getDataBody(
+                                        response.body(), "user_birthday")
+                        )
+                );
+
+                // FirebaseMessaging
+                Log.i("USERELKSDNKFS", "onResponse: " + user.getId());
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) {
+                                Log.d("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
+                                return;
+                            }
+                            String token = task.getResult();
+                            Log.d("FCM_DEBUG", "Manual Token: " + token);
+                            // TODO Get userId
+                            UserFbToken userFbToken = new UserFbToken(user.getId(), token, "on", true);
+                            apiManager.sendToken(userFbToken, new Callback<ResponseData<Object>>() {
+                                @Override
+                                public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                                    log.info("Send token success");
+                                }
+                                @Override
+                                public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                                    log.error("Send token failed: " + t.getMessage());
+                                    showToast("Send token failed: " + t.getMessage());
+                                }
+                            });
+                        });
+
+//                 create image avatar to file
+                MediaUtils.getMediaFromHost(context, user.getAvatarUrl(), sessionManager.getAccessToken())
+                        .thenAccept(a -> {
+                            if (a == null) {
+                                Log.i(TAG, "File path: null");
+                            } else {
+                                Log.i(TAG, "File path: " + a.getAbsolutePath());
+                                // save file path
+                                sessionManager.setPathFileAvatarUser(a.getAbsolutePath());
+                                navigateToHome();
+                            }
+                        });
+
+                sessionManager.saveUserProfile(user);
+                sessionManager.saveAuthData(accessToken, refreshToken, user.getId());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                showToast("Network error! Please try again.");
+            }
         });
     }
 
@@ -196,6 +266,8 @@ public class LoginActivity extends AppCompatActivity {
                 user.setEmail(Utils.getDataBody(response.body(), "user_email"));
                 user.setAvatarUrl(Utils.getDataBody(response.body(), "user_avatar"));
                 user.setDisplayName(Utils.getDataBody(response.body(), "user_nickname"));
+                user.setUserGender(Utils.getDataBody(response.body(), "user_gender"));
+
                 String userId = Utils.getDataBody(response.body(), "user_id");
                 Log.i("USERELKSDNKFS", "onResponse: " + userId);
                 FirebaseMessaging.getInstance().getToken()
@@ -213,7 +285,6 @@ public class LoginActivity extends AppCompatActivity {
                                 public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
                                     log.info("Send token success");
                                 }
-
                                 @Override
                                 public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
                                     log.error("Send token failed: " + t.getMessage());
@@ -221,6 +292,28 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             });
                         });
+
+                user.setDateOfBirth(
+                        Utils.parseBirthday(
+                                Utils.getDataBody(
+                                        response.body(), "user_birthday")
+                        )
+                );
+
+//                 create image avatar to file
+                MediaUtils.getMediaFromHost(context, user.getAvatarUrl(), sessionManager.getAccessToken())
+                        .thenAccept(a -> {
+                            if (a == null) {
+                                Log.i(TAG, "File path: null");
+                            } else {
+                                Log.i(TAG, "File path: " + a.getAbsolutePath());
+                                // save file path
+                                sessionManager.setPathFileAvatarUser(a.getAbsolutePath());
+                            }
+                        });
+
+
+                                
                 future.complete(user);
             }
 

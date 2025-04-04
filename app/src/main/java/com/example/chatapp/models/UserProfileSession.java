@@ -2,6 +2,8 @@ package com.example.chatapp.models;
 
 import org.json.JSONObject;
 
+import java.util.Date;
+
 /**
  * Lớp đại diện cho thông tin profile của người dùng
  */
@@ -14,6 +16,8 @@ public class UserProfileSession {
     private String status;
     private String displayName;
     private String bio;
+    private String userGender;
+    private String dateOfBirth;
     private long lastOnlineTimestamp;
     private long createdAtTimestamp;
     private JSONObject settings;
@@ -109,6 +113,22 @@ public class UserProfileSession {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUserGender() {
+        return userGender;
+    }
+
+    public void setUserGender(String userGender) {
+        this.userGender = userGender;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     @Override
