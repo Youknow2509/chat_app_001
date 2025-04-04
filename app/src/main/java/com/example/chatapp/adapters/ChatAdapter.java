@@ -10,6 +10,7 @@ import com.example.chatapp.databinding.ItemMessageIncomingBinding;
 import com.example.chatapp.databinding.ItemMessageIncomingWithAvatarBinding;
 import com.example.chatapp.databinding.ItemMessageOutgoingBinding;
 import com.example.chatapp.models.ChatMessage;
+import com.example.chatapp.utils.session.SessionManager;
 
 import java.util.List;
 
@@ -24,7 +25,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static final int VIEW_TYPE_RECEIVED = 2;
     public static final int VIEW_TYPE_GROUP_RECEIVED = 3;
 
-    public ChatAdapter(List<ChatMessage> chatMessages, Bitmap receiverProfileImage, String senderId, boolean isGroupChat) {
+    private SessionManager sessionManager;
+
+    public ChatAdapter(List<ChatMessage> chatMessages, Bitmap receiverProfileImage, String senderId, boolean isGroupChat, SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
         this.chatMessages = chatMessages;
         this.receiverProfileImage = receiverProfileImage;
         this.senderId = senderId;
@@ -34,7 +38,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         ChatMessage message = chatMessages.get(position);
-        if (message.getSenderId().equals("0")) {
+        if (message.getSenderId().equals(sessionManager.getUserId())) {
             return VIEW_TYPE_SENT;
         } else if (isGroupChat) {
             return VIEW_TYPE_GROUP_RECEIVED;

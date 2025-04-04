@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.chatapp.activities.ChatConversationActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -22,7 +23,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.example.chatapp.R;
-import com.example.chatapp.activities.ChatActivity;
+
 
 public class MessagingService extends FirebaseMessagingService {
     private static final String TAG = "MessagingService";
@@ -115,7 +116,7 @@ public class MessagingService extends FirebaseMessagingService {
             }
         }
 
-        Intent intent = new Intent(this, ChatActivity.class);
+        Intent intent = new Intent(this, ChatConversationActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,

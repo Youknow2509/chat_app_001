@@ -127,9 +127,6 @@ public class ChatFragment extends Fragment {
     private List<User> getUsers() {
         List<User> users = new ArrayList<>();
         users.add(new User("1", "Alex Linderson", "alex.linderson@example.com", getImageBitmap(R.drawable.user)));
-        users.add(new User("2", "Sabila Sayma", "sabila.sayma@example.com", getImageBitmap(R.drawable.user)));
-        users.add(new User("3", "Angel Dayna", "angel.dayna@example.com", getImageBitmap(R.drawable.user)));
-        users.add(new User("4", "John Ahraham", "john.ahraham@example.com", getImageBitmap(R.drawable.user)));
         return users;
     }
 

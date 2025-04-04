@@ -126,8 +126,6 @@ public class GroupFragment extends Fragment {
         users.add(new User("4", "John Ahraham", "john.ahraham@example.com", getImageBitmap(R.drawable.user)));
         List<Group> groups = new ArrayList<>();
         groups.add(new Group("Group 1", "Description 1", users, getImageBitmap(R.drawable.user)));
-        groups.add(new Group("Group 2", "Description 2", users, getImageBitmap(R.drawable.user)));
-        groups.add(new Group("Group 3", "Description 3", users, getImageBitmap(R.drawable.user)));
         return groups;
     }
 
