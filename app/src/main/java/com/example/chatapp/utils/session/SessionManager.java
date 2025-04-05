@@ -1,11 +1,13 @@
 package com.example.chatapp.utils.session;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 
 import com.example.chatapp.models.UserProfileSession;
+import com.example.chatapp.service.TokenRefreshService;
 import com.example.chatapp.utils.Utils;
 
 import java.io.IOException;
@@ -137,6 +139,14 @@ public class SessionManager {
 
         userEditor.clear();
         userEditor.apply();
+        // Dừng các service liên quan đến xác thực
+        stopAuthRelatedServices(context);
+    }
+
+    private void stopAuthRelatedServices(Context context) {
+        // Dừng TokenRefreshService
+        Intent tokenServiceIntent = new Intent(context, TokenRefreshService.class);
+        context.stopService(tokenServiceIntent);
     }
 
     public boolean isTokenExpired(String token) {

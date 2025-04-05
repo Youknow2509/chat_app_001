@@ -3,6 +3,7 @@ package com.example.chatapp.api;
 import android.content.Context;
 
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.network.AuthInterceptor;
 import com.example.chatapp.network.NetworkConnectionInterceptor;
 import com.example.chatapp.network.NetworkMonitor;
 import com.google.gson.Gson;
@@ -35,12 +36,16 @@ public class RetrofitClient {
         // Thêm NetworkConnectionInterceptor để xử lý trường hợp không có kết nối
         NetworkConnectionInterceptor networkInterceptor = new NetworkConnectionInterceptor(context);
 
+        // Thêm AuthInterceptor để thêm token vào header
+        AuthInterceptor authInterceptor = new AuthInterceptor(context);
+
         // Setup OkHttpClient với NetworkConnectionInterceptor
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(networkInterceptor) // Thêm network interceptor đầu tiên
+                .addInterceptor(authInterceptor)
                 .addInterceptor(loggingInterceptor)
                 .build();
 

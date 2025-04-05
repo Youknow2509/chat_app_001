@@ -1,14 +1,13 @@
 package com.example.chatapp.network;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import okhttp3.*;
 
 import com.example.chatapp.consts.Constants;
-import com.example.chatapp.utils.EndPoint;
+import com.example.chatapp.api.EndPoint;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 

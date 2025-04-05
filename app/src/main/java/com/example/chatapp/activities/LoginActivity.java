@@ -19,6 +19,7 @@ import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.network.NetworkMonitor;
 import com.example.chatapp.repository.TokenClientRepo;
 import com.example.chatapp.service.NetworkMonitorService;
+import com.example.chatapp.service.TokenRefreshService;
 import com.example.chatapp.utils.session.SessionManager;
 import com.example.chatapp.viewmodel.LoginViewModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -156,6 +157,10 @@ public class LoginActivity extends AppCompatActivity implements NetworkMonitor.N
                 user.getRefreshToken(),
                 user.getId()
         );
+
+        // Khởi động TokenRefreshService
+        Intent serviceIntent = new Intent(this, TokenRefreshService.class);
+        startService(serviceIntent);
     }
 
     // Navigate to home activity

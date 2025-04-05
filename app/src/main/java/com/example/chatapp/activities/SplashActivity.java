@@ -16,6 +16,8 @@ import androidx.work.WorkManager;
 import com.example.chatapp.R;
 import com.example.chatapp.database.AppDatabase;
 import com.example.chatapp.database.DataPurgeManager;
+import com.example.chatapp.service.NetworkMonitorService;
+import com.example.chatapp.service.TokenRefreshService;
 import com.example.chatapp.utils.session.SessionManager;
 import com.example.chatapp.worker.DataPurgeWorker;
 
@@ -61,6 +63,14 @@ public class SplashActivity extends AppCompatActivity {
 
         // Khởi tạo SessionManager để kiểm tra trạng thái đăng nhập
         sessionManager = new SessionManager(this);
+
+        // Khởi động NetworkMonitorService
+        startNetworkMonitorService();
+
+        // Khởi động TokenRefreshService nếu đã đăng nhập
+        if (sessionManager.isLoggedIn()) {
+            startTokenRefreshService();
+        }
 
         // Chạy các tác vụ dọn dẹp và lên lịch
         checkAndRunDataPurge();
@@ -186,6 +196,16 @@ public class SplashActivity extends AppCompatActivity {
                 DATA_PURGE_WORK_TAG,
                 ExistingPeriodicWorkPolicy.KEEP,  // Giữ lại công việc hiện có nếu đã được lên lịch
                 purgeWorkRequest);
+    }
+
+    private void startNetworkMonitorService() {
+        Intent serviceIntent = new Intent(this, NetworkMonitorService.class);
+        startService(serviceIntent);
+    }
+
+    private void startTokenRefreshService() {
+        Intent serviceIntent = new Intent(this, TokenRefreshService.class);
+        startService(serviceIntent);
     }
 
     /**

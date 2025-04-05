@@ -1,4 +1,4 @@
-package com.example.chatapp.utils;
+package com.example.chatapp.api;
 
 public class EndPoint {
 
@@ -11,10 +11,16 @@ public class EndPoint {
     public static final String DEL_MEMBER_FROM_CHAT = "/v1/chat/del-men-from-chat";
     public static final String GET_CHAT_INFO = "/v1/chat/get-chat-info";
     public static final String GET_LIST_CHAT_FOR_USER = "/v1/chat/get-list-chat-for-user";
+    public static final String GET_LIST_CHAT_GROUP_FOR_USER = "/v1/chat/get-list-chat-group-for-user";
+    public static final String GET_LIST_CHAT_PRIVATE_FOR_USER = "/v1/chat/get-list-chat-private-for-user";
     public static final String GET_USER_IN_CHAT = "/v1/chat/get-user-in-chat";
     public static final String UPGRADE_CHAT_INFO = "/v1/chat/upgrade-chat-info";
 
     // Microservice related endpoints
+    public static final String GET_CHATS_GROUP_USER = "/v1/mservice/get-chats-group-user";
+    public static final String GET_CHATS_PRIVATE_USER = "/v1/mservice/get-chats-private-user";
+    public static final String GET_CHATS_USER = "/v1/mservice/get-chats-user";
+    public static final String GET_DETAIL_FRIEND_REQ = "/v1/mservice/get-detail-friend-req";
     public static final String GET_USER_IN_CHAT_MICROSERVICE = "/v1/mservice/get-user-in-chat";
 
     // Token related endpoints
@@ -31,15 +37,17 @@ public class EndPoint {
     public static final String FORGOT_PASSWORD = "/v1/user/forgot_password";
     public static final String GET_LIST_FRIEND_REQUEST = "/v1/user/get_list_friend_request";
     public static final String GET_USER_INFO = "/v1/user/get_user_info";
-    public static final String LOGIN = "/api/v1/user/login";
+    public static final String LOGIN = "/v1/user/login";
     public static final String LOGOUT = "/v1/user/logout";
     public static final String REFRESH_TOKEN = "/v1/user/refresh_token";
     public static final String REGISTER = "/v1/user/register";
     public static final String REJECT_FRIEND_REQUEST = "/v1/user/reject_friend_request";
     public static final String UPDATE_PASSWORD = "/v1/user/update_password";
     public static final String UPDATE_USER_INFO = "/v1/user/update_user_info";
+    public static final String UPDATE_USER_NAME_AND_AVATAR = "/v1/user/update_user_name_and_avatar";
     public static final String UPGRADE_PASSWORD_REGISTER = "/v1/user/upgrade_password_register";
     public static final String VERIFY_ACCOUNT = "/v1/user/verify_account";
+    public static final String VERIFY_FORGOT_PASSWORD = "/v1/user/verify_forgot_password/{email}/{token}";
 
     // Private constructor to prevent instantiation
     private EndPoint() {

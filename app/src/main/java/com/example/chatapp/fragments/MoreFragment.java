@@ -22,6 +22,7 @@ import com.example.chatapp.databinding.FragmentMoreBinding;
 import com.example.chatapp.models.GroupListItem;
 import com.example.chatapp.models.Group;
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.service.TokenRefreshService;
 import com.example.chatapp.utils.session.SessionManager;
 
 import java.util.List;
@@ -112,6 +113,10 @@ public class MoreFragment extends Fragment {
 
         // logout
         binding.logoutLayout.setOnClickListener(v -> {
+            // Dừng TokenRefreshService
+            Intent serviceIntent = new Intent(this.getContext(), TokenRefreshService.class);
+            this.getContext().stopService(serviceIntent);
+
             this.sessionManager.logout();
 
             // redirect to OnboardingActivity
