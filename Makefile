@@ -1,5 +1,5 @@
 # Phony Targets
-.PHONY: docker_run docker_check_dev docker_stop_deploy docker_check_deploy docker_stop docker_stop_v docker_deploy docker_exec_mysql docker_exec_redis
+.PHONY: docker_rebuild_be docker_rebuild_msv_cloudinary docker_rebuild_msv_sendmail docker docker_run docker_check_dev docker_stop_deploy docker_check_deploy docker_stop docker_stop_v docker_deploy docker_exec_mysql docker_exec_redis
 .PHONY: kafka_create_topic kafka_list_topic_9091 kafka_9091_create_a_topic
 .PHONY: ui_redis ui_mysql ui_kafka
  
@@ -16,6 +16,9 @@ help:
 	@echo "\t docker_stop \t Stop Docker Compose"
 	@echo "\t docker_stop_v \t Stop Docker Compose and remove volumes, networks, ..."
 	@echo "\t docker_deploy \t Deploy Back-End ChatApp"
+	@echo "\t docker_rebuild_be \t Rebuild Back-End ChatApp"
+	@echo "\t docker_rebuild_msv_cloudinary \t Rebuild Microservice Cloudinary"
+	@echo "\t docker_rebuild_msv_sendmail \t Rebuild Microservice Sendmail"
 	@echo "\t docker_check_deploy \t Check Docker Compose Deploy"
 	@echo "\t docker_stop_deploy \t Stop Docker Compose Deploy"
 	@echo "\t docker_exec_mysql \t Execute MySQL Container"
@@ -120,3 +123,18 @@ docker_deploy:
 	@echo "Deploying Back-End ChatApp"
 	docker-compose -f environment/docker-compose.prod.yml -p chatapp up -d --build
 	@echo "Back-End ChatApp deployed"
+
+docker_rebuild_be:
+	@echo "Rebuilding Back-End ChatApp"
+	docker-compose -f environment/docker-compose.prod.yml -p chatapp up -d --build back_end
+	@echo "Back-End ChatApp rebuilt"
+
+docker_rebuild_msv_cloudinary:
+	@echo "Rebuilding Microservice Cloudinary"
+	docker-compose -f environment/docker-compose.prod.yml -p chatapp up -d --build msv_cloudinary
+	@echo "Microservice Cloudinary rebuilt"
+
+docker_rebuild_msv_sendmail:
+	@echo "Rebuilding Microservice Sendmail"
+	docker-compose -f environment/docker-compose.prod.yml -p chatapp up -d --build msv_send_mail
+	@echo "Microservice Sendmail rebuilt"
