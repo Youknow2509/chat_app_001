@@ -23,7 +23,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityMainBinding;
+import com.example.chatapp.network.NetworkMonitor;
 import com.example.chatapp.utils.session.SessionManager;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.chatapp.R;
@@ -31,13 +33,16 @@ import com.example.chatapp.utils.StompClientManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements NetworkMonitor.NetworkStateListener {
 
     private StompClientManager stompClientManager;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     private ActivityMainBinding binding;
     private SessionManager sessionManager;
     private final String TAG = "HomeActivity";
+    //
+    private NetworkMonitor networkMonitor;
+    private View networkStatusView;
 
     // Khai báo BroadcastReceiver
     private BroadcastReceiver callStateReceiver = new BroadcastReceiver() {
@@ -76,7 +81,9 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        // nw
+        networkStatusView = findViewById(R.id.network_status_view);
+        networkMonitor = NetworkMonitor.getInstance(this);
         // Phần code còn lại giữ nguyên
         sessionManager = new SessionManager(this);
         stompClientManager = StompClientManager.getInstance();
@@ -101,6 +108,12 @@ public class HomeActivity extends AppCompatActivity {
         String callerName = CallOrVideoCallActivity.getCallerName();
 
         updateReturnToCallBar(isCallActive, callType, callerName);
+
+        // Đăng ký nhận thông báo khi Activity hiển thị
+        networkMonitor.addListener(this);
+
+        // Cập nhật UI với trạng thái mạng hiện tại
+        updateNetworkUI(networkMonitor.isNetworkAvailable());
     }
 
     private void updateReturnToCallBar(boolean isCallActive, String callType, String callerName) {
@@ -123,6 +136,38 @@ public class HomeActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             Log.e(TAG, "Error updating return to call bar: " + e.getMessage());
+        }
+    }
+
+    // Show a Snackbar with a message
+    private void showSnackbar(String message) {
+        Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Hủy đăng ký khi Activity không hiển thị
+        networkMonitor.removeListener(this);
+    }
+
+    @Override
+    public void onNetworkStateChanged(boolean isAvailable) {
+        // Được gọi mỗi khi trạng thái mạng thay đổi
+        updateNetworkUI(isAvailable);
+
+        if (isAvailable) {
+            // Mạng đã được kết nối
+            // Tải lại dữ liệu, gửi tin nhắn đang chờ, etc.
+            showSnackbar("Mạng đã được kết nối");
+        }
+    }
+
+    private void updateNetworkUI(boolean isConnected) {
+        if (isConnected) {
+            networkStatusView.setVisibility(View.GONE);
+        } else {
+            networkStatusView.setVisibility(View.VISIBLE);
         }
     }
 
