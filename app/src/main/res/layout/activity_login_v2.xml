@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.LoginActivity"
-    android:background="#03A9F4">
+    android:background="#03A9F4"
+    tools:context=".activities.LoginActivity">
 
+    <include
+        android:id="@+id/network_status_view"
+        layout="@layout/network_status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#03A9F4"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/network_status_view">
 
         <TextView
             android:id="@+id/loginText"
@@ -37,9 +46,9 @@
             android:text="@string/welcome_back"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/loginText" />
+            app:layout_constraintTop_toBottomOf="@id/loginText"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <Button
             android:id="@+id/registerButton"
@@ -50,17 +59,19 @@
             android:text="@string/register"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
-            app:layout_constraintBottom_toBottomOf="@+id/loginText"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/loginText" />
+            app:layout_constraintTop_toTopOf="@id/loginText"
+            app:layout_constraintBottom_toBottomOf="@id/loginText" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Form Container -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/formContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/rounded_top_background"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/headerLayout">
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
             android:id="@+id/codeText"
@@ -70,23 +81,23 @@
             android:text="@string/you_type_your_email_and_password_to_login"
             android:textColor="#333333"
             android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <LinearLayout
             android:id="@+id/phoneInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
             android:layout_marginEnd="24dp"
-            android:background="@drawable/edit_text_background"
             android:orientation="horizontal"
+            android:background="@drawable/edit_text_background"
             android:padding="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/codeText"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/codeText">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <EditText
                 android:id="@+id/mailEditText"
@@ -103,15 +114,15 @@
             android:id="@+id/passwordInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
             android:layout_marginEnd="24dp"
-            android:background="@drawable/edit_text_background"
             android:orientation="horizontal"
+            android:background="@drawable/edit_text_background"
             android:padding="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phoneInputLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/phoneInputLayout">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <EditText
                 android:id="@+id/passwordEditText"
@@ -128,11 +139,11 @@
             android:id="@+id/rememberCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
+            android:layout_marginStart="24dp"
             android:text="Remember me"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/passwordInputLayout" />
+            app:layout_constraintTop_toBottomOf="@id/passwordInputLayout"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/nextButton"
@@ -141,10 +152,9 @@
             android:layout_marginEnd="24dp"
             android:backgroundTint="#03A9F4"
             android:src="@drawable/continue_button"
-            app:layout_constraintBottom_toBottomOf="@+id/rememberCheckBox"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/rememberCheckBox" />
-
+            app:layout_constraintTop_toTopOf="@id/rememberCheckBox"
+            app:layout_constraintBottom_toBottomOf="@id/rememberCheckBox"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
             android:id="@+id/forgotPasswordText"
@@ -153,39 +163,46 @@
             android:layout_marginTop="16dp"
             android:text="@string/forgot_password"
             android:textColor="#03A9F4"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rememberCheckBox"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rememberCheckBox" />
+            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <!-- Progress Overlay -->
     <FrameLayout
         android:id="@+id/progress_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="#80000000"
+        android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
-        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminateTint="#24786D" />
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <TextView
-            android:id="@+id/progress_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="48dp"
-            android:text="Đang xử lý..."
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="#24786D" />
+
+            <TextView
+                android:id="@+id/progress_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Đang xử lý..."
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </LinearLayout>
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
+    <include
+        android:id="@+id/network_status_view"
+        layout="@layout/network_status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Header Section with Blue Background -->
     <View
         android:id="@+id/headerBackground"
@@ -13,7 +20,7 @@
         android:layout_height="0dp"
         android:background="@drawable/blue_wave_background"
         app:layout_constraintHeight_percent="0.35"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/network_status_view" />
 
     <Button
         android:id="@+id/backToLoginButton"
@@ -29,8 +36,8 @@
         android:text="Login"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintTop_toTopOf="@+id/network_status_view" />
 
 
     <!-- Register Text -->
@@ -44,7 +51,7 @@
         android:textSize="32sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/backToLoginButton"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view"
         app:layout_constraintTop_toTopOf="@+id/backToLoginButton" />
 
     <!-- Enter your mobile phone Text -->
@@ -61,7 +68,7 @@
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.886"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
         app:layout_constraintTop_toBottomOf="@+id/registerText" />
 
     <TextView
@@ -72,7 +79,7 @@
         android:text="Sent to: example@example"
         android:textColor="@android:color/white"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view"
         app:layout_constraintHorizontal_bias="0.868"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enterPhoneText" />
@@ -84,8 +91,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/headerBackground"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view">
 
         <TextView
             android:id="@+id/timerText"
@@ -115,8 +122,8 @@
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/timerLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view">
 
         <!-- Repeat 4 times for 4 digits -->
         <EditText
@@ -198,8 +205,8 @@
         android:textColor="#FF0000"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view"
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
         app:layout_constraintTop_toBottomOf="@+id/otpInputs" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -211,8 +218,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.932"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintTop_toTopOf="@+id/network_status_view"
         app:layout_constraintVertical_bias="0.568"
         tools:ignore="MissingConstraints" />
     <!-- Progress Overlay -->

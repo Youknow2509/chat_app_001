@@ -7,12 +7,18 @@
     android:background="#F9F9F9">
 
     <include
+        android:id="@+id/network_status_view"
+        layout="@layout/network_status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
         android:id="@+id/chatToolbar"
         layout="@layout/toolbar_chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"/>
-
+        app:layout_constraintTop_toTopOf="@+id/network_status_view"/>
 
 
     <!-- Chat messages -->

@@ -5,6 +5,13 @@
     android:layout_height="match_parent"
     android:background="#686868">
 
+    <include
+        android:id="@+id/network_status_view"
+        layout="@layout/network_status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Nút quay lại -->
     <ImageButton
         android:id="@+id/backButton"
@@ -15,8 +22,8 @@
         android:background="@drawable/shape_circle"
         android:src="@drawable/ic_back"
         android:contentDescription="Quay lại"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintTop_toTopOf="@+id/network_status_view" />
 
     <!-- Tiêu đề cuộc gọi -->
     <TextView
@@ -27,8 +34,8 @@
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view"
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
         app:layout_constraintTop_toTopOf="@+id/backButton"
         app:layout_constraintBottom_toBottomOf="@+id/backButton" />
 

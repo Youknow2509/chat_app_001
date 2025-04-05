@@ -2,6 +2,7 @@ package com.example.chatapp.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,18 +16,24 @@ import com.example.chatapp.R;
 import com.example.chatapp.databinding.ActivityLoginV2Binding;
 import com.example.chatapp.models.TokenClient;
 import com.example.chatapp.models.UserProfileSession;
+import com.example.chatapp.network.NetworkMonitor;
 import com.example.chatapp.repository.TokenClientRepo;
+import com.example.chatapp.service.NetworkMonitorService;
 import com.example.chatapp.utils.session.SessionManager;
 import com.example.chatapp.viewmodel.LoginViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements NetworkMonitor.NetworkStateListener {
 
     private ActivityLoginV2Binding binding;
     private FrameLayout progressOverlay;
     private LoginViewModel loginViewModel;
     private Context context;
     private SessionManager sessionManager;
+    // network
+    private View networkStatusView;
+    private NetworkMonitor networkMonitor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +43,31 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         progressOverlay = findViewById(R.id.progress_overlay);
+        networkStatusView = findViewById(R.id.network_status_view);
 
         loginViewModel = new ViewModelProvider(
                 this,
                 new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(LoginViewModel.class);
         context = this;
         sessionManager = new SessionManager(context);
+        networkMonitor = NetworkMonitor.getInstance(this);
+
+        startNetworkMonitorService();
 
         handleFieldMail();
 
         observeLiveData();
 
         setListener();
+    }
+
+    private void startNetworkMonitorService() {
+        Intent serviceIntent = new Intent(this, NetworkMonitorService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
     }
 
     /**
@@ -154,5 +174,46 @@ public class LoginActivity extends AppCompatActivity {
     // Show a Snackbar with a message
     private void showSnackbar(String message) {
         Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Thay đổi ui cho network
+     * @param isConnected boolean
+     */
+    private void updateNetworkUI(boolean isConnected) {
+        if (isConnected) {
+            networkStatusView.setVisibility(View.GONE);
+        } else {
+            networkStatusView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onNetworkStateChanged(boolean isAvailable) {
+        // Được gọi mỗi khi trạng thái mạng thay đổi
+        updateNetworkUI(isAvailable);
+
+        if (isAvailable) {
+            // Mạng đã được kết nối
+            // Tải lại dữ liệu, gửi tin nhắn đang chờ, etc.
+            showSnackbar("Mạng đã được kết nối");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Đăng ký nhận thông báo khi Activity hiển thị
+        networkMonitor.addListener(this);
+
+        // Cập nhật UI với trạng thái mạng hiện tại
+        updateNetworkUI(networkMonitor.isNetworkAvailable());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Hủy đăng ký khi Activity không hiển thị
+        networkMonitor.removeListener(this);
     }
 }

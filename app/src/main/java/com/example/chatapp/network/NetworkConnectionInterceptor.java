@@ -10,6 +10,9 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/**
+ * Chặn các API call khi không có kết nối mạng
+ */
 public class NetworkConnectionInterceptor implements Interceptor {
     private final Context context;
     private final NetworkMonitor networkMonitor;

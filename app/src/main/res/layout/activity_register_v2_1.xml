@@ -7,6 +7,12 @@
     android:background="@android:color/white">
 
     <!-- Header Section with Blue Background -->
+    <include
+        android:id="@+id/network_status_view"
+        layout="@layout/network_status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Back to Login Button -->
     <View
@@ -15,7 +21,7 @@
         android:layout_height="0dp"
         android:background="@drawable/blue_wave_background"
         app:layout_constraintHeight_percent="0.35"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/network_status_view"
         tools:layout_editor_absoluteX="0dp" />
 
 

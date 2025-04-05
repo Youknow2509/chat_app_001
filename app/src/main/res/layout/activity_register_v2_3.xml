@@ -7,6 +7,12 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
+    <include
+        android:id="@+id/network_status_view"
+        layout="@layout/network_status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
     <!-- Background Header -->
 
     <!-- Button: Login -->
@@ -17,7 +23,7 @@
         android:layout_height="463dp"
         android:layout_marginBottom="372dp"
         android:background="@drawable/bg_header_curve_white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/network_status_view"
         tools:layout_editor_absoluteX="-65dp" />
 
     <View
@@ -26,7 +32,7 @@
         android:layout_height="463dp"
         android:layout_marginBottom="424dp"
         android:background="@drawable/bg_header_curve"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/network_status_view"
         tools:layout_editor_absoluteX="-65dp" />
 
     <Button
@@ -43,8 +49,8 @@
         android:text="Login"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintTop_toTopOf="@+id/network_status_view" />
     <!-- Title: Register -->
     <TextView
         android:id="@+id/registerTitle"
@@ -55,7 +61,7 @@
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="@id/backToLoginButton"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view"
         app:layout_constraintBottom_toBottomOf="@id/backToLoginButton"
         android:layout_marginEnd="24dp" />
 

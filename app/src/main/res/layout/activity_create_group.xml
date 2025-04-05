@@ -7,16 +7,23 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Toolbar background -->
+    <include
+        android:id="@+id/network_status_view"
+        layout="@layout/network_status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
 
+
+    <!-- Toolbar background -->
     <View
         android:id="@+id/toolbarBackground"
         android:layout_width="0dp"
         android:layout_height="100dp"
         android:background="@drawable/bg_toolbar_gradient_bulelight"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/network_status_view"
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view" />
 
 
     <!-- Chat list -->
@@ -26,9 +33,9 @@
         android:layout_width="0dp"
         android:layout_height="100dp"
         android:background="@drawable/bg_toolbar_gradient"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/network_status_view"
+        app:layout_constraintStart_toStartOf="@+id/network_status_view"
+        app:layout_constraintEnd_toEndOf="@+id/network_status_view"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">

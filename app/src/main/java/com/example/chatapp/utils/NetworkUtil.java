@@ -7,6 +7,9 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 
+/**
+ *  Kiểm tra tình trạng kết nối mạng thiết bị
+ */
 public class NetworkUtil {
 
     public static boolean isNetworkAvailable(Context context) {
