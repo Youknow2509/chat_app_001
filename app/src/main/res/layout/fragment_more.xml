@@ -263,7 +263,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_language" />
+                    android:src="@drawable/ic_data_store" />
 
                 <TextView
                     android:layout_width="0dp"
