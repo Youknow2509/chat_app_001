@@ -47,10 +47,11 @@ public class StoreUtils2 {
         long totalSize = 0;
 
         // Tính dung lượng các file trong thư mục
-        totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "my_images"));
-        totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "my_videos"));
+        totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "images"));
+        totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "videos"));
         totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "records"));
-        totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "media"));
+        totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "thumbnails"));
+        totalSize += getDirectorySize(new File(context.getExternalFilesDir(null), "medias"));
 
         // Tính dung lượng của cơ sở dữ liệu SQLite
         totalSize += getDatabaseSize(context, Constants.DATABASE_NAME);
