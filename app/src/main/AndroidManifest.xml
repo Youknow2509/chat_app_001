@@ -109,7 +109,7 @@
             android:name=".activities.CreateNewGroupActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".activities.DataStoreFragment"
+        <activity android:name=".activities.StorageManagerActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity

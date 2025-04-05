@@ -13,9 +13,10 @@ import com.example.chatapp.R;
 import com.example.chatapp.activities.AddFriendActivity;
 import com.example.chatapp.activities.ChatGroupConversationActivity;
 import com.example.chatapp.activities.CreateNewGroupActivity;
-import com.example.chatapp.activities.DataStoreFragment;
+
 import com.example.chatapp.activities.LoginActivity;
 import com.example.chatapp.activities.SearchingActivity;
+import com.example.chatapp.activities.StorageManagerActivity;
 import com.example.chatapp.adapters.GroupListAdapter;
 import com.example.chatapp.databinding.FragmentMoreBinding;
 import com.example.chatapp.models.GroupListItem;
@@ -120,7 +121,7 @@ public class MoreFragment extends Fragment {
 
         // data and storage
         binding.dataStorageLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), DataStoreFragment.class);
+            Intent intent = new Intent(getContext(), StorageManagerActivity.class);
             startActivity(intent);
         });
     }
