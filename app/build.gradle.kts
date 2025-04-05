@@ -158,13 +158,14 @@ dependencies {
 }
 
 dependencies {
-    implementation(libs.play.services.vision)
-    implementation(libs.play.services.vision.common)// Glide is a powerful image loading and caching library.
+    // Glide is a powerful image loading and caching library.
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }
 
 dependencies {
+    implementation(libs.play.services.vision)
+    implementation(libs.play.services.vision.common)
     implementation("androidx.camera:camera-core:1.3.0")
     implementation ("androidx.camera:camera-camera2:1.3.0")
     implementation ("androidx.camera:camera-lifecycle:1.3.0")
