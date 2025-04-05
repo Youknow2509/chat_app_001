@@ -80,6 +80,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         loadMediaForCurrentTab();
     }
 
+    // khởi tạo các nút
     private void initializeViews() {
         tvImageSize = findViewById(R.id.tvImageSize);
         tvVideoSize = findViewById(R.id.tvVideoSize);
@@ -98,38 +99,43 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         loadingIndicator = findViewById(R.id.loadingIndicator);
     }
 
+    // tạo toolbar
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Quản lý lưu trữ");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    // tạo recycler view
     private void setupRecyclerView() {
         recyclerViewMedia.setLayoutManager(new LinearLayoutManager(this));
         mediaAdapter = new MediaAdapter(new ArrayList<>(), this);
         recyclerViewMedia.setAdapter(mediaAdapter);
     }
 
+    // xử lý sự kiện khi tab được chọn - ảnh, video, ....
     private void setupTabLayout() {
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (mediaAdapter.isInMultiSelectMode()) {
-                    exitSelectionMode();
-                }
-                loadMediaForCurrentTab();
-            }
+        tabLayout.addOnTabSelectedListener(
+                new TabLayout.OnTabSelectedListener() {
+                    @Override
+                    public void onTabSelected(TabLayout.Tab tab) {
+                        if (mediaAdapter.isInMultiSelectMode()) {
+                            exitSelectionMode();
+                        }
+                        loadMediaForCurrentTab();
+                    }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
+                    @Override
+                    public void onTabUnselected(TabLayout.Tab tab) {
+                    }
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
-        });
+                    @Override
+                    public void onTabReselected(TabLayout.Tab tab) {
+                    }
+                });
     }
 
+    // xử sự kiện element footer
     private void setupButtons() {
         btnClearAll.setOnClickListener(v -> {
             showClearConfirmDialog(false);
@@ -149,6 +155,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         });
     }
 
+    // Cập nhập ui cho chế độ chọn xoá nhiều phần tử
     private void updateUIForSelectionMode(boolean isSelectionMode) {
         if (isSelectionMode) {
             fabDelete.setImageResource(R.drawable.ic_delete);
@@ -167,11 +174,13 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         }
     }
 
+    // xử lí chế độ xoá nhiều phần tử - chọn một, nhiều phần tử xoá
     private void exitSelectionMode() {
         mediaAdapter.toggleSelectionMode();
         updateUIForSelectionMode(false);
     }
 
+    // Hiển thị dialog xác nhận xóa
     private void showClearConfirmDialog(boolean oldOnly) {
         String message = oldOnly ?
                 "Bạn có chắc chắn muốn xóa tất cả file cũ hơn 30 ngày không?" :
@@ -187,6 +196,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
                 .show();
     }
 
+    // xử lí xoá
     private void performClearOperation(boolean oldOnly) {
         showLoading(true);
 
@@ -246,6 +256,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         });
     }
 
+    // diglog - xoá nhiều phần tử chọn
     private void deleteSelectedItems() {
         List<Media> selectedItems = mediaAdapter.getSelectedItems();
         List<Integer> selectedPositions = mediaAdapter.getSelectedPositions();
@@ -265,6 +276,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
                 .show();
     }
 
+    // thực hiện xoá nhiều phần tử chọn
     private void performDeleteSelectedItems(List<Media> selectedItems, List<Integer> positions) {
         showLoading(true);
 
@@ -296,6 +308,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         });
     }
 
+    // lấy kích thước lưu trữ
     private void loadStorageStatistics() {
         showLoading(true);
 
@@ -332,6 +345,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         });
     }
 
+    // lấy dữ liệu truyền vào adapter - ảnh, video, ....
     private void loadMediaForCurrentTab() {
         showLoading(true);
 
@@ -390,6 +404,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         }
     }
 
+    // xử lí sự kiện click vào item trong recycler view
     @Override
     public void onMediaItemClick(Media media, int position) {
         if (mediaAdapter.isInMultiSelectMode()) {
@@ -401,6 +416,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         }
     }
 
+    //
     @Override
     public void onDeleteClick(Media media, int position) {
         new AlertDialog.Builder(this)
@@ -418,6 +434,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         toolbar.setTitle("Đã chọn " + count + " mục");
     }
 
+    // thực hiện xoá 1 file đơn
     private void deleteSingleFile(Media media, int position) {
         showLoading(true);
 
@@ -462,6 +479,7 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         return true;
     }
 
+    // xử lí chọn nhiều, một, huỷ
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
