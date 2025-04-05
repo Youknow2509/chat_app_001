@@ -336,6 +336,123 @@ func (q *Queries) GetChatListForUser(ctx context.Context, arg GetChatListForUser
 	return items, nil
 }
 
+const getChatListGroupForUser = `-- name: GetChatListGroupForUser :many
+SELECT
+    c.id AS chat_id,
+    c.group_name AS chat_name,
+    c.group_avatar AS chat_avatar,
+    c.updated_at AS chat_updated_at,
+    c.type AS chat_type
+FROM chats c
+JOIN chat_members cm 
+    ON c.id = cm.chat_id
+WHERE cm.user_id = ? AND c.type = 'group'
+ORDER BY c.updated_at DESC
+LIMIT ? OFFSET ?
+`
+
+type GetChatListGroupForUserParams struct {
+	UserID string
+	Limit  int32
+	Offset int32
+}
+
+type GetChatListGroupForUserRow struct {
+	ChatID        string
+	ChatName      sql.NullString
+	ChatAvatar    sql.NullString
+	ChatUpdatedAt sql.NullTime
+	ChatType      string
+}
+
+func (q *Queries) GetChatListGroupForUser(ctx context.Context, arg GetChatListGroupForUserParams) ([]GetChatListGroupForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getChatListGroupForUser, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetChatListGroupForUserRow
+	for rows.Next() {
+		var i GetChatListGroupForUserRow
+		if err := rows.Scan(
+			&i.ChatID,
+			&i.ChatName,
+			&i.ChatAvatar,
+			&i.ChatUpdatedAt,
+			&i.ChatType,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getChatListPrivateForUser = `-- name: GetChatListPrivateForUser :many
+SELECT 
+    c.id AS id_chat,
+    u.user_avatar AS partner_avatar,
+    u.user_nickname AS partner_name
+FROM 
+    chats c
+    INNER JOIN chat_members cm ON c.id = cm.chat_id 
+    INNER JOIN chat_members other_cm ON c.id = other_cm.chat_id AND other_cm.user_id != ?
+    INNER JOIN user_info u ON other_cm.user_id = u.user_id
+WHERE 
+    c.type = 'private'
+    AND cm.user_id = ?
+ORDER BY 
+    c.updated_at DESC
+LIMIT ?, ?
+`
+
+type GetChatListPrivateForUserParams struct {
+	UserID   string
+	UserID_2 string
+	Offset   int32
+	Limit    int32
+}
+
+type GetChatListPrivateForUserRow struct {
+	IDChat        string
+	PartnerAvatar sql.NullString
+	PartnerName   sql.NullString
+}
+
+func (q *Queries) GetChatListPrivateForUser(ctx context.Context, arg GetChatListPrivateForUserParams) ([]GetChatListPrivateForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getChatListPrivateForUser,
+		arg.UserID,
+		arg.UserID_2,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetChatListPrivateForUserRow
+	for rows.Next() {
+		var i GetChatListPrivateForUserRow
+		if err := rows.Scan(&i.IDChat, &i.PartnerAvatar, &i.PartnerName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGroupInfo = `-- name: GetGroupInfo :one
 SELECT 
     c.id AS groupId,

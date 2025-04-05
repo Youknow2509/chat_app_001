@@ -13,6 +13,8 @@ type (
 		CreateChatPrivate(ctx context.Context, in *model.CreateChatPrivateInput) (codeResult int, out *model.OutputCreateChatGroup, err error)
 		GetChatInfo(ctx context.Context, in *model.InputGetChatInfor) (out *model.ChatInfoOutput, err error)
 		GetListChatForUser(ctx context.Context, in *model.InputGetChatForUser) (out []*model.OutGetListChatForUser, codeResult int, err error)
+		UserGetListChatPrivateForUser(ctx context.Context, in *model.InputGetChatForUser) (out []*model.UserChatItemOutput, codeResult int, err error)
+		UserGetListChatGroupForUser(ctx context.Context, in *model.InputGetChatForUser) (out []*model.UserChatItemOutput, codeResult int, err error)
 		GetUserInChat(ctx context.Context, in *model.InputGetUserInChat) (out *model.GetUserInChatOutput, err error)
 		AddMemberToChat(ctx context.Context, in *model.AddMemberToChatInput) (codeResult int, out *model.AddMemberToChatOutput, err error)
 	}

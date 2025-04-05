@@ -27,6 +27,150 @@ type sChatBase struct {
 	r *database.Queries
 }
 
+// UserGetListChatGroupForUser implements service.IChatService.
+func (s *sChatBase) UserGetListChatGroupForUser(ctx context.Context, in *model.InputGetChatForUser) (out []*model.UserChatItemOutput, codeResult int, err error) {
+	// 1. check user is exist
+	userInfo, err := s.r.GetUserWithID(ctx, in.UserID)
+	if err != nil {
+		fmt.Printf("Err get user info %s", in.UserID)
+		global.Logger.Error("Err get user info", zap.Error(err))
+		return nil, response.ErrCodeUserNotFound, err
+	}
+	if userInfo.UserID == "" {
+		global.Logger.Error("User is not exist")
+		return nil, response.ErrCodeUserNotFound, nil
+	}
+	keyCache := fmt.Sprintf("listchat::user%s::group::l%s::p%s", in.UserID, strconv.Itoa(in.Limit), strconv.Itoa(in.Page))
+	// 2. check datastore in cache
+	dataR, err := global.Rdb.Get(ctx, keyCache).Result()
+	// Check handle get otp in redis - TODO handle utils...
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return nil, response.ErrInvalidOTP, err
+	}
+	if dataR != "" {
+		err = json.Unmarshal([]byte(dataR), &out)
+		if err != nil {
+			fmt.Printf("Err unmarshal data %s", dataR)
+			global.Logger.Error("Err unmarshal data", zap.Error(err))
+			return nil, response.ErrCodeUnmarshalData, err
+		}
+
+		return out, response.ErrCodeSuccess, nil
+	} else {
+		// 3. if dont have, get list chat for user
+		dataD, err := s.r.GetChatListGroupForUser(ctx, database.GetChatListGroupForUserParams{
+			UserID:   in.UserID,
+			Limit:    int32(in.Limit),
+			Offset:   int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+		})
+		if err != nil {
+			fmt.Printf("Err get list chat for user %s", in.UserID)
+			global.Logger.Error("Err get list chat for user", zap.Error(err))
+			return nil, response.ErrCodeGetListChatForUser, err
+		}
+		// 4. set list chat to output
+		for _, v := range dataD {
+			out = append(out, &model.UserChatItemOutput{
+				ChatID:   v.ChatID,
+				ChatName: v.ChatName.String,
+				Avatar:   v.ChatAvatar.String,
+			})
+		}
+		// 5. set data to cache
+		go func() {
+			cacheData, err := json.Marshal(out)
+			if err != nil {
+				fmt.Printf("Err marshal data %s", cacheData)
+				return
+			}
+			err = global.Rdb.Set(ctx, keyCache, cacheData, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
+			if err != nil {
+				fmt.Println("set failed:: ", err)
+			}
+		}()
+	}
+
+	return out, response.ErrCodeSuccess, nil
+}
+
+// UserGetListChatPrivateForUser implements service.IChatService.
+func (s *sChatBase) UserGetListChatPrivateForUser(
+	ctx context.Context,
+	in *model.InputGetChatForUser,
+) (out []*model.UserChatItemOutput, codeResult int, err error) {
+	// 1. check user is exist
+	userInfo, err := s.r.GetUserWithID(ctx, in.UserID)
+	if err != nil {
+		fmt.Printf("Err get user info %s", in.UserID)
+		global.Logger.Error("Err get user info", zap.Error(err))
+		return nil, response.ErrCodeUserNotFound, err
+	}
+	if userInfo.UserID == "" {
+		global.Logger.Error("User is not exist")
+		return nil, response.ErrCodeUserNotFound, nil
+	}
+	keyCache := fmt.Sprintf("listchat::user%s::private::l%s::p%s", in.UserID, strconv.Itoa(in.Limit), strconv.Itoa(in.Page))
+	// 2. check datastore in cache
+	dataR, err := global.Rdb.Get(ctx, keyCache).Result()
+	// Check handle get otp in redis - TODO handle utils...
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return nil, response.ErrInvalidOTP, err
+	}
+	if dataR != "" {
+		err = json.Unmarshal([]byte(dataR), &out)
+		if err != nil {
+			fmt.Printf("Err unmarshal data %s", dataR)
+			global.Logger.Error("Err unmarshal data", zap.Error(err))
+			return nil, response.ErrCodeUnmarshalData, err
+		}
+
+		return out, response.ErrCodeSuccess, nil
+	} else {
+		// 3. if dont have, get list chat for user
+		dataD, err := s.r.GetChatListPrivateForUser(ctx, database.GetChatListPrivateForUserParams{
+			UserID:   in.UserID,
+			UserID_2: in.UserID,
+			Limit:    int32(in.Limit),
+			Offset:   int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+		})
+		if err != nil {
+			fmt.Printf("Err get list chat for user %s", in.UserID)
+			global.Logger.Error("Err get list chat for user", zap.Error(err))
+			return nil, response.ErrCodeGetListChatForUser, err
+		}
+		// 4. set list chat to output
+		for _, v := range dataD {
+			out = append(out, &model.UserChatItemOutput{
+				ChatID:   v.IDChat,
+				ChatName: v.PartnerName.String,
+				Avatar:   v.PartnerAvatar.String,
+			})
+		}
+		// 5. set data to cache
+		go func() {
+			cacheData, err := json.Marshal(out)
+			if err != nil {
+				fmt.Printf("Err marshal data %s", cacheData)
+				return
+			}
+			err = global.Rdb.Set(ctx, keyCache, cacheData, time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE)*time.Minute).Err()
+			if err != nil {
+				fmt.Println("set failed:: ", err)
+			}
+		}()
+	}
+
+	return out, response.ErrCodeSuccess, nil
+}
+
 // GetChatInfo implements service.IChatService.
 func (s *sChatBase) GetChatInfo(ctx context.Context, in *model.InputGetChatInfor) (out *model.ChatInfoOutput, err error) {
 	// 1. Check chat info exists
@@ -197,8 +341,8 @@ func (s *sChatBase) GetUserInChat(ctx context.Context, in *model.InputGetUserInC
 	})
 	if err != nil {
 		fmt.Printf("Err check user in chat %s %s", in.ChatID, in.UserId)
-        global.Logger.Error("Err check user in chat", zap.Error(err))
-        return nil, err
+		global.Logger.Error("Err check user in chat", zap.Error(err))
+		return nil, err
 	}
 	if cUserInChat < 1 {
 		global.Logger.Error("User is not in chat")
@@ -383,14 +527,14 @@ func (s *sChatBase) CreateChatGroup(ctx context.Context, in *model.CreateChatGro
 	// 5. remove cache data list chat group user
 	for _, v := range in.ListId {
 		go func() {
-			keyCache := fmt.Sprintf("listchat::user%s", v)
+			keyCache := fmt.Sprintf("listchat::user%s::group::l", v)
 			err = utils.DeleteCacheWithKeyPrefix(keyCache)
 			if err != nil {
 				fmt.Printf("Err delete cache %s", keyCache)
 			}
 		}()
 	}
-	keyCacheAdmin := fmt.Sprintf("listchat::user%s", in.UserIDCreate)
+	keyCacheAdmin := fmt.Sprintf("listchat::user%s::group::l", in.UserIDCreate)
 	go func() {
 		err = utils.DeleteCacheWithKeyPrefix(keyCacheAdmin)
 		if err != nil {
@@ -400,7 +544,7 @@ func (s *sChatBase) CreateChatGroup(ctx context.Context, in *model.CreateChatGro
 	// 6. set data to output
 	out = &model.OutputCreateChatGroup{
 		ChatId: uuidGroupChat,
-		Avatar: "",
+		Avatar: "https://res.cloudinary.com/dan8zea37/image/upload/v1743794494/group-chat_j5nxgg.png",
 		Name:   in.GroupName,
 	}
 	fmt.Printf("Create chat group %s from %s success", uuidGroupChat, in.UserIDCreate)
@@ -474,14 +618,14 @@ func (s *sChatBase) CreateChatPrivate(ctx context.Context, in *model.CreateChatP
 	}()
 	// 5. remove cache data list chat group user
 	go func() {
-		keyCache1 := fmt.Sprintf("listchat::user%s", in.User1)
+		keyCache1 := fmt.Sprintf("listchat::user%s::private::l", in.User1)
 		err = utils.DeleteCacheWithKeyPrefix(keyCache1)
 		if err != nil {
 			fmt.Printf("Err delete cache %s", keyCache1)
 		}
 	}()
 	go func() {
-		keyCache2 := fmt.Sprintf("listchat::user%s", in.User2)
+		keyCache2 := fmt.Sprintf("listchat::user%s::private::l", in.User2)
 		err = utils.DeleteCacheWithKeyPrefix(keyCache2)
 		if err != nil {
 			fmt.Printf("Err delete cache %s", keyCache2)

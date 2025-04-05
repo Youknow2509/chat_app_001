@@ -96,6 +96,37 @@ WHERE cm.user_id = ?
 ORDER BY c.updated_at DESC
 LIMIT ? OFFSET ?;
 
+-- name: GetChatListPrivateForUser :many
+SELECT 
+    c.id AS id_chat,
+    u.user_avatar AS partner_avatar,
+    u.user_nickname AS partner_name
+FROM 
+    chats c
+    INNER JOIN chat_members cm ON c.id = cm.chat_id 
+    INNER JOIN chat_members other_cm ON c.id = other_cm.chat_id AND other_cm.user_id != ?
+    INNER JOIN user_info u ON other_cm.user_id = u.user_id
+WHERE 
+    c.type = 'private'
+    AND cm.user_id = ?
+ORDER BY 
+    c.updated_at DESC
+LIMIT ?, ?;
+
+-- name: GetChatListGroupForUser :many
+SELECT
+    c.id AS chat_id,
+    c.group_name AS chat_name,
+    c.group_avatar AS chat_avatar,
+    c.updated_at AS chat_updated_at,
+    c.type AS chat_type
+FROM chats c
+JOIN chat_members cm 
+    ON c.id = cm.chat_id
+WHERE cm.user_id = ? AND c.type = 'group'
+ORDER BY c.updated_at DESC
+LIMIT ? OFFSET ?;
+
 -- name: GetAllUsersInChat :many
 SELECT 
     ui.user_id,

@@ -1,5 +1,12 @@
 package model
 
+// UserGetListChatPrivateForUser out
+type UserChatItemOutput struct {
+	ChatID   string `json:"chat_id"`
+	ChatName string `json:"chat_name"`
+	Avatar   string `json:"avatar"`
+}
+
 // create chat group input
 type CreateChatGroupInput struct {
 	UserIDCreate string   `json:"user_id_create"`
