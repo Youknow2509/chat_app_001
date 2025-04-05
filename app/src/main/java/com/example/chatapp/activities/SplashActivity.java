@@ -199,7 +199,7 @@ public class SplashActivity extends AppCompatActivity {
     public void onLowMemory() {
         super.onLowMemory();
 
-        // Dọn dẹp cache khi thiết bị sắp hết bộ nhớ
+        // Dọn dẹp StoreUtils khi thiết bị sắp hết bộ nhớ
         if (dataPurgeManager != null) {
             dataPurgeManager.cleanupCache();
         }

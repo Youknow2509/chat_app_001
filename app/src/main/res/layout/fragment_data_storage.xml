@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <!-- View toolbar background -->
+    <View
+        android:background="@drawable/bg_toolbar_gradient_bulelight"
+        android:id="@+id/toolbarBackground"
+        android:layout_height="100dp"
+        android:layout_width="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- LinearLayout that holds content -->
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="120dp">
+
+        <!-- TextViews to show storage sizes -->
+        <TextView
+            android:id="@+id/textViewSQLiteSize"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="SQLite Size: 0 MB"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewImagesSize"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Images Size: 0 MB"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewVideosSize"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Videos Size: 0 MB"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewRecordsSize"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Records Size: 0 MB"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewTotalMediaSize"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Total Media Size: 0 MB"
+            android:textSize="16sp" />
+
+        <!-- Buttons to clear data -->
+        <Button
+            android:id="@+id/buttonClearSQLite"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Clear SQLite" />
+
+        <Button
+            android:id="@+id/buttonClearImages"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Clear Images" />
+
+        <Button
+            android:id="@+id/buttonClearVideos"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Clear Videos" />
+
+        <Button
+            android:id="@+id/buttonClearRecords"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Clear Records" />
+
+        <Button
+            android:id="@+id/buttonClearAllMedia"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Clear All Media" />
+
+    </LinearLayout>
+
+    <!-- Progress Overlay -->
+    <FrameLayout
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@+id/progress_overlay"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:indeterminateTint="#24786D"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
+        <TextView
+            android:id="@+id/progress_text"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:layout_width="wrap_content"
+            android:text="Đang xử lý..."
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

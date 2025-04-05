@@ -5,14 +5,11 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.example.chatapp.database.AppDatabase;
 import com.example.chatapp.models.sqlite.MediaFile;
-import com.example.chatapp.utils.CloudinaryManager;
-import com.example.chatapp.utils.MediaCacheManager;
+import com.example.chatapp.utils.file.MediaCacheManager;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -53,10 +50,10 @@ public class MediaRepository {
      */
     public void uploadMedia(Uri localUri, final String messageId, final String fileType,
                             final MediaUploadCallback callback) {
-        // First, save to local cache
+        // First, save to local StoreUtils
         final String localPath = cacheManager.saveToCache(localUri, fileType);
         if (localPath == null) {
-            callback.onError("Failed to cache the file locally");
+            callback.onError("Failed to StoreUtils the file locally");
             return;
         }
 

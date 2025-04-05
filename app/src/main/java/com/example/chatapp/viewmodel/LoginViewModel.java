@@ -8,16 +8,13 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
-import com.example.chatapp.utils.MediaUtils;
+import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.Utils;
-
-import java.io.File;
 
 import retrofit2.Call;
 import retrofit2.Callback;

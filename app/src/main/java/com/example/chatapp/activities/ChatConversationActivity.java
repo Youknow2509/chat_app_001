@@ -4,13 +4,10 @@ import static android.content.ContentValues.TAG;
 
 import static com.example.chatapp.consts.Constants.*;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,11 +22,9 @@ import com.example.chatapp.databinding.ActivityChatV2Binding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
 import com.example.chatapp.dto.MessageDTO;
 import com.example.chatapp.models.ChatMessage;
-import com.example.chatapp.models.Group;
 import com.example.chatapp.models.User;
 import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.observers.MessageObservable;
-import com.example.chatapp.utils.MediaUtils;
 import com.example.chatapp.utils.PreferenceManager;
 import com.example.chatapp.utils.StompClientManager;
 import com.example.chatapp.utils.session.SessionManager;

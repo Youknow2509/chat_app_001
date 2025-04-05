@@ -121,7 +121,7 @@ public class Utils {
     static {
         msg.put(ErrCodeForgotPasswordFail, "Forgot password fail");
         msg.put(ErrCodeRefreshTokenFail, "RefreshTokenFail");
-        msg.put(ErrCodeGetCache, "get cache failed");
+        msg.put(ErrCodeGetCache, "get StoreUtils failed");
         msg.put(ErrCodeUpdatePassword, "update password failed");
         msg.put(ErrCodePasswordIncorrect, "password incorrect");
         msg.put(ErrCodeGetPasswordSalt, "get password salt failed");
@@ -145,7 +145,7 @@ public class Utils {
         msg.put(ErrCodeChatPrivateExists, "chat private exists");
         msg.put(ErrCodeUnauthorized, "unauthorized");
         msg.put(ErrCodeUnmarshalData, "unmarshal data failed");
-        msg.put(ErrCodeDeleteCache, "delete cache failed");
+        msg.put(ErrCodeDeleteCache, "delete StoreUtils failed");
         msg.put(ErrCodeGetListChatForUser, "get list chat for user failed");
         msg.put(ErrCodeGetUserInChat, "get user in chat failed");
         msg.put(ErrCodeGetListChat, "get list chat failed");

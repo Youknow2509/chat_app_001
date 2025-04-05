@@ -92,8 +92,8 @@
                 android:inputType="text"
                 android:visibility="gone" />
         </FrameLayout>
-    </androidx.appcompat.widget.Toolbar>
 
+    </androidx.appcompat.widget.Toolbar>
     <!-- Line under EditText -->
     <ImageView
         android:id="@+id/avatarImage"

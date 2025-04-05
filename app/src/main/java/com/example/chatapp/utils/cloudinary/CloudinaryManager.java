@@ -17,6 +17,7 @@ import com.example.chatapp.api.RetrofitClient;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.Utils;
+import com.example.chatapp.utils.session.SessionManager;
 
 import java.io.File;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class CloudinaryManager {
         if (!isInitialized) {
             try {
                 MediaManager.init(context, new SignatureProvider() {
-                    String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDMyNTE4NDcsImp0aSI6IjBhNTI3NDAwLTgyOTYtNDVlZC04Y2M3LWM0OGU3MDg5OTE0MCIsImlhdCI6MTc0MzIyMzA0NywiaXNzIjoiZ28tZWNvbW1lcmNlIiwic3ViIjoiN2Q2MTFkYTktYmE4My00MGQ0LThjZTUtZGY0YzI1YjgwZmRmOmNsaXRva2VuOmY4NjFjMTYxYWY3YjQ5MzQ4YzlhOTVkNzMyZGM5ZGZiIiwidXNlcl9pZCI6IjdkNjExZGE5LWJhODMtNDBkNC04Y2U1LWRmNGMyNWI4MGZkZiJ9.vXaAcBVtsG9t3C1YBwwWpE7sSg4DqfrpHExS3A_yEMU";
+                    String token = SessionManager.getInstance().getAccessToken();
 
                     @Override
                     public Signature provideSignature(Map options) {

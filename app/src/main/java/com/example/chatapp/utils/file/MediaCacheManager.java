@@ -1,10 +1,9 @@
-package com.example.chatapp.utils;
+package com.example.chatapp.utils.file;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -12,7 +11,6 @@ import android.webkit.MimeTypeMap;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.chatapp.models.sqlite.MediaFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,7 +36,7 @@ public class MediaCacheManager {
         this.appContext = context.getApplicationContext();
         this.executor = Executors.newFixedThreadPool(4);
 
-        // Initialize cache directory
+        // Initialize StoreUtils directory
         initCacheDir();
     }
 
@@ -57,7 +55,7 @@ public class MediaCacheManager {
     }
 
     /**
-     * Download media from URL and save to local cache
+     * Download media from URL and save to local StoreUtils
      * @param url URL to download from
      * @param fileType Type of media
      * @param callback Callback to notify download status
@@ -122,7 +120,7 @@ public class MediaCacheManager {
                     // Success
                     callback.onComplete(outputFile.getAbsolutePath(), thumbnailPath);
 
-                    // Check if we need to clean up cache
+                    // Check if we need to clean up StoreUtils
                     checkCacheSize();
 
                 } catch (Exception e) {
@@ -145,7 +143,7 @@ public class MediaCacheManager {
     }
 
     /**
-     * Save a media file that was just captured/selected to the cache
+     * Save a media file that was just captured/selected to the StoreUtils
      * @param sourceUri URI of the media file
      * @param fileType Type of media
      * @return Path to the cached file
@@ -184,7 +182,7 @@ public class MediaCacheManager {
 
             return destFile.getAbsolutePath();
         } catch (Exception e) {
-            Log.e(TAG, "Failed to save to cache: " + e.getMessage());
+            Log.e(TAG, "Failed to save to StoreUtils: " + e.getMessage());
             return null;
         }
     }
@@ -221,7 +219,7 @@ public class MediaCacheManager {
     }
 
     /**
-     * Preload an image into the memory cache
+     * Preload an image into the memory StoreUtils
      * @param context Context
      * @param url URL of the image
      */
@@ -237,7 +235,7 @@ public class MediaCacheManager {
     }
 
     /**
-     * Clear a specific file from cache
+     * Clear a specific file from StoreUtils
      * @param localPath Path to the file
      * @return True if successful
      */
@@ -249,7 +247,7 @@ public class MediaCacheManager {
     }
 
     /**
-     * Clear all files from cache
+     * Clear all files from StoreUtils
      */
     public void clearCache() {
         if (cacheDir != null && cacheDir.exists()) {
@@ -260,7 +258,7 @@ public class MediaCacheManager {
     }
 
     /**
-     * Check if the cache exceeds the max size and clean up if needed
+     * Check if the StoreUtils exceeds the max size and clean up if needed
      */
     private void checkCacheSize() {
         long size = getDirSize(cacheDir);

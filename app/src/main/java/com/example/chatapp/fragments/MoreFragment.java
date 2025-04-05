@@ -13,6 +13,7 @@ import com.example.chatapp.R;
 import com.example.chatapp.activities.AddFriendActivity;
 import com.example.chatapp.activities.ChatGroupConversationActivity;
 import com.example.chatapp.activities.CreateNewGroupActivity;
+import com.example.chatapp.activities.DataStoreFragment;
 import com.example.chatapp.activities.LoginActivity;
 import com.example.chatapp.activities.SearchingActivity;
 import com.example.chatapp.adapters.GroupListAdapter;
@@ -115,6 +116,12 @@ public class MoreFragment extends Fragment {
             // redirect to OnboardingActivity
             startActivity(new Intent(this.getContext(), LoginActivity.class));
             this.getActivity().finish();
+        });
+
+        // data and storage
+        binding.dataStorageLayout.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), DataStoreFragment.class);
+            startActivity(intent);
         });
     }
 }

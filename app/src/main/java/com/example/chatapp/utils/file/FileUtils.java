@@ -1,4 +1,4 @@
-package com.example.chatapp.utils;
+package com.example.chatapp.utils.file;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -190,7 +190,7 @@ public class FileUtils {
     }
 
     /**
-     * Create a temporary file in the app's cache directory
+     * Create a temporary file in the app's StoreUtils directory
      *
      * @param context Application context
      * @param extension File extension (e.g., "jpg")

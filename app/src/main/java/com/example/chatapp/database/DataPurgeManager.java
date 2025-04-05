@@ -8,7 +8,7 @@ import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.sqlite.MediaFile;
 import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.utils.DateUtils;
-import com.example.chatapp.utils.FileUtils;
+import com.example.chatapp.utils.file.FileUtils;
 import com.example.chatapp.utils.PreferenceUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -199,7 +199,7 @@ public class DataPurgeManager {
     }
 
     /**
-     * Clean unused cache files
+     * Clean unused StoreUtils files
      */
     public void cleanupCache() {
         File cacheDir = context.getCacheDir();

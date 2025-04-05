@@ -3,5 +3,6 @@
     <files-path name="my_images" path="/" />
     <files-path name="my_videos" path="/" />
     <files-path name="media" path="." />
+    <files-path name="records" path="/" />
     <cache-path name="shared_images" path="/" />
 </paths>

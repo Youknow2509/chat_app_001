@@ -126,7 +126,7 @@ public abstract class AppDatabase extends RoomDatabase {
      * @return The size of the database in bytes
      */
     public static long getDatabaseSize(Context context) {
-        return context.getDatabasePath("chat_database").length();
+        return context.getDatabasePath(Constants.DATABASE_NAME).length();
     }
 
     /**

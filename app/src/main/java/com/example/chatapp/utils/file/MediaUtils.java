@@ -1,4 +1,4 @@
-package com.example.chatapp.utils;
+package com.example.chatapp.utils.file;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
