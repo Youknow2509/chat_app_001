@@ -281,23 +281,54 @@
         app:layout_constraintTop_toBottomOf="@+id/profileInfoContainer"
         app:layout_constraintVertical_bias="1.0" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/signoutButton"
-        android:layout_width="293dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="@dimen/_600sdp"
-        android:background="@drawable/bg_header_ratio"
-        android:drawableStart="@drawable/logout"
-        android:drawablePadding="8dp"
-        android:gravity="center"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="@string/logout"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="609dp" />
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/signoutButton"-->
+<!--        android:layout_width="293dp"-->
+<!--        android:layout_height="48dp"-->
+<!--        android:layout_marginTop="@dimen/_600sdp"-->
+<!--        android:background="@drawable/bg_header_ratio"-->
+<!--        android:drawableStart="@drawable/logout"-->
+<!--        android:drawablePadding="8dp"-->
+<!--        android:gravity="center"-->
+<!--        android:paddingStart="16dp"-->
+<!--        android:paddingEnd="16dp"-->
+<!--        android:text="@string/logout"-->
+<!--        android:textColor="@android:color/white"-->
+<!--        android:textStyle="bold"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        tools:layout_editor_absoluteY="609dp" />-->
 
+    <!-- Progress Overlay -->
+    <FrameLayout
+        android:id="@+id/progress_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="#24786D" />
+
+        <TextView
+            android:id="@+id/progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="48dp"
+            android:text="Đang xử lý..."
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

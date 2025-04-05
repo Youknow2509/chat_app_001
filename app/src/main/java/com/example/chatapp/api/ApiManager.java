@@ -32,6 +32,7 @@ public class ApiManager {
         }
         return token;
     }
+
     // ======== Cloudinary Management ========
     public void getSignatur(String token, Map<String, Object> config, Callback<ResponseData<Object>> callback) {
         String tokenWithPrefix = Utils.formatToken(token);
@@ -41,7 +42,7 @@ public class ApiManager {
     }
 
     // ======== Account Management ========
-    public void upgradeNameAndAvatarRegister(UpgradeNameAndAvatarRegisterInput input, Callback<ResponseData<Object>> callback){
+    public void upgradeNameAndAvatarRegister(UpgradeNameAndAvatarRegisterInput input, Callback<ResponseData<Object>> callback) {
         Call<ResponseData<Object>> call = apiService.upgradeNameAndAvatarRegister(input);
         call.enqueue(callback);
     }
@@ -91,15 +92,12 @@ public class ApiManager {
         call.enqueue(callback);
     }
 
-    public void updateUserInfo(String token, String userId, String nickname, String avatar,
-                               Callback<ResponseData<Object>> callback) {
-        UpdateUserInfoInput input = new UpdateUserInfoInput(userId, nickname, avatar);
+    public void updateUserInfo(String token, UpdateUserInfoInput input, Callback<ResponseData<Object>> callback) {
         Call<ResponseData<Object>> call = apiService.updateUserInfo(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void updatePassword(String token, String userId, String oldPassword, String newPassword,
-                               Callback<ResponseData<Object>> callback) {
+    public void updatePassword(String token, String userId, String oldPassword, String newPassword, Callback<ResponseData<Object>> callback) {
         UserChangePasswordInput input = new UserChangePasswordInput(userId, oldPassword, newPassword);
         Call<ResponseData<Object>> call = apiService.updatePassword(formatToken(token), input);
         call.enqueue(callback);
@@ -112,42 +110,36 @@ public class ApiManager {
 
     // ======== Friend Management ========
 
-    public void createFriendRequest(String token, String userId, String friendEmail,
-                                    Callback<ResponseData<Object>> callback) {
+    public void createFriendRequest(String token, String userId, String friendEmail, Callback<ResponseData<Object>> callback) {
         CreateFriendRequestInput input = new CreateFriendRequestInput(userId, friendEmail);
         Call<ResponseData<Object>> call = apiService.createFriendRequest(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void getListFriendRequest(String token, int limit, int page,
-                                     Callback<ResponseData<Object>> callback) {
+    public void getListFriendRequest(String token, int limit, int page, Callback<ResponseData<Object>> callback) {
         Call<ResponseData<Object>> call = apiService.getListFriendRequest(formatToken(token), limit, page);
         call.enqueue(callback);
     }
 
-    public void acceptFriendRequest(String token, String requestId, String userAcceptId,
-                                    Callback<ResponseData<Object>> callback) {
+    public void acceptFriendRequest(String token, String requestId, String userAcceptId, Callback<ResponseData<Object>> callback) {
         AcceptFriendRequestInput input = new AcceptFriendRequestInput(requestId, userAcceptId);
         Call<ResponseData<Object>> call = apiService.acceptFriendRequest(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void rejectFriendRequest(String token, String requestId, String userAcceptId,
-                                    Callback<ResponseData<Object>> callback) {
+    public void rejectFriendRequest(String token, String requestId, String userAcceptId, Callback<ResponseData<Object>> callback) {
         RejectFriendRequestInput input = new RejectFriendRequestInput(requestId, userAcceptId);
         Call<ResponseData<Object>> call = apiService.rejectFriendRequest(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void endFriendRequest(String token, String requestId, String userId,
-                                 Callback<ResponseData<Object>> callback) {
+    public void endFriendRequest(String token, String requestId, String userId, Callback<ResponseData<Object>> callback) {
         EndFriendRequestInput input = new EndFriendRequestInput(requestId, userId);
         Call<ResponseData<Object>> call = apiService.endFriendRequest(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void deleteFriend(String token, String userId, String friendEmail,
-                             Callback<ResponseData<Object>> callback) {
+    public void deleteFriend(String token, String userId, String friendEmail, Callback<ResponseData<Object>> callback) {
         DeleteFriendInput input = new DeleteFriendInput(userId, friendEmail);
         Call<ResponseData<Object>> call = apiService.deleteFriend(formatToken(token), input);
         call.enqueue(callback);
@@ -155,15 +147,13 @@ public class ApiManager {
 
     // ======== Chat Management ========
 
-    public void createChatPrivate(String token, String user1, String user2,
-                                  Callback<ResponseData<Object>> callback) {
+    public void createChatPrivate(String token, String user1, String user2, Callback<ResponseData<Object>> callback) {
         CreateChatPrivateInput input = new CreateChatPrivateInput(user1, user2);
         Call<ResponseData<Object>> call = apiService.createChatPrivate(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void createChatGroup(String token, String userId, String groupName, List<String> members,
-                                Callback<ResponseData<Object>> callback) {
+    public void createChatGroup(String token, String userId, String groupName, List<String> members, Callback<ResponseData<Object>> callback) {
         CreateChatGroupInput input = new CreateChatGroupInput(userId, groupName, members);
         Call<ResponseData<Object>> call = apiService.createChatGroup(formatToken(token), input);
         call.enqueue(callback);
@@ -174,50 +164,42 @@ public class ApiManager {
         call.enqueue(callback);
     }
 
-    public void upgradeChatInfo(String token, String adminId, String chatId,
-                                String newName, String newAvatar,
-                                Callback<ResponseData<Object>> callback) {
+    public void upgradeChatInfo(String token, String adminId, String chatId, String newName, String newAvatar, Callback<ResponseData<Object>> callback) {
         UpgradeChatInfoInput input = new UpgradeChatInfoInput(adminId, chatId, newName, newAvatar);
         Call<ResponseData<Object>> call = apiService.upgradeChatInfo(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void addMemberToChat(String token, String adminId, String chatId,
-                                String userAddId, Callback<ResponseData<Object>> callback) {
+    public void addMemberToChat(String token, String adminId, String chatId, String userAddId, Callback<ResponseData<Object>> callback) {
         AddMemberToChatInput input = new AddMemberToChatInput(adminId, chatId, userAddId);
         Call<ResponseData<Object>> call = apiService.addMemberToChat(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void deleteMemberFromChat(String token, String adminId, String chatId,
-                                     String userDelId, Callback<ResponseData<Object>> callback) {
+    public void deleteMemberFromChat(String token, String adminId, String chatId, String userDelId, Callback<ResponseData<Object>> callback) {
         DelMenForChatInput input = new DelMenForChatInput(adminId, chatId, userDelId);
         Call<ResponseData<Object>> call = apiService.deleteMemberFromChat(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void changeAdminGroupChat(String token, String oldAdminId, String chatId,
-                                     String newAdminId, Callback<ResponseData<Object>> callback) {
+    public void changeAdminGroupChat(String token, String oldAdminId, String chatId, String newAdminId, Callback<ResponseData<Object>> callback) {
         ChangeAdminGroupChatInput input = new ChangeAdminGroupChatInput(oldAdminId, chatId, newAdminId);
         Call<ResponseData<Object>> call = apiService.changeAdminGroupChat(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void deleteChat(String token, String adminId, String chatId,
-                           Callback<ResponseData<Object>> callback) {
+    public void deleteChat(String token, String adminId, String chatId, Callback<ResponseData<Object>> callback) {
         DelChatInput input = new DelChatInput(adminId, chatId);
         Call<ResponseData<Object>> call = apiService.deleteChat(formatToken(token), input);
         call.enqueue(callback);
     }
 
-    public void getListChatForUser(String token, int limit, int page,
-                                   Callback<ResponseData<Object>> callback) {
+    public void getListChatForUser(String token, int limit, int page, Callback<ResponseData<Object>> callback) {
         Call<ResponseData<Object>> call = apiService.getListChatForUser(formatToken(token), limit, page);
         call.enqueue(callback);
     }
 
-    public void getUserInChat(String token, String chatId, int limit, int page,
-                              Callback<ResponseData<Object>> callback) {
+    public void getUserInChat(String token, String chatId, int limit, int page, Callback<ResponseData<Object>> callback) {
         Call<ResponseData<Object>> call = apiService.getUserInChat(formatToken(token), chatId, limit, page);
         call.enqueue(callback);
     }
@@ -244,10 +226,8 @@ public class ApiManager {
 
     // ======== Microservice ========
 
-    public void getMicroserviceUserInChat(String token, String chatId, int limit, int page,
-                                          Callback<ResponseData<Object>> callback) {
-        Call<ResponseData<Object>> call = apiService.getMicroserviceUserInChat(
-                formatToken(token), chatId, limit, page);
+    public void getMicroserviceUserInChat(String token, String chatId, int limit, int page, Callback<ResponseData<Object>> callback) {
+        Call<ResponseData<Object>> call = apiService.getMicroserviceUserInChat(formatToken(token), chatId, limit, page);
         call.enqueue(callback);
     }
 

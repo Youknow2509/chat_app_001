@@ -89,6 +89,11 @@ public class LoginViewModel extends AndroidViewModel {
         apiManager.login(email, password, new Callback<ResponseData<Object>>() {
             @Override
             public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                if (response.body() == null) {
+                    Log.e(TAG, "Login failed: Response body is null");
+                    errorMessageLiveData.setValue("Login failed: Response body is null");
+                    return;
+                }
                 if (response.body().getCode() == Constants.CODE_SUCCESS) {
                     String accessToken = Utils.getDataBody(response.body(), "token");
                     String refreshToken = Utils.getDataBody(response.body(), "refresh_token");
@@ -114,6 +119,11 @@ public class LoginViewModel extends AndroidViewModel {
         apiManager.getUserInfo(token, new Callback<ResponseData<Object>>() {
             @Override
             public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                if (response.body() == null) {
+                    Log.e(TAG, "Error getting user info: Response body is null");
+                    errorMessageLiveData.setValue("Error getting user info: Response body is null");
+                    return;
+                }
                 if (response.body().getCode() == Constants.CODE_SUCCESS) {
                     UserProfileSession user = new UserProfileSession();
                     // Set user profile data
@@ -148,6 +158,11 @@ public class LoginViewModel extends AndroidViewModel {
         apiManager.forgotPassword(email, new Callback<ResponseData<Object>>() {
             @Override
             public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                if (response.body() == null) {
+                    Log.e(TAG, "Forgot password failed: Response body is null");
+                    errorMessageLiveData.setValue("Forgot password failed: Response body is null");
+                    return;
+                }
                 if (response.body().getCode() == Constants.CODE_SUCCESS) {
                     Log.d(TAG, "Forgot password success: " + response.body().getMessage());
                     resMessageForgotPassword.setValue("Password reset request sent to your email!");
