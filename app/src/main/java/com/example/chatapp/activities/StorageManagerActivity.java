@@ -4,12 +4,17 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,12 +22,17 @@ import com.example.chatapp.R;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.Media;
 import com.example.chatapp.adapters.MediaAdapter;
+import com.example.chatapp.dialogs.MediaPreviewDialog;
 import com.example.chatapp.utils.store.IStoreData;
 import com.example.chatapp.utils.store.StoreDataManager;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,6 +43,10 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
     private ProgressBar progressTotal;
     private TabLayout tabLayout;
     private Button btnClearAll, btnClearOld;
+    private FloatingActionButton fabDelete;
+    private Toolbar toolbar;
+    private TextView tvNoMedia;
+    private ProgressBar loadingIndicator;
 
     private IStoreData storeDataManager;
     private MediaAdapter mediaAdapter;
@@ -44,12 +58,16 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
     private static final int TAB_THUMBNAILS = 2;
     private static final int TAB_RECORDS = 3;
 
+    private MenuItem selectAllMenuItem;
+    private MenuItem selectNoneMenuItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_data_storage);
+        setContentView(R.layout.activity_data_storage);
 
         initializeViews();
+        setupToolbar();
         setupRecyclerView();
         setupTabLayout();
         setupButtons();
@@ -74,6 +92,16 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         recyclerViewMedia = findViewById(R.id.recyclerViewMedia);
         btnClearAll = findViewById(R.id.btnClearAll);
         btnClearOld = findViewById(R.id.btnClearOld);
+        fabDelete = findViewById(R.id.fabDelete);
+        toolbar = findViewById(R.id.toolbar);
+        tvNoMedia = findViewById(R.id.tvNoMedia);
+        loadingIndicator = findViewById(R.id.loadingIndicator);
+    }
+
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Quản lý lưu trữ");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void setupRecyclerView() {
@@ -86,6 +114,9 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                if (mediaAdapter.isInMultiSelectMode()) {
+                    exitSelectionMode();
+                }
                 loadMediaForCurrentTab();
             }
 
@@ -107,6 +138,38 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         btnClearOld.setOnClickListener(v -> {
             showClearConfirmDialog(true);
         });
+
+        fabDelete.setOnClickListener(v -> {
+            if (mediaAdapter.isInMultiSelectMode()) {
+                deleteSelectedItems();
+            } else {
+                mediaAdapter.toggleSelectionMode();
+                updateUIForSelectionMode(true);
+            }
+        });
+    }
+
+    private void updateUIForSelectionMode(boolean isSelectionMode) {
+        if (isSelectionMode) {
+            fabDelete.setImageResource(R.drawable.ic_delete);
+            btnClearAll.setVisibility(View.GONE);
+            btnClearOld.setVisibility(View.GONE);
+            toolbar.setTitle("Đã chọn 0 mục");
+            if (selectAllMenuItem != null) selectAllMenuItem.setVisible(true);
+            if (selectNoneMenuItem != null) selectNoneMenuItem.setVisible(true);
+        } else {
+            fabDelete.setImageResource(R.drawable.ic_select);
+            btnClearAll.setVisibility(View.VISIBLE);
+            btnClearOld.setVisibility(View.VISIBLE);
+            toolbar.setTitle("Quản lý lưu trữ");
+            if (selectAllMenuItem != null) selectAllMenuItem.setVisible(false);
+            if (selectNoneMenuItem != null) selectNoneMenuItem.setVisible(false);
+        }
+    }
+
+    private void exitSelectionMode() {
+        mediaAdapter.toggleSelectionMode();
+        updateUIForSelectionMode(false);
     }
 
     private void showClearConfirmDialog(boolean oldOnly) {
@@ -183,6 +246,56 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         });
     }
 
+    private void deleteSelectedItems() {
+        List<Media> selectedItems = mediaAdapter.getSelectedItems();
+        List<Integer> selectedPositions = mediaAdapter.getSelectedPositions();
+
+        if (selectedItems.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn ít nhất một mục để xóa", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận xóa")
+                .setMessage("Bạn có chắc chắn muốn xóa " + selectedItems.size() + " mục đã chọn?")
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    performDeleteSelectedItems(selectedItems, selectedPositions);
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void performDeleteSelectedItems(List<Media> selectedItems, List<Integer> positions) {
+        showLoading(true);
+
+        executorService.execute(() -> {
+            boolean allSuccess = true;
+
+            for (Media media : selectedItems) {
+                boolean success = storeDataManager.removeAllFile(this, media.getPathFile());
+                if (!success) {
+                    allSuccess = false;
+                }
+            }
+
+            boolean finalAllSuccess = allSuccess;
+            mainHandler.post(() -> {
+                showLoading(false);
+                Toast.makeText(this, finalAllSuccess ?
+                                "Đã xóa thành công tất cả mục đã chọn" :
+                                "Có lỗi xảy ra khi xóa một số mục",
+                        Toast.LENGTH_SHORT).show();
+
+                // Exit selection mode
+                exitSelectionMode();
+
+                // Refresh data
+                loadStorageStatistics();
+                loadMediaForCurrentTab();
+            });
+        });
+    }
+
     private void loadStorageStatistics() {
         showLoading(true);
 
@@ -244,13 +357,25 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
             List<Media> finalMediaList = mediaList;
             mainHandler.post(() -> {
                 mediaAdapter.updateData(finalMediaList);
+
+                // Show empty state if no media
+                if (finalMediaList.isEmpty()) {
+                    tvNoMedia.setVisibility(View.VISIBLE);
+                } else {
+                    tvNoMedia.setVisibility(View.GONE);
+                }
+
                 showLoading(false);
             });
         });
     }
 
     private void showLoading(boolean isLoading) {
-        // TODO: Show loading indicator if needed
+        if (isLoading) {
+            loadingIndicator.setVisibility(View.VISIBLE);
+        } else {
+            loadingIndicator.setVisibility(View.GONE);
+        }
     }
 
     private String formatSize(long bytes) {
@@ -266,9 +391,14 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
     }
 
     @Override
-    public void onMediaItemClick(Media media) {
-        // Handle item click, perhaps show a preview or details
-        Toast.makeText(this, "Đã chọn: " + media.getNameFile(), Toast.LENGTH_SHORT).show();
+    public void onMediaItemClick(Media media, int position) {
+        if (mediaAdapter.isInMultiSelectMode()) {
+            mediaAdapter.toggleSelection(position);
+        } else {
+            // Show preview dialog
+            MediaPreviewDialog dialog = new MediaPreviewDialog(this, media);
+            dialog.show();
+        }
     }
 
     @Override
@@ -283,11 +413,20 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
                 .show();
     }
 
+    @Override
+    public void onSelectionChanged(int count) {
+        toolbar.setTitle("Đã chọn " + count + " mục");
+    }
+
     private void deleteSingleFile(Media media, int position) {
+        showLoading(true);
+
         executorService.execute(() -> {
             boolean success = storeDataManager.removeAllFile(this, media.getPathFile());
 
             mainHandler.post(() -> {
+                showLoading(false);
+
                 if (success) {
                     // Update adapter
                     List<Media> currentList = new ArrayList<>(mediaAdapter.getItems());
@@ -297,12 +436,68 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
                     // Update storage statistics
                     loadStorageStatistics();
 
+                    // Show empty state if no media left
+                    if (currentList.isEmpty()) {
+                        tvNoMedia.setVisibility(View.VISIBLE);
+                    }
+
                     Toast.makeText(this, "Đã xóa file", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Không thể xóa file", Toast.LENGTH_SHORT).show();
                 }
             });
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_storage_manager, menu);
+        selectAllMenuItem = menu.findItem(R.id.action_select_all);
+        selectNoneMenuItem = menu.findItem(R.id.action_select_none);
+
+        // Initially hide selection menu items
+        selectAllMenuItem.setVisible(false);
+        selectNoneMenuItem.setVisible(false);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            if (mediaAdapter.isInMultiSelectMode()) {
+                exitSelectionMode();
+                return true;
+            }
+            finish();
+            return true;
+        } else if (id == R.id.action_select_all) {
+            // Select all items
+            List<Media> mediaList = mediaAdapter.getItems();
+            for (int i = 0; i < mediaList.size(); i++) {
+                if (!mediaAdapter.getSelectedPositions().contains(i)) {
+                    mediaAdapter.toggleSelection(i);
+                }
+            }
+            return true;
+        } else if (id == R.id.action_select_none) {
+            // Clear selection
+            mediaAdapter.clearSelection();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mediaAdapter.isInMultiSelectMode()) {
+            exitSelectionMode();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
