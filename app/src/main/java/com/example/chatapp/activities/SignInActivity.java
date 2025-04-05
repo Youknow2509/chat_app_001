@@ -65,7 +65,7 @@ public class SignInActivity extends AppCompatActivity {
 
     // init var use
     private void initVariableUse() {
-        apiManager = new ApiManager();
+        apiManager = new ApiManager(this);
         sessionManager = new SessionManager(this);
     }
 

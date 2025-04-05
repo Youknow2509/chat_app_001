@@ -1,6 +1,10 @@
 package com.example.chatapp.api;
 
+import android.content.Context;
+
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.network.NetworkConnectionInterceptor;
+import com.example.chatapp.network.NetworkMonitor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -18,17 +22,25 @@ public class RetrofitClient {
     private Retrofit retrofitCloudinary;
     private ChatAppService chatAppService;
     private CloudinaryService cloudinaryService;
+    private final NetworkMonitor networkMonitor;
 
-    private RetrofitClient() {
+    private RetrofitClient(Context context) {
+        // Khởi tạo NetworkMonitor
+        networkMonitor = NetworkMonitor.getInstance(context);
+
         // Setup logging interceptor
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        // Setup OkHttpClient
+        // Thêm NetworkConnectionInterceptor để xử lý trường hợp không có kết nối
+        NetworkConnectionInterceptor networkInterceptor = new NetworkConnectionInterceptor(context);
+
+        // Setup OkHttpClient với NetworkConnectionInterceptor
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
+                .addInterceptor(networkInterceptor) // Thêm network interceptor đầu tiên
                 .addInterceptor(loggingInterceptor)
                 .build();
 
@@ -56,9 +68,9 @@ public class RetrofitClient {
         cloudinaryService = retrofitCloudinary.create(CloudinaryService.class);
     }
 
-    public static synchronized RetrofitClient getInstance() {
+    public static synchronized RetrofitClient getInstance(Context context) {
         if (instance == null) {
-            instance = new RetrofitClient();
+            instance = new RetrofitClient(context.getApplicationContext());
         }
         return instance;
     }
@@ -69,5 +81,9 @@ public class RetrofitClient {
 
     public CloudinaryService getCloudinaryService() {
         return cloudinaryService;
+    }
+
+    public boolean isNetworkAvailable() {
+        return networkMonitor.isNetworkAvailable();
     }
 }

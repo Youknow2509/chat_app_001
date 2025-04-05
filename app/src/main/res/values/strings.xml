@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">ChatApp</string>
+
+    <string name="no_internet_connection">Không có kết nối internet</string>
+    <string name="app_functionality_limited">Chức năng ứng dụng bị hạn chế</string>
+    <string name="network_monitoring_active">Đang giám sát kết nối mạng</string>
+    <string name="network_monitor_channel_name">Trạng thái kết nối</string>
+    <string name="network_monitor_channel_description">Hiển thị thông báo trạng thái kết nối</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>

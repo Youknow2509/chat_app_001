@@ -60,7 +60,7 @@ public class Register3Activity extends AppCompatActivity {
      * initVariable
      */
     private void initVariable() {
-        apiManager = new ApiManager();
+        apiManager = new ApiManager(this);
     }
 
     /**

@@ -93,7 +93,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     // initVariableUse
     private void initVariableUse(){
-        apiManager = new ApiManager();
+        apiManager = new ApiManager(this);
     }
 
     private void sendVerificationCode() {

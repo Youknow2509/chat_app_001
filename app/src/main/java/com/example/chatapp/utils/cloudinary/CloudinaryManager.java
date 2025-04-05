@@ -46,7 +46,7 @@ public class CloudinaryManager {
      */
     private CloudinaryManager(Context context) {
         this.context = context.getApplicationContext();
-        this.apiManager = new ApiManager();
+        this.apiManager = new ApiManager(this.context);
     }
 
     /**
@@ -82,7 +82,7 @@ public class CloudinaryManager {
                             String configUrl = Utils.getConfigUrl(options);
                             Log.d(TAG, "Config URL: " + configUrl);
 
-                            Call<ResponseData<Object>> call = RetrofitClient.getInstance().getCloudinaryService().getSignatur(Constants.TOKEN_PREFIX_REQUEST + token, configUrl);
+                            Call<ResponseData<Object>> call = RetrofitClient.getInstance(context).getCloudinaryService().getSignatur(Constants.TOKEN_PREFIX_REQUEST + token, configUrl);
                             Response<ResponseData<Object>> response = call.execute();
 
                             int code = response.code();

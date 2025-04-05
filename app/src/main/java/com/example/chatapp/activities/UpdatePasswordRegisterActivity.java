@@ -47,7 +47,7 @@ public class UpdatePasswordRegisterActivity extends AppCompatActivity {
 
     // init variable use
     private void initVariableUse() {
-        apiManager = new ApiManager();
+        apiManager = new ApiManager(this);
 
         // get data intent
         Intent intent = getIntent();

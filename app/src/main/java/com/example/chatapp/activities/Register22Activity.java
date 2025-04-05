@@ -50,7 +50,7 @@ public class Register22Activity extends AppCompatActivity {
     }
 
     private void initVariableUse() {
-        apiManager = new ApiManager();
+        apiManager = new ApiManager(this);
 
         Intent intent = getIntent();
         email = intent.getStringExtra("email");

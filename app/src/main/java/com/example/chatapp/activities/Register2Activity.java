@@ -73,7 +73,7 @@ public class Register2Activity extends AppCompatActivity {
     }
 
     private void initVariableUse() {
-        apiManager = new ApiManager();
+        apiManager = new ApiManager(this);
     }
 
     private void setupOtpInputs() {

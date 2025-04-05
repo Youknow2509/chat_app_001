@@ -68,7 +68,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     // initVariableUse
     private void initVariableUse() {
-        apiManager = new ApiManager();
+        apiManager = new ApiManager(this);
     }
 
     // handle click next button

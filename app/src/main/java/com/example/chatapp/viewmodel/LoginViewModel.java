@@ -37,9 +37,9 @@ public class LoginViewModel extends AndroidViewModel {
     // Constructor
     public LoginViewModel(@NonNull Application application) {
         super(application);
-        apiManager = new ApiManager();
-        mediaUtils = new MediaUtils();
         context = getApplication().getApplicationContext();
+        apiManager = new ApiManager(this.context);
+        mediaUtils = new MediaUtils();
     }
 
     public LiveData<String> getResPathFileAvatar() {

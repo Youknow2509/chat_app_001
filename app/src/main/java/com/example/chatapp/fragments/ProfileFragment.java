@@ -70,7 +70,7 @@ public class ProfileFragment extends Fragment {
     private FrameLayout progressOverlay;
 
     private void initVariable() {
-        this.apiManager = new ApiManager();
+        this.apiManager = new ApiManager(this.getContext());
         //
         this.sessionManager = new SessionManager(this.getContext());
         this.userProfileSession = this.sessionManager.getUserProfile();
