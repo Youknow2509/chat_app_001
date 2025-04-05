@@ -20,6 +20,8 @@ func (cb *ChatBaseRouter) InitChatBaseRouter(Router *gin.RouterGroup) {
 		chatRouterPublic.GET("get-chat-info", chatController.Chat.GetChatInfo)
 		chatRouterPublic.GET("get-list-chat-for-user", chatController.Chat.GetListChatForUser)
 		chatRouterPublic.GET("get-user-in-chat", chatController.Chat.GetUserInChat)
+		chatRouterPublic.GET("get-list-chat-private-for-user", chatController.Chat.GetListChatPrivateForUser)
+		chatRouterPublic.GET("get-list-chat-group-for-user", chatController.Chat.GetListChatGroupForUser)
 	}
 	// mprivate router
 	chatRouterMPrivate := Router.Group("/chat")

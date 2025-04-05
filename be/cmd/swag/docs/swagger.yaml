@@ -479,6 +479,76 @@ paths:
       summary: Get list of chat
       tags:
       - Chat
+  /api/v1/chat/get-list-chat-group-for-user:
+    get:
+      consumes:
+      - application/json
+      description: Get list chat group from user
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: limit number of chat
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get list of chat group
+      tags:
+      - Chat
+  /api/v1/chat/get-list-chat-private-for-user:
+    get:
+      consumes:
+      - application/json
+      description: Get list chat private from user
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: limit number of chat
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get list of chat private
+      tags:
+      - Chat
   /api/v1/chat/get-user-in-chat:
     get:
       consumes:

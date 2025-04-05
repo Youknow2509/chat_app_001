@@ -238,6 +238,118 @@ func (ct *cChat) GetListChatForUser(c *gin.Context) {
 	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
 }
 
+// @Summary      Get list of chat private
+// @Description  Get list chat private from user
+// @Tags         Chat
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer token"
+// @Param        limit query string true "limit number of chat"
+// @Param        page query string true "page number"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /api/v1/chat/get-list-chat-private-for-user [get]
+func (ct *cChat) GetListChatPrivateForUser(c *gin.Context) {
+	// query limit and page
+	limit := c.Query("limit")
+	page := c.Query("page")
+	if limit == "" || page == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Limit and page are required")
+		return
+	}
+	// get user id from token
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	if userIDReq == "" {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, "User ID is required")
+		return
+	}
+	// convert limit and page from string to int
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid limit value")
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid page value")
+		return
+	}
+	// create model input
+	p := &model.InputGetChatForUser{
+		UserID: userIDReq,
+		Limit:  limitInt,
+		Page:   pageInt,
+	}
+	// call to service
+	outputData, _, err := service.ChatService().UserGetListChatPrivateForUser(c, p)
+	if err != nil {
+		global.Logger.Error("Error getting list chat", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeGetListChat, err.Error())
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
+}
+
+// @Summary      Get list of chat group
+// @Description  Get list chat group from user
+// @Tags         Chat
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer token"
+// @Param        limit query string true "limit number of chat"
+// @Param        page query string true "page number"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /api/v1/chat/get-list-chat-group-for-user [get]
+func (ct *cChat) GetListChatGroupForUser(c *gin.Context) {
+	// query limit and page
+	limit := c.Query("limit")
+	page := c.Query("page")
+	if limit == "" || page == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Limit and page are required")
+		return
+	}
+	// get user id from token
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	if userIDReq == "" {
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, "User ID is required")
+		return
+	}
+	// convert limit and page from string to int
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid limit value")
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Invalid page value")
+		return
+	}
+	// create model input
+	p := &model.InputGetChatForUser{
+		UserID: userIDReq,
+		Limit:  limitInt,
+		Page:   pageInt,
+	}
+	// call to service
+	outputData, _, err := service.ChatService().UserGetListChatGroupForUser(c, p)
+	if err != nil {
+		global.Logger.Error("Error getting list chat", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeGetListChat, err.Error())
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, outputData)
+}
+
 // @Summary      Hanlde get infomation user in chat
 // @Description  Get information user in chat with chat id
 // @Tags         Chat
