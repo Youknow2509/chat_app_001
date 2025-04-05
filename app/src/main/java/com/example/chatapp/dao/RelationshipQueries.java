@@ -29,7 +29,7 @@ public interface RelationshipQueries {
 
     // Lấy tất cả tin nhắn của một cuộc hội thoại kèm theo thông tin media
     @Transaction
-    @Query("SELECT * FROM messages WHERE conversationId = :conversationId ORDER BY timestamp ASC")
+    @Query("SELECT * FROM messages WHERE chatId = :conversationId ORDER BY timestamp ASC")
     List<MessageWithMedia> getMessagesWithMedia(String conversationId);
 
     // Lấy danh sách bạn bè

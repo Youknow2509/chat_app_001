@@ -14,8 +14,11 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.chatapp.R;
 import com.example.chatapp.adapters.ChatAdapter;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityChatV2Binding;
@@ -23,8 +26,10 @@ import com.example.chatapp.databinding.ItemUserChatBinding;
 import com.example.chatapp.dto.MessageDTO;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.User;
+import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.observers.MessageObservable;
+import com.example.chatapp.repository.ChatRepo;
 import com.example.chatapp.utils.PreferenceManager;
 import com.example.chatapp.utils.StompClientManager;
 import com.example.chatapp.utils.session.SessionManager;
@@ -33,6 +38,7 @@ import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -50,8 +56,13 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     private boolean isReceiverAvailable = true;
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
-    private StompClientManager stompClientManager ;
+    private StompClientManager stompClientManager;
     private SessionManager sessionManager;
+    private ChatRepo chatRepo;
+    private int currentOffset = 0;
+    private static final int PAGE_SIZE = 10;
+    private boolean isLoading = false;
+    private boolean hasMoreMessages = true;
 
 
     @Override
@@ -60,6 +71,7 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         sessionManager = SessionManager.getInstance();
         stompClientManager = StompClientManager.getInstance();
         binding = ActivityChatV2Binding.inflate(getLayoutInflater());
+        chatRepo = new ChatRepo(this);
         setContentView(binding.getRoot());
         setListeners();
         loadChatDetails();
@@ -88,6 +100,11 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         messageObservable = MessageObservable.getInstance();
         messageObservable.addObserver(this);
 
+    }
+
+    @Override
+    public String getChatId() {
+        return conversionId;
     }
 
     private void ChangeButtonSend() {
@@ -228,6 +245,7 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         conversionId = "789e0123-a456-42f5-b678-556655440000";
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatMessages = new ArrayList<>();
+
         chatAdapter = new ChatAdapter(
                 chatMessages,
                 receiverUser.image,
@@ -235,9 +253,101 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
                 false,
                 sessionManager
         );
-        binding.chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true); // Show newest messages at the bottom
+        binding.chatRecyclerView.setLayoutManager(layoutManager);
         binding.chatRecyclerView.setAdapter(chatAdapter);
-        binding.chatRecyclerView.setVisibility(View.VISIBLE);
+
+        // Configure swipe refresh
+        binding.swipeRefreshLayout.setOnRefreshListener(this::loadMoreMessages);
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.nav_item_color);
+        // Makes swiping work only from top of list (better for chat UI)
+        binding.swipeRefreshLayout.setDistanceToTriggerSync(300);
+
+        // Initial load
+        loadMessages();
+    }
+
+    private void loadMessages() {
+        if (isLoading || !hasMoreMessages) return;
+
+        isLoading = true;
+        final int loadOffset = currentOffset; // Capture current offset for this request
+
+        LiveData<List<Message>> messagesLiveData = chatRepo.getMessagesForConversation(
+                conversionId, PAGE_SIZE, loadOffset);
+
+        // Create a one-time observer that removes itself after processing
+        messagesLiveData.observe(this, new androidx.lifecycle.Observer<List<Message>>() {
+            @Override
+            public void onChanged(List<Message> messages) {
+                // Process the messages
+                processLoadedMessages(messages, loadOffset == 0);
+
+                // Update offset for next load
+                if (messages != null) {
+                    currentOffset += messages.size();
+
+                    if (messages.isEmpty()) {
+                        hasMoreMessages = false;
+                    }
+                }
+
+                // Remove this observer after one use
+                messagesLiveData.removeObserver(this);
+
+                isLoading = false;
+                binding.swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void processLoadedMessages(List<Message> messages, boolean isFirstLoad) {
+        if (binding.chatRecyclerView.getVisibility() != View.VISIBLE) {
+            binding.chatRecyclerView.setVisibility(View.VISIBLE);
+        }
+
+        if (messages != null && !messages.isEmpty()) {
+            // Clear existing messages only if it's the first load
+            if (isFirstLoad) {
+                chatMessages.clear();
+            }
+
+            // Convert and add new messages
+            List<ChatMessage> newMessages = new ArrayList<>();
+            for (Message message : messages) {
+                ChatMessage chatMessage = new ChatMessage();
+                chatMessage.setId(message.getId());
+                chatMessage.setSenderId(message.getSenderId());
+                chatMessage.setChatId(message.getChatId());
+                chatMessage.setContent(message.getContent());
+
+                chatMessage.setDateTime(new SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(message.getCreatedAt()));
+                newMessages.add(chatMessage);
+            }
+
+            // Add messages in chronological order
+            Collections.reverse(newMessages);
+            chatMessages.addAll(0, newMessages); // Add to the beginning of the list
+
+            chatAdapter.notifyDataSetChanged();
+
+            // If it's the first load, scroll to bottom
+            if (isFirstLoad) {
+                binding.chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
+            }
+        }
+    }
+
+    private void loadMoreMessages() {
+        if (!isLoading && hasMoreMessages) {
+            binding.swipeRefreshLayout.setRefreshing(true);
+            loadMessages();
+        } else {
+            binding.swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void loadChatDetails() {
@@ -283,20 +393,23 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         if (isMessageRelevantToThisChat(message)) {
             Log.d(TAG, "Message is relevant to this chat, updating UI");
             runOnUiThread(() -> {
-                // get message with id null
-                chatMessages.stream().filter( chatMessage -> chatMessage.getId() == null).findFirst().ifPresent(chatMessage -> {
+                // Remove any temporary messages with null ID
+                chatMessages.stream().filter(chatMessage -> chatMessage.getId() == null).findFirst().ifPresent(chatMessage -> {
                     chatMessages.remove(chatMessage);
                 });
 
+                // Format the date and set it on the message
                 Date currentDate = new Date();
-                String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
+                String formattedDate = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(currentDate);
                 message.setDateTime(formattedDate);
+
+                // Add the message to the list
                 chatMessages.add(message);
-                ItemUserChatBinding binding1 = ItemUserChatBinding.inflate(getLayoutInflater());
-                binding1.dateText.setText(message.getDateTime());
-                binding1.messageText.setText(message.getContent());
-                
-                chatAdapter.notifyDataSetChanged();
+
+                // Notify adapter about the new item and scroll to it
+                int newPosition = chatMessages.size() - 1;
+                chatAdapter.notifyItemInserted(newPosition);
+                binding.chatRecyclerView.smoothScrollToPosition(newPosition);
             });
         } else {
             Log.d(TAG, "Message is NOT relevant to this chat");

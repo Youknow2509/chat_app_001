@@ -243,6 +243,11 @@ public class ChatGroupConversationActivity extends AppCompatActivity implements 
     }
 
     @Override
+    public String getChatId() {
+        return conversionId;
+    }
+
+    @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
     }

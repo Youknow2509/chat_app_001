@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Entity(tableName = "media_files",
         foreignKeys = @ForeignKey(entity = Message.class,
-                parentColumns = "messageId",
+                parentColumns = "id",
                 childColumns = "messageId",
                 onDelete = ForeignKey.CASCADE),
         indices = {@Index("messageId")})

@@ -3,9 +3,11 @@ package com.example.chatapp.observers;
 import android.util.Log;
 
 import com.example.chatapp.models.ChatMessage;
+import com.example.chatapp.models.sqlite.Message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MessageObservable {
     private static MessageObservable instance;
@@ -21,9 +23,14 @@ public class MessageObservable {
     }
 
     public void addObserver(MessageObserver observer) {
-        if (!observers.contains(observer)) {
+        if (!observers.contains(observer) && checkObserver(observer)) {
             observers.add(observer);
         }
+    }
+
+    private boolean checkObserver(MessageObserver observer) {
+        Optional<MessageObserver> temp = observers.stream().filter(o -> o.getChatId().equals(observer.getChatId())).findFirst();
+        return temp.isEmpty();
     }
 
     public void removeObserver(MessageObserver observer) {

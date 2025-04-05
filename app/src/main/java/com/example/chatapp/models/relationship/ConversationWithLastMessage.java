@@ -12,7 +12,7 @@ public class ConversationWithLastMessage {
 
     @Relation(
             parentColumn = "lastMessageId",
-            entityColumn = "messageId"
+            entityColumn = "id"
     )
     public Message lastMessage;
 }

@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
         MediaFile.class,
         Setting.class
         },
-        version = 1,
+        version = 2,
         exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {

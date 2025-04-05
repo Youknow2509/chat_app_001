@@ -56,6 +56,11 @@ public class SessionManager {
         if (instance == null) {
             instance = this;
         }
+
+        // Khởi tạo SharedPreferences thông thường cho thông tin không nhạy cảm
+        userPreferences = context.getSharedPreferences(USER_PREF_NAME, Context.MODE_PRIVATE);
+        userEditor = userPreferences.edit();
+
         try {
             // Khởi tạo SharedPreferences có mã hóa cho thông tin xác thực
             String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
@@ -67,14 +72,11 @@ public class SessionManager {
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
             editor = sharedPreferences.edit();
-
-            // Khởi tạo SharedPreferences thông thường cho thông tin không nhạy cảm
-            userPreferences = context.getSharedPreferences(USER_PREF_NAME, Context.MODE_PRIVATE);
-            userEditor = userPreferences.edit();
-
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
-            // Handle the exception appropriately in your app
+            // Fallback to regular SharedPreferences if encryption fails
+            sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+            editor = sharedPreferences.edit();
         }
     }
 

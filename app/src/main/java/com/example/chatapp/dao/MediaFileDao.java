@@ -56,7 +56,7 @@ public interface MediaFileDao {
     @Query("UPDATE media_files SET thumbnailPath = :thumbnailPath WHERE fileId = :fileId")
     void updateThumbnailPath(String fileId, String thumbnailPath);
 
-    @Query("SELECT * FROM media_files WHERE messageId IN (SELECT messageId FROM messages WHERE conversationId = :conversationId) ORDER BY createdAt DESC")
+    @Query("SELECT * FROM media_files WHERE messageId IN (SELECT messageId FROM messages WHERE chatId = :conversationId) ORDER BY createdAt DESC")
     List<MediaFile> getMediaFilesForConversation(String conversationId);
 
     @Query("DELETE FROM media_files WHERE messageId = :messageId")

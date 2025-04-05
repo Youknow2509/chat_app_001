@@ -57,7 +57,8 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel.getResPathFileAvatar().observe(this,
                 path -> {
                     if (path != null && !path.isEmpty()) {
-                        saveLocalPathFileAvatar(path);
+                        // TODO set default avatar
+//                        saveLocalPathFileAvatar(path);
                         navigateToHome();
                     } else {
                         Toast.makeText(context, "Error saving avatar", Toast.LENGTH_SHORT).show();

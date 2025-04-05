@@ -3,8 +3,6 @@ package com.example.chatapp.models.sqlite;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
@@ -25,21 +23,22 @@ import java.util.Date;
 public class Message {
     @PrimaryKey
     @NonNull
-    private String messageId;
+    private String id;
 
     //    @NonNull
-    private String conversationId;
+    private String chatId;
 
     //    @NonNull
     private String senderId;
 
-    private String messageText;
+    private String content;
     private Date timestamp;
     private String status;  // "sent", "delivered", "read"
     private String messageType;  // "text", "image", "video", "audio", "file", "location"
     private String mediaUrl;
+    private String mediaType;  // "image", "video", etc.
     private String localPath;
-    private String repliedToMessageId;
+    private String parentMessageId;
     private boolean isDeleted;
     private boolean isEdited;
     private Date createdAt;
@@ -61,12 +60,12 @@ public class Message {
 //        this.createdAt = new Date();
 //        this.updatedAt = new Date();
 //    }
-    public Message(String messageId, String conversationId,
-                   String senderId, String messageText) {
-        this.messageId = messageId;
-        this.conversationId = conversationId;
+    public Message(String id, String chatId,
+                   String senderId, String content) {
+        this.id = id;
+        this.chatId = chatId;
         this.senderId = senderId;
-        this.messageText = messageText;
+        this.content = content;
         this.timestamp = new Date();
         this.status = "sent";
         this.messageType = "text";
@@ -78,21 +77,21 @@ public class Message {
 
     // Getters and Setters
     @NonNull
-    public String getMessageId() {
-        return messageId;
+    public String getId() {
+        return id;
     }
 
-    public void setMessageId(@NonNull String messageId) {
-        this.messageId = messageId;
+    public void setId(@NonNull String id) {
+        this.id = id;
     }
 
     @NonNull
-    public String getConversationId() {
-        return conversationId;
+    public String getChatId() {
+        return chatId;
     }
 
-    public void setConversationId(@NonNull String conversationId) {
-        this.conversationId = conversationId;
+    public void setChatId(@NonNull String chatId) {
+        this.chatId = chatId;
     }
 
     @NonNull
@@ -104,12 +103,12 @@ public class Message {
         this.senderId = senderId;
     }
 
-    public String getMessageText() {
-        return messageText;
+    public String getContent() {
+        return content;
     }
 
-    public void setMessageText(String messageText) {
-        this.messageText = messageText;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Date getTimestamp() {
@@ -152,12 +151,12 @@ public class Message {
         this.localPath = localPath;
     }
 
-    public String getRepliedToMessageId() {
-        return repliedToMessageId;
+    public String getParentMessageId() {
+        return parentMessageId;
     }
 
-    public void setRepliedToMessageId(String repliedToMessageId) {
-        this.repliedToMessageId = repliedToMessageId;
+    public void setParentMessageId(String parentMessageId) {
+        this.parentMessageId = parentMessageId;
     }
 
     public boolean isDeleted() {
@@ -190,5 +189,13 @@ public class Message {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
     }
 }

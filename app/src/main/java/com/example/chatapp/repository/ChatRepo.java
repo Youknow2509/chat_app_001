@@ -57,8 +57,8 @@ public class ChatRepo {
         executorService.execute(() -> {
             messageDao.insert(message);
             conversationDao.updateLastMessage(
-                    message.getConversationId(),
-                    message.getMessageId(),
+                    message.getChatId(),
+                    message.getId(),
                     message.getTimestamp());
         });
     }
@@ -70,6 +70,11 @@ public class ChatRepo {
             data.postValue(messages);
         });
         return data;
+    }
+
+
+    public LiveData<List<Message>> getMessagesForConversation(String conversationId, int limit, int offset) {
+        return messageDao.getMessagesPaged(conversationId, limit, offset);
     }
 
     // Conversations

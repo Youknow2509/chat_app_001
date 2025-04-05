@@ -15,6 +15,15 @@ import com.example.chatapp.observers.SignalingObserver;
 import com.example.chatapp.repository.ChatRepo;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
+
+import java.lang.reflect.Type;
+import java.util.Date;
 
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
@@ -37,7 +46,7 @@ public class StompClientManager {
     private boolean isConnected = false;
     private final String SEND_MESSAGE_DESTINATION = "/app/chats";
     private final MessageObservable messageObservable;
-    private final Gson gson = new Gson();
+    private final Gson gson;
     private static final String TAG = "StompClientManager";
     // Add these variables
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
@@ -52,6 +61,19 @@ public class StompClientManager {
     private StompClientManager() {
         // Initialize your StompClient here
         messageObservable = MessageObservable.getInstance();
+        gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                    @Override
+                    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                        try {
+                            return new Date(json.getAsLong());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing date: " + json, e);
+                            return null;
+                        }
+                    }
+                })
+                .create();
     }
 
     public void setSessionManager(SessionManager sessionManager, Context context) {
@@ -114,7 +136,7 @@ public class StompClientManager {
                 long delay = RECONNECT_DELAY_MS * reconnectAttempts; // Exponential backoff
 
                 Log.d(TAG, "Attempting to reconnect... Attempt #" + reconnectAttempts +
-                        " (waiting " + delay/1000 + " seconds)");
+                        " (waiting " + delay / 1000 + " seconds)");
 
                 // Disconnect first if needed
                 if (mStompClient != null) {
@@ -145,11 +167,11 @@ public class StompClientManager {
     @SuppressLint("CheckResult")
     public void subscribeTopic(String userId) {
 
-        if (mStompClient == null ) {
+        if (mStompClient == null) {
             Log.e(TAG, "Cannot subscribe: client not connected. Attempting to reconnect...");
             initStompClient(); // Try to reinitialize
             int attempts = 0;
-            while (!mStompClient.isConnected()){
+            while (!mStompClient.isConnected()) {
                 reconnect();
                 attempts++;
                 Log.d(TAG, "Attempting to reconnect... Attempt #" + attempts);
@@ -167,13 +189,13 @@ public class StompClientManager {
                 .subscribe(topicMessage -> {
                     Log.d(TAG, "Received message: " + topicMessage.getPayload());
                     ChatMessage chatMessage = parseToChatMessage(topicMessage);
-                    Message message = new Message(
-                            chatMessage.getChatId(),
-                            chatMessage.getSenderId(),
-                            chatMessage.getReceiverId(),
-                            "test"
-                    );
-                    chatRepo.sendMessage(message);
+                    Message message = null;
+                    try {
+                        message = gson.fromJson(topicMessage.getPayload(), Message.class);
+                        chatRepo.sendMessage(message);
+                    } catch (JsonSyntaxException e) {
+                        throw new RuntimeException(e);
+                    }
                     if (chatMessage != null) {
                         messageObservable.notifyMessageReceived(chatMessage);
                         Log.d(TAG, "Message notified to observers: " + chatMessage.getChatId());
@@ -204,11 +226,11 @@ public class StompClientManager {
 
     @SuppressLint("CheckResult")
     public void sendMessage(String message) {
-        if(!mStompClient.isConnected()){
+        if (!mStompClient.isConnected()) {
             Log.e(TAG, "Cannot send message: client not connected. Attempting to reconnect...");
             initStompClient(); // Try to reinitialize
             int attempts = 0;
-            while (!mStompClient.isConnected()){
+            while (!mStompClient.isConnected()) {
                 reconnect();
                 attempts++;
                 Log.d(TAG, "Attempting to reconnect... Attempt #" + attempts);
@@ -262,7 +284,7 @@ public class StompClientManager {
         }
     }
 
-    public void setOnSignalingEventListener(SignalingObserver listener){
+    public void setOnSignalingEventListener(SignalingObserver listener) {
         if (mStompClient != null && isConnected) {
             mStompClient.topic("/topic/call/123e4567-e89b-12d3-a456-426614174000").subscribe(topicMessage -> {
                 Log.d(TAG, "Received signaling message: " + topicMessage.getPayload());

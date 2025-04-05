@@ -4,4 +4,5 @@ import com.example.chatapp.models.ChatMessage;
 
 public interface MessageObserver {
     void onMessageReceived(ChatMessage message);
+    String getChatId();
 }

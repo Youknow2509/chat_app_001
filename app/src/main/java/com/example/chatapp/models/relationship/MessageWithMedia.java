@@ -12,7 +12,7 @@ public class MessageWithMedia {
     public Message message;
 
     @Relation(
-            parentColumn = "messageId",
+            parentColumn = "id",
             entityColumn = "messageId"
     )
     public List<MediaFile> mediaFiles;
