@@ -620,6 +620,86 @@ paths:
       summary: Update chat info
       tags:
       - Chat
+  /api/v1/mservice/get-chats-group-user:
+    get:
+      consumes:
+      - application/json
+      description: Get list chat group of user with user id
+      parameters:
+      - description: 'Authorization Bearer token microservice (Eg: Bearer 123456)'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: limit number of chat
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Hanlde get list chat group of user
+      tags:
+      - Microservice
+  /api/v1/mservice/get-chats-private-user:
+    get:
+      consumes:
+      - application/json
+      description: Get list chat private of user with user id
+      parameters:
+      - description: 'Authorization Bearer token microservice (Eg: Bearer 123456)'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: limit number of chat
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Hanlde get list chat private of user
+      tags:
+      - Microservice
   /api/v1/mservice/get-chats-user:
     get:
       consumes:

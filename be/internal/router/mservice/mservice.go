@@ -18,5 +18,8 @@ func (r *ChatServiceRouter) InitChatServiceRouter(Router *gin.RouterGroup) {
 	{
 		baseRouter.GET("get-user-in-chat", mservice.Chat.GetUserInChat)
 		baseRouter.GET("get-chats-user", mservice.Chat.GetChatsUser)
+		baseRouter.GET("get-chats-private-user", mservice.Chat.GetChatsPrivateUser)
+		baseRouter.GET("get-chats-group-user", mservice.Chat.GetChatsGroupUser)
+
 	}
 }

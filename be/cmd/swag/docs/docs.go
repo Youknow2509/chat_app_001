@@ -613,6 +613,124 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/mservice/get-chats-group-user": {
+            "get": {
+                "description": "Get list chat group of user with user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Microservice"
+                ],
+                "summary": "Hanlde get list chat group of user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token microservice (Eg: Bearer 123456)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit number of chat",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mservice/get-chats-private-user": {
+            "get": {
+                "description": "Get list chat private of user with user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Microservice"
+                ],
+                "summary": "Hanlde get list chat private of user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token microservice (Eg: Bearer 123456)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit number of chat",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mservice/get-chats-user": {
             "get": {
                 "description": "Get list chat of user with user id",
