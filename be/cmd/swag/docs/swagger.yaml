@@ -740,6 +740,41 @@ paths:
       summary: Hanlde get list chat of user
       tags:
       - Microservice
+  /api/v1/mservice/get-detail-friend-req:
+    get:
+      consumes:
+      - application/json
+      description: Get detail friend request with user id
+      parameters:
+      - description: 'Authorization Bearer token microservice (Eg: Bearer 123456)'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user 1
+        in: query
+        name: user1
+        required: true
+        type: string
+      - description: user 2
+        in: query
+        name: user2
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Show detail friend request
+      tags:
+      - Microservice
   /api/v1/mservice/get-user-in-chat:
     get:
       consumes:
@@ -887,6 +922,36 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Accept friend request
+      tags:
+      - User Info
+  /api/v1/user/check-friend:
+    get:
+      consumes:
+      - application/json
+      description: Check if user is friend with another user - Show details friends
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: mail user
+        in: query
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Check friend user
       tags:
       - User Info
   /api/v1/user/create_friend_request:

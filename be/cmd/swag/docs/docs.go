@@ -790,6 +790,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/mservice/get-detail-friend-req": {
+            "get": {
+                "description": "Get detail friend request with user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Microservice"
+                ],
+                "summary": "Show detail friend request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer token microservice (Eg: Bearer 123456)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user 1",
+                        "name": "user1",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user 2",
+                        "name": "user2",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mservice/get-user-in-chat": {
             "get": {
                 "description": "Get information user in chat with chat id",
@@ -998,6 +1050,51 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.AcceptFriendRequestInput"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/check-friend": {
+            "get": {
+                "description": "Check if user is friend with another user - Show details friends",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Check friend user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "mail user",
+                        "name": "user",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {

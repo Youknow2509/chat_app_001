@@ -182,6 +182,46 @@ func (q *Queries) GetFriendRequestInfo(ctx context.Context, id string) (FriendRe
 	return i, err
 }
 
+const getFriendRequestInfoWithUser = `-- name: GetFriendRequestInfoWithUser :one
+SELECT id, from_user, to_user, status, created_at
+FROM friend_requests
+WHERE (from_user = ? AND to_user = ?) OR (from_user = ? AND to_user = ?)
+LIMIT 1
+`
+
+type GetFriendRequestInfoWithUserParams struct {
+	FromUser   sql.NullString
+	ToUser     sql.NullString
+	FromUser_2 sql.NullString
+	ToUser_2   sql.NullString
+}
+
+type GetFriendRequestInfoWithUserRow struct {
+	ID        string
+	FromUser  sql.NullString
+	ToUser    sql.NullString
+	Status    sql.NullString
+	CreatedAt sql.NullTime
+}
+
+func (q *Queries) GetFriendRequestInfoWithUser(ctx context.Context, arg GetFriendRequestInfoWithUserParams) (GetFriendRequestInfoWithUserRow, error) {
+	row := q.db.QueryRowContext(ctx, getFriendRequestInfoWithUser,
+		arg.FromUser,
+		arg.ToUser,
+		arg.FromUser_2,
+		arg.ToUser_2,
+	)
+	var i GetFriendRequestInfoWithUserRow
+	err := row.Scan(
+		&i.ID,
+		&i.FromUser,
+		&i.ToUser,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getFriendRequestUserReceive = `-- name: GetFriendRequestUserReceive :many
 SELECT
     id,

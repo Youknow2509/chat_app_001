@@ -32,7 +32,7 @@ func ErrorResponse(c *gin.Context, code int, message string) {
 	if message == "" {
 		message = msg[code]
 	}
-	c.JSON(http.StatusOK, ResponseData{
+	c.JSON(http.StatusBadRequest, ResponseData{
 		Code:    code,
 		Message: message,
 		Data:    nil,

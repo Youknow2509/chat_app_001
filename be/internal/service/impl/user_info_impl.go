@@ -28,6 +28,78 @@ type sUserInfo struct {
 	r *database.Queries
 }
 
+// CheckFriendUser implements service.IUserInfo.
+func (s *sUserInfo) CheckFriendUser(ctx context.Context, in *model.CheckFriendUserInput) (codeResult int, out model.CheckFriendUserOutput ,err error) {
+	// check user 2 exist
+	mUser2, err := s.r.GetIDUserWithEmail(ctx, in.User2)
+	if err != nil {
+		global.Logger.Error("Err get user with mail", zap.Error(err))
+		return response.ErrCodeUserNotFound, out, err
+	}
+	if mUser2 == "" {
+		err := fmt.Sprintf("user %s is not exist", in.User2)
+		global.Logger.Error(err)
+		return response.ErrCodeUserNotFound, out, fmt.Errorf(err)
+	}
+	// check in cache
+	key := fmt.Sprintf("check_friend_user::%s::%s", in.User1, mUser2)
+	dataCache, err := global.Rdb.Get(ctx, key).Result()
+	switch {
+	case errors.Is(err, redis.Nil):
+		fmt.Println("key does not exist")
+	case err != nil:
+		fmt.Println("get failed:: ", err)
+		return response.ErrCodeGetCache, out, err
+	}
+	if dataCache != "" {
+		err = json.Unmarshal([]byte(dataCache), &out)
+		if err != nil {
+			fmt.Println("unmarshal failed:: ", err)
+			return response.ErrCodeGetCache, out, err
+		}
+		return response.ErrCodeSuccess, out, nil
+	}
+	
+	// check friend exist
+	cFriend, err := s.r.GetFriendRequestInfoWithUser(ctx, database.GetFriendRequestInfoWithUserParams{
+		FromUser: sql.NullString{String: in.User1, Valid: true},
+		ToUser:   sql.NullString{String: mUser2, Valid: true},
+		//
+		FromUser_2: sql.NullString{String: mUser2, Valid: true},
+		ToUser_2:   sql.NullString{String: in.User1, Valid: true},
+	})
+	if err != nil {
+		global.Logger.Error("Err get friend request info", zap.Error(err))
+		return response.ErrCodeCheckFriendRequest, out, err
+	}
+	if cFriend.ID == "" {
+		return response.ErrCodeFriendRequestNotExists, out, fmt.Errorf("friend request not exists")
+    }
+	out = model.CheckFriendUserOutput{
+		FriendID: cFriend.ID,
+		User1: in.User1,
+		User2: in.User2,
+		Status: cFriend.Status.String,
+		CreateAt: cFriend.CreatedAt.Time,
+	}
+	// 4. save to cache
+	go func() {
+		cacheData, err := json.Marshal(out)
+		if err != nil {
+			global.Logger.Error("Err marshal data", zap.Error(err))
+			return
+		}
+		timeEx := time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE) * time.Minute
+		err = global.Rdb.Set(context.Background(), key, cacheData, timeEx).Err()
+		if err != nil {
+			global.Logger.Error("Err set data to cache", zap.Error(err))
+			return
+		}
+	}()
+	
+	return  response.ErrCodeSuccess, out, nil
+}
+
 // ListFriendUser implements service.IUserInfo.
 func (s *sUserInfo) ListFriendUser(ctx context.Context, in *model.ListUserFriendInput) (out []model.UserFindOutput, err error) {
 	// 1. get in cache
@@ -253,6 +325,20 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 			fmt.Printf("Err when deleting cache friend request from user %s\n", cInfoRequest.ToUser.String)
 		}
 	}()
+	// del cache check friend request
+	go func() {
+		key := fmt.Sprintf("check_friend_user::%s::%s", cInfoRequest.FromUser.String, cInfoRequest.ToUser.String)
+		err := global.Rdb.Del(context.Background(), key)
+		if err != nil {
+			fmt.Printf("Err when deleting cache check friend user %s\n", cInfoRequest.FromUser.String)
+		}
+
+		key2 := fmt.Sprintf("check_friend_user::%s::%s", cInfoRequest.ToUser.String, cInfoRequest.FromUser.String)
+		err = global.Rdb.Del(context.Background(), key2)
+		if err != nil {
+			fmt.Printf("Err when deleting cache check friend user %s\n", cInfoRequest.ToUser.String)
+		}
+	}()
 	// 6. notify to user
 	go func() {
 		notify.InitINotify(impl.GetNotifyImpl())
@@ -390,6 +476,20 @@ func (s *sUserInfo) DeleteFriend(ctx context.Context, in *model.DeleteFriendInpu
 			fmt.Println("Err when deleting friend")
 		}
 	}()
+	// del cache check friend request
+	go func() {
+		key := fmt.Sprintf("check_friend_user::%s::%s", in.UserID, idFriend)
+		key2 := fmt.Sprintf("check_friend_user::%s::%s", idFriend, in.UserID)
+		err = global.Rdb.Del(context.Background(), key).Err()
+		if err != nil {
+			fmt.Printf("Err when deleting cache check friend user %s\n", in.UserID)
+		}
+		err = global.Rdb.Del(context.Background(), key2).Err()
+		if err != nil {
+			fmt.Printf("Err when deleting cache check friend user %s\n", idFriend)
+        }
+	}()
+
 
 	return response.ErrCodeSuccess, nil
 }
@@ -607,6 +707,21 @@ func (s *sUserInfo) RejectFriendRequest(ctx context.Context, in *model.RejectFri
 			fmt.Printf("Err when blocking spam friend request from %s to %s\n", cInfoRequest.FromUser.String, cInfoRequest.ToUser.String)
 		}
 	}()
+
+	// 6. delete cache check friend request
+	go func() {
+		key := fmt.Sprintf("check_friend_user::%s::%s", cInfoRequest.FromUser.String, cInfoRequest.ToUser.String)
+		key2 := fmt.Sprintf("check_friend_user::%s::%s", cInfoRequest.ToUser.String, cInfoRequest.FromUser.String)
+		err := global.Rdb.Del(context.Background(), key).Err()
+		if err != nil {
+			fmt.Printf("Err when deleting cache check friend user %s\n", cInfoRequest.FromUser.String)
+		}
+		err = global.Rdb.Del(context.Background(), key2).Err()
+		if err != nil {
+			fmt.Printf("Err when deleting cache check friend user %s\n", cInfoRequest.ToUser.String)
+		}
+	}()
+
 	return response.ErrCodeSuccess, nil
 }
 
@@ -639,7 +754,7 @@ func (s *sUserInfo) UpdateUserInfo(ctx context.Context, in *model.UpdateUserInfo
 			UserMobile:   sql.NullString{String: "", Valid: true},
 			UserGender: database.NullUserInfoUserGender{
 				UserInfoUserGender: database.UserInfoUserGender(in.UserGender),
-				Valid: true,
+				Valid:              true,
 			},
 			UserBirthday: sql.NullTime{Time: timeBirthday, Valid: true},
 		})

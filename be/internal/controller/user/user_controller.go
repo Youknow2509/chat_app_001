@@ -17,6 +17,49 @@ var User = new(cUser)
 type cUser struct {
 }
 
+// @Summary      Check friend user
+// @Description  Check if user is friend with another user - Show details friends
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        user query string true  "mail user"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /api/v1/user/check-friend [get]
+func (cU *cUser) CheckFriendUser(c *gin.Context) {
+	// get query params
+	userInput := c.Query("user")
+	// validate input
+	if userInput == "" {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "User is required")
+		return
+	}
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	// call to service
+	parameters := model.CheckFriendUserInput{
+		User1: userIDReq,
+		User2: userInput,
+	}
+	code, res, err := service.UserInfo().CheckFriendUser(c.Request.Context(), &parameters)
+	if code != response.ErrCodeSuccess {
+		global.Logger.Error("Error checking friend user", zap.Error(err))
+		response.ErrorResponse(c, code, response.GetMessageCode(code))
+		return
+	}
+	if err != nil {
+		response.ErrorResponse(c, response.ErrCodeCheckFriendUser, err.Error())
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, res)
+}
+
 // @Summary      Get list user friend
 // @Description  Get list user friend
 // @Tags         User Info

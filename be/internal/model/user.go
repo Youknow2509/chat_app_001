@@ -2,6 +2,22 @@ package model
 
 import "time"
 
+// intput check friend user
+type CheckFriendUserInput struct {
+	User1 string `json:"user_1"`
+	User2 string `json:"user_2"`
+}
+
+// output check friend user
+type CheckFriendUserOutput struct {
+	FriendID string    `json:"friend_id"`
+	User1    string    `json:"user_1"`
+	User2    string    `json:"user_2"`
+	Status   string    `json:"status"`
+	CreateAt time.Time `json:"created_at"`
+	UpdateAt time.Time `json:"updated_at"`
+}
+
 // VerifyForgotPassword input
 type VerifyForgotPasswordInput struct {
 	Email string `json:"email"`

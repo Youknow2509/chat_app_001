@@ -1,4 +1,10 @@
 
+-- name: GetFriendRequestInfoWithUser :one
+SELECT id, from_user, to_user, status, created_at
+FROM friend_requests
+WHERE (from_user = ? AND to_user = ?) OR (from_user = ? AND to_user = ?)
+LIMIT 1;
+
 -- name: CheckFriendRequestExists :one
 SELECT COUNT(*)
 FROM friend_requests

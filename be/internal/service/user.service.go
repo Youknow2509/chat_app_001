@@ -35,6 +35,8 @@ type (
 		GetListFriendRequest(ctx context.Context, in *model.GetFriendRequestInput) (out []model.GetListFriendRequestOutput, err error)
 		//
 		UpdatePasswordForUserRequest(ctx context.Context, in *model.UserChangePasswordInput) (codeResult int, err error)
+		// 
+		CheckFriendUser(ctx context.Context, in *model.CheckFriendUserInput) (codeResult int, out model.CheckFriendUserOutput ,err error)
 	}
 
 	IUserAdmin interface {

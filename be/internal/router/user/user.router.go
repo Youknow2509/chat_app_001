@@ -42,5 +42,6 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouterPrivate.GET("/get_list_friend_request", userInfoController.User.GetListFriendRequet)
 		//
 		userRouterPrivate.PUT("/update_password", userInfoController.User.UpdatePassword)
+		userRouterPrivate.GET("/check-friend", userInfoController.User.CheckFriendUser)
 	}
 }
