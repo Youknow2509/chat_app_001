@@ -37,6 +37,11 @@ public class TokenRefreshService extends Service implements NetworkMonitor.Netwo
     private static final String CHANNEL_ID = "token_refresh_channel";
 
     private final Handler handler = new Handler();
+    private NetworkMonitor networkMonitor;
+    private SessionManager sessionManager;
+    private ApiManager apiManager;
+    private PowerManager.WakeLock wakeLock;
+    private boolean isRefreshing = false;
     private final Runnable tokenCheckRunnable = new Runnable() {
         @Override
         public void run() {
@@ -44,12 +49,6 @@ public class TokenRefreshService extends Service implements NetworkMonitor.Netwo
             handler.postDelayed(this, CHECK_INTERVAL);
         }
     };
-
-    private NetworkMonitor networkMonitor;
-    private SessionManager sessionManager;
-    private ApiManager apiManager;
-    private PowerManager.WakeLock wakeLock;
-    private boolean isRefreshing = false;
 
     @Override
     public void onCreate() {

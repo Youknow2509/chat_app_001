@@ -24,6 +24,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityMainBinding;
 import com.example.chatapp.network.NetworkMonitor;
+import com.example.chatapp.utils.cloudinary.CloudinaryManager;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -32,6 +33,9 @@ import com.example.chatapp.R;
 import com.example.chatapp.utils.StompClientManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class HomeActivity extends AppCompatActivity implements NetworkMonitor.NetworkStateListener {
 
@@ -39,6 +43,7 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     private ActivityMainBinding binding;
     private SessionManager sessionManager;
+    private CloudinaryManager cloudinaryManager;
     private final String TAG = "HomeActivity";
     //
     private NetworkMonitor networkMonitor;
@@ -98,6 +103,18 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
         stompClientManager.subscribeTopic(sessionManager.getUserId());
     }
 
+    /**
+     * Init cloudinary
+     */
+    private void initCloudinary() {
+        // Initialize CloudinaryManager
+        cloudinaryManager = CloudinaryManager.getInstance(this);
+        // Configure Cloudinary (you should replace these with your actual credentials)
+        Map<String, String> config = new HashMap<>();
+        config.put("cloud_name", Constants.CLOUDINARY_CLOUD_NAME);
+        cloudinaryManager.initialize(config);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -113,6 +130,8 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
 
         // Cập nhật UI với trạng thái mạng hiện tại
         updateNetworkUI(networkMonitor.isNetworkAvailable());
+
+        initCloudinary();
     }
 
     private void updateReturnToCallBar(boolean isCallActive, String callType, String callerName) {

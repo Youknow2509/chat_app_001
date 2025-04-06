@@ -330,6 +330,15 @@ public class SessionManager {
     }
 
     /**
+     * Cập nhập url ảnh đại diện người dùng
+     * @param url URL mới
+     */
+    public void setUserAvatar(String url) {
+        userEditor.putString(KEY_USER_AVATAR, url);
+        userEditor.apply();
+    }
+
+    /**
      * Lấy tên hiển thị của người dùng
      * @return Tên hiển thị hoặc tên thường nếu không có tên hiển thị
      */

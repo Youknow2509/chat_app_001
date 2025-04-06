@@ -13,11 +13,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.chatapp.worker.MediaWorkManager;
@@ -40,53 +40,15 @@ import java.util.function.Consumer;
 public class AudioRecordService {
     private static final String TAG = "AudioRecordService";
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
-
+    // Quản lý nhiều MediaPlayer cho các file khác nhau
+    private static final Map<String, AudioPlayback> audioPlayers = new HashMap<>();
     private static MediaRecorder mediaRecorder;
     private static String currentRecordingPath;
     private static boolean isRecording = false;
-
-    // Quản lý nhiều MediaPlayer cho các file khác nhau
-    private static final Map<String, AudioPlayback> audioPlayers = new HashMap<>();
-
     // Timer để cập nhật thời gian ghi âm
     private static Timer recordingTimer;
     private static long recordingDuration = 0; // ms
     private static Consumer<Long> durationCallback;
-
-    /**
-     * Lớp nội bộ để quản lý playback cho một file audio
-     */
-    private static class AudioPlayback {
-        MediaPlayer player;
-        boolean isPlaying;
-        Timer progressTimer;
-        Consumer<Integer> progressCallback;
-        Runnable completionCallback;
-
-        AudioPlayback(MediaPlayer player) {
-            this.player = player;
-            this.isPlaying = false;
-        }
-
-        void release() {
-            if (progressTimer != null) {
-                progressTimer.cancel();
-                progressTimer = null;
-            }
-
-            if (player != null) {
-                if (player.isPlaying()) {
-                    player.stop();
-                }
-                player.release();
-                player = null;
-            }
-
-            isPlaying = false;
-            progressCallback = null;
-            completionCallback = null;
-        }
-    }
 
     /**
      * Kiểm tra và yêu cầu quyền ghi âm
@@ -109,8 +71,8 @@ public class AudioRecordService {
     /**
      * Bắt đầu ghi âm
      *
-     * @param context Context để tạo file
-     * @param onStarted Callback khi bắt đầu ghi âm
+     * @param context          Context để tạo file
+     * @param onStarted        Callback khi bắt đầu ghi âm
      * @param onDurationUpdate Callback để cập nhật thời gian ghi âm (ms)
      * @return đường dẫn file ghi âm
      */
@@ -300,9 +262,9 @@ public class AudioRecordService {
     /**
      * Phát audio
      *
-     * @param context Context
-     * @param filePath Đường dẫn file âm thanh
-     * @param onCompletion Callback khi phát xong
+     * @param context          Context
+     * @param filePath         Đường dẫn file âm thanh
+     * @param onCompletion     Callback khi phát xong
      * @param onProgressUpdate Callback cập nhật tiến trình (phần trăm)
      */
     public static void playAudio(
@@ -378,7 +340,7 @@ public class AudioRecordService {
                     public void run() {
                         if (player != null && player.isPlaying()) {
                             int currentPosition = player.getCurrentPosition();
-                            int progressPercent = (int) ((currentPosition * 100) / duration);
+                            int progressPercent = (currentPosition * 100) / duration;
 
                             new Handler(Looper.getMainLooper()).post(() -> {
                                 if (playback.progressCallback != null) {
@@ -423,11 +385,11 @@ public class AudioRecordService {
      * Tải lên file ghi âm lên server
      *
      * @param lifecycleOwner LifecycleOwner để lắng nghe kết quả
-     * @param context Context ứng dụng
-     * @param filePath Đường dẫn file âm thanh
-     * @param token Token xác thực (nếu cần)
-     * @param onComplete Callback khi tải lên thành công (url từ server)
-     * @param onProgress Callback cập nhật tiến trình tải lên
+     * @param context        Context ứng dụng
+     * @param filePath       Đường dẫn file âm thanh
+     * @param token          Token xác thực (nếu cần)
+     * @param onComplete     Callback khi tải lên thành công (url từ server)
+     * @param onProgress     Callback cập nhật tiến trình tải lên
      */
     public static void uploadAudioFile(
             @NonNull LifecycleOwner lifecycleOwner,
@@ -454,7 +416,7 @@ public class AudioRecordService {
     /**
      * Lấy thời lượng của file audio (ms)
      *
-     * @param context Context
+     * @param context  Context
      * @param filePath Đường dẫn file
      * @return thời lượng tính bằng ms, hoặc 0 nếu không xác định được
      */
@@ -587,6 +549,41 @@ public class AudioRecordService {
             if (playback.isPlaying && playback.player != null) {
                 playback.player.start();
             }
+        }
+    }
+
+    /**
+     * Lớp nội bộ để quản lý playback cho một file audio
+     */
+    private static class AudioPlayback {
+        MediaPlayer player;
+        boolean isPlaying;
+        Timer progressTimer;
+        Consumer<Integer> progressCallback;
+        Runnable completionCallback;
+
+        AudioPlayback(MediaPlayer player) {
+            this.player = player;
+            this.isPlaying = false;
+        }
+
+        void release() {
+            if (progressTimer != null) {
+                progressTimer.cancel();
+                progressTimer = null;
+            }
+
+            if (player != null) {
+                if (player.isPlaying()) {
+                    player.stop();
+                }
+                player.release();
+                player = null;
+            }
+
+            isPlaying = false;
+            progressCallback = null;
+            completionCallback = null;
         }
     }
 }

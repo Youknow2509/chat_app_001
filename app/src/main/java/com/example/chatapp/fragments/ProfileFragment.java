@@ -1,32 +1,10 @@
 package com.example.chatapp.fragments;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,9 +13,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
 import com.example.chatapp.R;
@@ -50,54 +36,60 @@ import com.example.chatapp.models.UserDetail;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.request.UserModels;
 import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.service.ImageService;
+import com.example.chatapp.utils.cloudinary.CloudinaryManager;
+import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import com.example.chatapp.service.ImageService;
 
 public class ProfileFragment extends BaseNetworkFragment {
     //
     private FragmentProfileBinding binding;
+    private FrameLayout progressOverlay;
     //
     private SessionManager sessionManager;
     private UserProfileSession userProfileSession;
     private ApiManager apiManager;
     private final String TAG = "ProfileFragment";
-    //
-    private MutableLiveData<UserDetail> userDetailLiveData;
-    private MutableLiveData<UserDetail> userDetailUpdateLiveData;
-    private MutableLiveData<String> errorCallUpdateProfile;
-    //
-    private FrameLayout progressOverlay;
     private String currentMediaType = "image"; // Default to image
     private static final String FILEPROVIDER_AUTHORITY = "com.example.chatapp.fileprovider";
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private Uri currentMediaUri;
+    private File tempPhotoFileTakePictore;
+    private CloudinaryManager cloudinaryManager;
+    //
+    private MutableLiveData<UserDetail> userDetailLiveData;
+    private MutableLiveData<UserDetail> userDetailUpdateLiveData;
+    private MutableLiveData<String> errorCallUpdateProfile;
+    private MutableLiveData<File> avatarNewLive;
+    //
 
-    private final ActivityResultLauncher<String[]> pickMediaLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<String[]> pickPictureLauncher = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
             uri -> {
                 if (uri != null) {
                     // Persist permission for this URI
                     requireActivity().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-                    // Hiển thị dialog xem trước ảnh
+                    // Determine media type
+                    currentMediaType = "image";
+                    //
+                    currentMediaUri = uri;
                     showImagePreviewDialog(uri);
-
-                    Log.i(TAG, "Selected media URI: " + uri.toString());
                 }
             });
 
@@ -108,6 +100,9 @@ public class ProfileFragment extends BaseNetworkFragment {
                 if (success && currentMediaUri != null) {
                     currentMediaType = "image";
                     showImagePreviewDialog(currentMediaUri);
+                } else {
+                    showSnackbar("Không thể chụp ảnh");
+                    cleanupTempFiles();
                 }
             });
 
@@ -130,7 +125,10 @@ public class ProfileFragment extends BaseNetworkFragment {
     @Override
     protected void onNetworkUnavailable() {
         super.onNetworkUnavailable();
-
+        if (binding != null) {
+            binding.editAvatar.setVisibility(View.GONE);
+            binding.rightButton.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -139,44 +137,28 @@ public class ProfileFragment extends BaseNetworkFragment {
     @Override
     protected void onNetworkAvailable() {
         super.onNetworkAvailable();
+        if (binding != null) {
+            binding.editAvatar.setVisibility(View.VISIBLE);
+            binding.rightButton.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showImagePreviewDialog(Uri imageUri) {
-        binding.saveButtonContainer.setVisibility(View.VISIBLE);
-        // Ánh xạ các thành phần trong dialog
-        ImageView imagePreview = binding.avatarImage;
-        Button btnSave = binding.rightButton;
-        Button btnCancel = binding.leftButton;
+        if (binding != null) {
+            binding.saveButtonContainer.setVisibility(View.VISIBLE);
 
-        // Hiển thị ảnh xem trước
-        Glide.with(getContext())
-                .load(imageUri)
-                .into(imagePreview);
-
-        // Xử lý sự kiện nút Lưu
-        btnSave.setOnClickListener(v -> {
-            binding.saveButtonContainer.setVisibility(View.GONE);
-
-        });
-        btnCancel.setOnClickListener(v -> {
-            // Xóa ảnh đã chọn
-            currentMediaUri = null;
-            binding.saveButtonContainer.setVisibility(View.GONE);
-            binding.avatarImage.setImageURI(
-                    Uri.fromFile(new File(
-                            userDetailLiveData.getValue().getPath_local_avatar()
-                    )));
-
-            // Thông báo đã hủy
-            Toast.makeText(getContext(), "Đã hủy thay đổi ảnh đại diện", Toast.LENGTH_SHORT).show();
-        });
+            // Hiển thị ảnh xem trước
+            Glide.with(requireContext())
+                    .load(imageUri)
+                    .into(binding.avatarImage);
+        }
     }
 
-
     private void initVariable() {
-        this.apiManager = new ApiManager(this.getContext());
+        this.apiManager = new ApiManager(requireContext());
+        this.cloudinaryManager = CloudinaryManager.getInstance(requireContext());
         //
-        this.sessionManager = new SessionManager(this.getContext());
+        this.sessionManager = new SessionManager(requireContext());
         this.userProfileSession = this.sessionManager.getUserProfile();
         //
         this.userDetailLiveData = new MutableLiveData<>();
@@ -190,6 +172,7 @@ public class ProfileFragment extends BaseNetworkFragment {
         //
         this.userDetailUpdateLiveData = new MutableLiveData<>();
         this.errorCallUpdateProfile = new MutableLiveData<>();
+        this.avatarNewLive = new MutableLiveData<>();
         //
         this.progressOverlay = binding.progressOverlay;
     }
@@ -198,7 +181,17 @@ public class ProfileFragment extends BaseNetworkFragment {
      * observeLiveData
      */
     private void observeLiveData() {
-        //
+        // Xử lý khi chọn ảnh mới
+        avatarNewLive.observe(getViewLifecycleOwner(), file -> {
+            if (file != null) {
+                handleAvatarUpload(file);
+            } else {
+                progressOverlay.setVisibility(View.GONE);
+                showSnackbar("Không thể xử lý file ảnh");
+            }
+        });
+
+        // Xử lý khi có dữ liệu người dùng mới
         userDetailLiveData.observe(getViewLifecycleOwner(), userDetail -> {
             if (userDetail != null) {
                 initDataToView(userDetail);
@@ -206,17 +199,19 @@ public class ProfileFragment extends BaseNetworkFragment {
                 Log.e(TAG, "Received null userDetail");
             }
         });
-        //
+
+        // Xử lý khi cập nhật dữ liệu
         userDetailUpdateLiveData.observe(getViewLifecycleOwner(), userDetail -> {
             // update data to server
             progressOverlay.setVisibility(View.VISIBLE);
             callServerUpdateProfile();
         });
-        //
+
+        // Xử lý kết quả cập nhật từ server
         errorCallUpdateProfile.observe(getViewLifecycleOwner(), error -> {
             progressOverlay.setVisibility(View.GONE);
             if (error != null && !error.isEmpty()) {
-                Snackbar.make(binding.getRoot(), error, Snackbar.LENGTH_SHORT).show();
+                showSnackbar(error);
                 return;
             }
             userDetailLiveData.setValue(userDetailUpdateLiveData.getValue());
@@ -224,34 +219,81 @@ public class ProfileFragment extends BaseNetworkFragment {
     }
 
     /**
-         * Init data in view
-         */
-        private void initDataToView(UserDetail userDetail) {
-            if (userDetail == null) {
-                Log.e(TAG, "UserDetail is null");
-                return;
+     * Xử lý upload ảnh lên Cloudinary
+     */
+    private void handleAvatarUpload(File file) {
+        progressOverlay.setVisibility(View.VISIBLE);
+
+        String path = Uri.fromFile(file).toString();
+        String folder = "/users/" + sessionManager.getUserName() + "/images/";
+
+        cloudinaryManager.uploadImage(path, folder, new CloudinaryManager.CloudinaryCallback<Map<String, Object>>() {
+            @Override
+            public void onSuccess(Map<String, Object> result) {
+                // Get public ID and URL
+                String url = (String) result.get("url");
+                if (url != null) {
+                    Log.d(TAG, "Upload success: " + url);
+
+                    // Cập nhật thông tin người dùng với URL mới
+                    UserDetail current = userDetailLiveData.getValue();
+                    if (current != null) {
+                        UserDetail updated = new UserDetail(
+                                current.getName(),
+                                current.getEmail(),
+                                current.getGender(),
+                                current.getBirthday(),
+                                url  // URL Cloudinary mới // TODO fix
+                        );
+                        userDetailUpdateLiveData.postValue(updated);
+                    } else {
+                        progressOverlay.setVisibility(View.GONE);
+                        showSnackbar("Không thể cập nhật thông tin người dùng");
+                    }
+                } else {
+                    progressOverlay.setVisibility(View.GONE);
+                    showSnackbar("Không nhận được URL từ server");
+                }
             }
-            binding.profileName.setText(userDetail.getName());
-            binding.emailDetail.setText(userDetail.getEmail());
-            binding.genderDetail.setText(userDetail.getGender());
-            binding.birthdayDetail.setText(userDetail.getBirthday());
 
-            String url_avatar_local = userDetail.getPath_local_avatar();
-            String url_host_avt = sessionManager.getUserAvatar();
-            Context applicationContext = requireContext().getApplicationContext();
+            @Override
+            public void onError(String errorMsg) {
+                progressOverlay.setVisibility(View.GONE);
+                showSnackbar("Lỗi tải lên: " + errorMsg);
+            }
 
-            ImageService.loadAndCacheImage(
-                        this,                       // Fragment hiện tại
-                        binding.avatarImage,                // ImageView để hiển thị
-                        userDetail.getPath_local_avatar(),  // Đường dẫn local
-                        sessionManager.getUserAvatar(),     // URL từ server
-                        sessionManager.getAccessToken(),    // Token xác thực
-                        newPath -> {
-                            // Lưu đường dẫn mới
-                            userDetail.setPath_local_avatar(newPath);
-                            sessionManager.setPathFileAvatarUser(newPath);
-                        }
-                );
+            @Override
+            public void onProgress(int progress) {
+                // Có thể hiển thị progress bar
+                Log.d(TAG, "Upload progress: " + progress + "%");
+            }
+        });
+    }
+
+    /**
+     * Init data in view
+     */
+    private void initDataToView(UserDetail userDetail) {
+        if (userDetail == null || binding == null) {
+            Log.e(TAG, "UserDetail or binding is null");
+            return;
+        }
+        binding.profileName.setText(userDetail.getName());
+        binding.emailDetail.setText(userDetail.getEmail());
+        binding.genderDetail.setText(userDetail.getGender());
+        binding.birthdayDetail.setText(userDetail.getBirthday());
+
+        ImageService.loadAndCacheImage(
+                this,                       // Fragment hiện tại
+                binding.avatarImage,        // ImageView để hiển thị
+                userDetail.getPath_local_avatar(),  // Đường dẫn local
+                sessionManager.getUserAvatar(),     // URL từ server
+                sessionManager.getAccessToken(),    // Token xác thực
+                newPath -> {
+                    // Lưu đường dẫn mới
+                    userDetail.setPath_local_avatar(newPath);
+                    sessionManager.setPathFileAvatarUser(newPath);
+                });
     }
 
     /**
@@ -266,7 +308,7 @@ public class ProfileFragment extends BaseNetworkFragment {
                 showEditProfileBottomSheet(userDetail);
             } else {
                 Log.e(TAG, "userDetailLiveData is null, cannot show edit profile bottom sheet");
-                // Bạn có thể hiển thị một thông báo cho người dùng hoặc làm gì đó khác.
+                showSnackbar("Không thể tải thông tin người dùng");
             }
         });
         binding.addIcon.setOnClickListener(v -> {
@@ -304,15 +346,88 @@ public class ProfileFragment extends BaseNetworkFragment {
             // Hiển thị popup menu
             popupMenu.show();
         });
+        // Xử lý sự kiện nút lưu ảnh
+        binding.rightButton.setOnClickListener(this::saveImageToDevice);
+        // xử lí huỷ lưu ảnh
+        binding.leftButton.setOnClickListener(this::cancelImageChanges);
+    }
+
+    /**
+     * Xử lý huỷ thay đổi ảnh đại diện
+     */
+    private void cancelImageChanges(View v) {
+        // Xóa ảnh đã chọn
+        currentMediaUri = null;
+        binding.saveButtonContainer.setVisibility(View.GONE);
+
+        // Xóa file tạm nếu có
+        cleanupTempFiles();
+
+        // Hiển thị lại ảnh cũ
+        UserDetail userDetail = userDetailLiveData.getValue();
+        if (userDetail != null && userDetail.getPath_local_avatar() != null) {
+            binding.avatarImage.setImageURI(Uri.fromFile(new File(userDetail.getPath_local_avatar())));
+        }
+
+        // Thông báo đã hủy
+        Toast.makeText(getContext(), "Đã hủy thay đổi ảnh đại diện", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Xóa file tạm nếu tồn tại
+     */
+    private void cleanupTempFiles() {
+        if (tempPhotoFileTakePictore != null && tempPhotoFileTakePictore.exists()) {
+            boolean deleted = tempPhotoFileTakePictore.delete();
+            if (deleted) {
+                Log.d(TAG, "Temp photo file deleted successfully");
+            } else {
+                Log.w(TAG, "Failed to delete temp photo file");
+            }
+            tempPhotoFileTakePictore = null;
+        }
+    }
+
+    /**
+     * Save image user to device
+     */
+    private void saveImageToDevice(View v) {
+        binding.saveButtonContainer.setVisibility(View.GONE);
+        progressOverlay.setVisibility(View.VISIBLE);
+
+        MediaUtils.saveMediaToInternalStorageAsync(
+                getContext(),
+                currentMediaUri,
+                currentMediaType
+        ).thenAccept(
+                file -> {
+                    if (file != null) {
+                        Log.d(TAG, "Image saved to: " + file.getAbsolutePath());
+                        this.avatarNewLive.postValue(file);
+                        cleanupTempFiles(); // Xóa file tạm sau khi lưu thành công
+                    } else {
+                        progressOverlay.setVisibility(View.GONE);
+                        requireActivity().runOnUiThread(() ->
+                                showSnackbar("Lỗi khi lưu ảnh")
+                        );
+                    }
+                }
+        );
     }
 
     private void callServerUpdateProfile() {
+        if (userDetailUpdateLiveData.getValue() == null) {
+            progressOverlay.setVisibility(View.GONE);
+            showSnackbar("Không có dữ liệu để cập nhật");
+            return;
+        }
+
         apiManager.updateUserInfo(
                 sessionManager.getAccessToken(),
                 new UserModels.UpdateUserInfoInput(
                         sessionManager.getUserId(),
                         userDetailUpdateLiveData.getValue().getName(),
-                        sessionManager.getUserAvatar(),
+                        userDetailUpdateLiveData.getValue().getUrl_avatar(), // Sử dụng URL mới từ Cloudinary
                         formatDate(userDetailUpdateLiveData.getValue().getBirthday()),
                         userDetailUpdateLiveData.getValue().getGender()
                 ),
@@ -321,7 +436,7 @@ public class ProfileFragment extends BaseNetworkFragment {
                     public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
                         if (response.body() == null) {
                             Log.e(TAG, "Error call update profile: Response body is null");
-                            errorCallUpdateProfile.postValue("Error call update profile: Response body is null");
+                            errorCallUpdateProfile.postValue("Lỗi cập nhật hồ sơ: Phản hồi từ máy chủ trống");
                             return;
                         }
                         int code = response.body().getCode();
@@ -330,21 +445,40 @@ public class ProfileFragment extends BaseNetworkFragment {
                             errorCallUpdateProfile.postValue(response.body().getMessage());
                             return;
                         }
+                        // save data to session
+                        saveProfileToSession(userDetailUpdateLiveData.getValue());
                         errorCallUpdateProfile.postValue("");
                     }
 
                     @Override
                     public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
                         Log.e(TAG, "Error call update profile: " + t.getMessage());
-                        errorCallUpdateProfile.postValue(t.getMessage());
+                        errorCallUpdateProfile.postValue("Lỗi kết nối: " + t.getMessage());
                     }
                 }
         );
     }
 
+    /**
+     * save profile to session
+     */
+    private void saveProfileToSession(UserDetail userDetail) {
+        if (userDetail == null) return;
+
+        sessionManager.getUserProfile().setDisplayName(userDetail.getName());
+        sessionManager.getUserProfile().setUserGender(userDetail.getGender());
+        sessionManager.getUserProfile().setDateOfBirth(userDetail.getBirthday());
+        sessionManager.setUserAvatar(userDetail.getUrl_avatar());
+
+        // Kiểm tra null trước khi truy cập avatarNewLive
+        if (avatarNewLive.getValue() != null) {
+            sessionManager.setPathFileAvatarUser(avatarNewLive.getValue().getAbsolutePath());
+        }
+    }
+
     private void editAvatar() {
         // Hiển thị dialog lựa chọn
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Chọn ảnh đại diện");
         String[] options = {"Chụp ảnh", "Chọn từ thư viện"};
 
@@ -365,51 +499,49 @@ public class ProfileFragment extends BaseNetworkFragment {
     }
 
     /**
-     * Create a temporary file for media capture
-     */
-    private File createMediaFile(String extension) throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String fileName = "MEDIA_" + timeStamp + "_";
-        File storageDir = getContext().getFilesDir();
-        return File.createTempFile(fileName, extension, storageDir);
-    }
-
-    /**
      * Open camera to take a photo
      */
     private void takePhoto() {
         try {
-            File photoFile = createMediaFile(".jpg");
+            // Tạo thư mục tạm nếu chưa tồn tại
+            File tempDir = new File(requireContext().getCacheDir(), "temp_photos");
+            if (!tempDir.exists()) {
+                tempDir.mkdirs();
+            }
 
-            currentMediaUri = FileProvider.getUriForFile(this.getContext(),
+            // Tạo file tạm trong thư mục cache
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            tempPhotoFileTakePictore = new File(tempDir, "TEMP_" + timeStamp + ".jpg");
+
+            currentMediaUri = FileProvider.getUriForFile(
+                    requireContext(),
                     FILEPROVIDER_AUTHORITY,
-                    photoFile);
-            Log.i(TAG, "Photo URI: " + currentMediaUri.toString());
+                    tempPhotoFileTakePictore
+            );
+
+            Log.i(TAG, "Temporary Photo URI: " + currentMediaUri);
             takePhotoLauncher.launch(currentMediaUri);
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Log.e(TAG, "Error creating image file", ex);
-            Toast.makeText(this.getContext(), "Error creating image file", Toast.LENGTH_SHORT).show();
+            showSnackbar("Lỗi khi tạo file ảnh: " + ex.getMessage());
         }
     }
-
 
     /**
      * Open gallery for media selection
      */
     private void openGallery() {
-        pickMediaLauncher.launch(new String[]{"image/*", "video/*"});
+        pickPictureLauncher.launch(new String[]{"image/*"});
     }
 
-
     private boolean checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
             return false;
         }
         return true;
     }
-
 
     private void showEditProfileBottomSheet(UserDetail userDetail) {
         if (userDetail == null) {
@@ -417,7 +549,7 @@ public class ProfileFragment extends BaseNetworkFragment {
             return;
         }
         // Tạo bottom sheet dialog
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this.getContext());
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
 
         // Inflate layout cho bottom sheet
         View bottomSheetView = getLayoutInflater().inflate(R.layout.dialog_edit_profile, null);
@@ -440,7 +572,7 @@ public class ProfileFragment extends BaseNetworkFragment {
         // Cài đặt gender spinner
         String[] genderOptions = {"Male", "Female"};
         ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(
-                this.getContext(),
+                requireContext(),
                 android.R.layout.simple_spinner_item,
                 genderOptions
         );
@@ -459,17 +591,16 @@ public class ProfileFragment extends BaseNetworkFragment {
             Calendar calendar = Calendar.getInstance();
 
             // Lấy ngày sinh hiện tại từ userDetail (nếu có)
-            String currentBirthday = userDetail.getBirthday(); // Giả sử format là "dd-MM-yyyy"
+            String currentBirthday = userDetail.getBirthday();
             if (currentBirthday != null && !currentBirthday.isEmpty()) {
                 try {
-                    // Chuyển đổi từ chuỗi ngày sinh sang Calendar để lấy năm, tháng, ngày
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
                     Date date = dateFormat.parse(currentBirthday);
                     if (date != null) {
                         calendar.setTime(date);
                     }
                 } catch (ParseException e) {
-                    e.printStackTrace(); // Xử lý lỗi nếu format không đúng
+                    Log.e(TAG, "Error parsing date", e);
                 }
             }
 
@@ -478,7 +609,7 @@ public class ProfileFragment extends BaseNetworkFragment {
             int day = calendar.get(Calendar.DAY_OF_MONTH);
 
             DatePickerDialog datePickerDialog = new DatePickerDialog(
-                    this.getContext(),
+                    requireContext(),
                     (view, year1, month1, dayOfMonth) -> {
                         String birthday = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
                         birthdayInput.setText(birthday);
@@ -487,7 +618,6 @@ public class ProfileFragment extends BaseNetworkFragment {
             );
             datePickerDialog.show();
         });
-
 
         // Xử lý nút Cancel
         cancelButton.setOnClickListener(v -> bottomSheetDialog.dismiss());
@@ -509,7 +639,7 @@ public class ProfileFragment extends BaseNetworkFragment {
                     newEmail,
                     newGender,
                     newBirthday,
-                    sessionManager.getPathFileAvatarUser()
+                    userDetail.getUrl_avatar() // Giữ nguyên URL avatar
             ));
 
             bottomSheetDialog.dismiss();
@@ -523,7 +653,6 @@ public class ProfileFragment extends BaseNetworkFragment {
         BottomSheetBehavior<FrameLayout> behavior = bottomSheetDialog.getBehavior();
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
-
 
     /**
      * Validate data save
@@ -550,11 +679,6 @@ public class ProfileFragment extends BaseNetworkFragment {
             email.setError("Email is required");
             email.requestFocus();
             return false;
-            // TODO: enable in prodution
-//        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
-//            email.setError("Invalid email format");
-//            email.requestFocus();
-//            return false;
         }
 
         // Validate gender (assuming default option is "Select gender")
@@ -564,7 +688,7 @@ public class ProfileFragment extends BaseNetworkFragment {
             return false;
         }
 
-        // Validate birthday (you can improve this based on date format)
+        // Validate birthday
         if (newBirthday.isEmpty()) {
             birthday.setError("Birthday is required");
             birthday.requestFocus();
@@ -592,9 +716,15 @@ public class ProfileFragment extends BaseNetworkFragment {
             Date d = new SimpleDateFormat("dd/MM/yyyy").parse(date);
             return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(d);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error formatting date", e);
             return "";
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        cleanupTempFiles();
+        binding = null;
+    }
 }

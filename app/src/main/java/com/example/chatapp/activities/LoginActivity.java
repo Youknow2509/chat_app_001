@@ -65,7 +65,7 @@ public class LoginActivity extends BaseNetworkActivity {
         loginViewModel.getResPathFileAvatar().observe(this,
                 path -> {
                     if (path != null && !path.isEmpty()) {
-                        saveLocalPathFileAvatar(path);
+//                        saveLocalPathFileAvatar(path);
                         navigateToHome();
                     } else {
                         Toast.makeText(context, "Error saving avatar", Toast.LENGTH_SHORT).show();

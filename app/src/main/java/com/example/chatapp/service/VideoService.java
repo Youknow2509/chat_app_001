@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -34,12 +35,12 @@ public class VideoService {
     /**
      * Tải và phát video trong Fragment
      *
-     * @param fragment Fragment hiện tại
-     * @param playerView PlayerView để hiển thị video
-     * @param localPath Đường dẫn video local
-     * @param remoteUrl URL video từ server
-     * @param token Token xác thực (nếu cần)
-     * @param autoPlay Tự động phát video sau khi tải
+     * @param fragment          Fragment hiện tại
+     * @param playerView        PlayerView để hiển thị video
+     * @param localPath         Đường dẫn video local
+     * @param remoteUrl         URL video từ server
+     * @param token             Token xác thực (nếu cần)
+     * @param autoPlay          Tự động phát video sau khi tải
      * @param onVideoDownloaded Callback khi tải thành công
      */
     public static void loadAndPlayVideo(
@@ -64,13 +65,13 @@ public class VideoService {
     /**
      * Tải và phát video trong Activity
      *
-     * @param activity Activity hiện tại
-     * @param playerView PlayerView để hiển thị video
-     * @param localPath Đường dẫn video local
-     * @param remoteUrl URL video từ server
-     * @param token Token xác thực (nếu cần)
-     * @param lifecycleOwner LifecycleOwner để lắng nghe kết quả
-     * @param autoPlay Tự động phát video sau khi tải
+     * @param activity          Activity hiện tại
+     * @param playerView        PlayerView để hiển thị video
+     * @param localPath         Đường dẫn video local
+     * @param remoteUrl         URL video từ server
+     * @param token             Token xác thực (nếu cần)
+     * @param lifecycleOwner    LifecycleOwner để lắng nghe kết quả
+     * @param autoPlay          Tự động phát video sau khi tải
      * @param onVideoDownloaded Callback khi tải thành công
      */
     public static void loadAndPlayVideo(
