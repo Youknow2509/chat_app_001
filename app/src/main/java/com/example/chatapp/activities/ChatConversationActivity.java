@@ -17,14 +17,17 @@ import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.R;
 import com.example.chatapp.adapters.ChatAdapter;
+import com.example.chatapp.adapters.MentionSuggestionAdapter;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityChatV2Binding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
 import com.example.chatapp.dto.MessageDTO;
 import com.example.chatapp.models.ChatMessage;
+import com.example.chatapp.models.MentionSuggestion;
 import com.example.chatapp.models.User;
 import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.observers.MessageObserver;
@@ -65,6 +68,15 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     private boolean hasMoreMessages = true;
 
 
+    ////////
+    private RecyclerView mentionSuggestionRecyclerView;
+    private MentionSuggestionAdapter mentionAdapter;
+    private List<MentionSuggestion> mentionSuggestions;
+    private boolean isMentioning = false;
+    private int mentionStartIndex = -1;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +91,20 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         init();
         Log.i(TAG, "onCreate: CREREASDSDASDAS");
 
+
+        mentionSuggestions = new ArrayList<>();
+        mentionSuggestions.add(new MentionSuggestion("GEMINI", R.drawable.avatar_circle_bg));
+        mentionSuggestions.add(new MentionSuggestion("GROK", R.drawable.avatar_circle_bg));
+
+        // Khởi tạo RecyclerView cho gợi ý mention
+        mentionSuggestionRecyclerView = binding.mentionSuggestionRecyclerView;
+        mentionSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mentionAdapter = new MentionSuggestionAdapter(mentionSuggestions, suggestion -> {
+            // Xử lý khi người dùng chọn một gợi ý
+            handleMentionSelection(suggestion);
+        });
+        mentionSuggestionRecyclerView.setAdapter(mentionAdapter);
+
         binding.messageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -86,8 +112,28 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                String text = charSequence.toString();
 
+                // Kiểm tra xem người dùng vừa gõ "@" không
+                if (count == 1 && text.charAt(start) == '@') {
+                    isMentioning = true;
+                    mentionStartIndex = start;
+                    showMentionSuggestions();
+                }
+                // Nếu đang trong chế độ mention, kiểm tra xem người dùng đã gõ thêm ký tự nào không
+                else if (isMentioning) {
+                    // Nếu người dùng xóa "@", tắt chế độ mention
+                    if (mentionStartIndex >= text.length() || text.charAt(mentionStartIndex) != '@') {
+                        isMentioning = false;
+                        hideMentionSuggestions();
+                    }
+                    // Lọc danh sách gợi ý dựa trên những gì người dùng đã gõ sau "@"
+                    else if (mentionStartIndex < text.length() - 1) {
+                        String query = text.substring(mentionStartIndex + 1).toLowerCase();
+                        filterMentionSuggestions(query);
+                    }
+                }
             }
 
             @Override
@@ -100,6 +146,60 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         messageObservable = MessageObservable.getInstance();
         messageObservable.addObserver(this);
 
+    }
+
+    private void showMentionSuggestions() {
+        mentionSuggestionRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void hideMentionSuggestions() {
+        mentionSuggestionRecyclerView.setVisibility(View.GONE);
+    }
+
+    private void filterMentionSuggestions(String query) {
+        List<MentionSuggestion> filteredList = new ArrayList<>();
+        for (MentionSuggestion suggestion : mentionSuggestions) {
+            if (suggestion.getName().toLowerCase().contains(query)) {
+                filteredList.add(suggestion);
+            }
+        }
+
+        mentionAdapter = new MentionSuggestionAdapter(filteredList, suggestion -> {
+            handleMentionSelection(suggestion);
+        });
+        mentionSuggestionRecyclerView.setAdapter(mentionAdapter);
+
+        // Ẩn danh sách nếu không có gợi ý nào phù hợp
+        if (filteredList.isEmpty()) {
+            hideMentionSuggestions();
+        } else {
+            showMentionSuggestions();
+        }
+    }
+
+    private void handleMentionSelection(MentionSuggestion suggestion) {
+        // Lấy nội dung hiện tại của EditText
+        Editable editable = binding.messageEditText.getText();
+        String text = editable.toString();
+
+        // Thay thế từ vị trí @ đến vị trí con trỏ hiện tại bằng tên được chọn
+        String replacement = "@" + suggestion.getName() + " ";
+        String newText = text.substring(0, mentionStartIndex) + replacement;
+
+        // Nếu còn nội dung sau vị trí con trỏ, thêm vào
+        if (binding.messageEditText.getSelectionStart() < text.length()) {
+            newText += text.substring(binding.messageEditText.getSelectionStart());
+        }
+
+        // Cập nhật nội dung EditText
+        binding.messageEditText.setText(newText);
+
+        // Di chuyển con trỏ đến cuối phần vừa chèn
+        binding.messageEditText.setSelection(mentionStartIndex + replacement.length());
+
+        // Ẩn danh sách gợi ý
+        hideMentionSuggestions();
+        isMentioning = false;
     }
 
     @Override

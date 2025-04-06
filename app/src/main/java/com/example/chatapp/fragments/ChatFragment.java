@@ -82,15 +82,6 @@ public class ChatFragment extends Fragment {
         binding.chatRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         chatListItems = new ArrayList<>();
-        // Lấy dữ liệu Users & Groups chung vào danh sách ChatListItem
-        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
-            @Override
-            public void onUserClick(User user) {
-                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
-                intent.putExtra(Constants.KEY_USER, user);
-                startActivity(intent);
-            }
-        });
 
         binding.chatRecyclerView.setAdapter(chatListAdapter);
 
@@ -101,8 +92,10 @@ public class ChatFragment extends Fragment {
         });
 
         getUsersFromApi();
-        // Cập nhật danh sách chat và adapter sau khi có dữ liệu
         chatListItems = getChatListItems();
+
+
+        binding.chatRecyclerView.setAdapter(chatListAdapter);
 
 
         // Cau hinh option menu tren toolbar
@@ -147,11 +140,11 @@ public class ChatFragment extends Fragment {
     }
     private List<ChatListItem> getChatListItems() {
         List<ChatListItem> chatListItems = new ArrayList<>();
-
         // Thêm Users vào danh sách chung
         for (User user : users) {
             chatListItems.add(new ChatListItem(user));
         }
+
 
         return chatListItems;
     }
@@ -162,6 +155,22 @@ public class ChatFragment extends Fragment {
 
 
     private void getUsersFromApi() {
+        // Demo du lieu chat
+
+//        users.add(new User("1", "Alex Linderson", "alex.linderson@example.com", getImageBitmap(R.drawable.user)));
+//        chatListItems = getChatListItems();
+//        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
+//            @Override
+//            public void onUserClick(User user) {
+//                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
+//                intent.putExtra(Constants.KEY_USER, user);
+//                startActivity(intent);
+//            }
+//        });
+
+
+        // Gọi API để lấy danh sách chat
+
         apiManager.getListChatPrivateForUser(sessionManager.getAccessToken(), 10, 1, new Callback<ResponseData<Object>>() {
             @Override
             public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {

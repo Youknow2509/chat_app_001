@@ -102,7 +102,16 @@
             app:stackFromEnd="true" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mentionSuggestionRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/inputLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
     <!-- Bottom input area -->
     <LinearLayout
         android:id="@+id/inputLayout"
@@ -115,6 +124,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+
+        <!-- Suggestion RecyclerView -->
 
         <LinearLayout
             android:id="@+id/messageInputLayout"
