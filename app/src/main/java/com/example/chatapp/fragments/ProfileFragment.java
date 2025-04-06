@@ -3,12 +3,19 @@ package com.example.chatapp.fragments;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
@@ -22,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -38,12 +46,14 @@ import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.request.UserModels;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.Utils;
+import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -68,6 +78,65 @@ public class ProfileFragment extends Fragment {
     private MutableLiveData<String> errorCallUpdateProfile;
     //
     private FrameLayout progressOverlay;
+    private String currentMediaType = "image"; // Default to image
+    private static final String FILEPROVIDER_AUTHORITY = "com.example.chatapp.fileprovider";
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private Uri currentMediaUri;
+
+    private final ActivityResultLauncher<String[]> pickMediaLauncher = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+                if (uri != null) {
+                    // Persist permission for this URI
+                    requireActivity().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    // Hiển thị dialog xem trước ảnh
+                    showImagePreviewDialog(uri);
+
+                    Log.i(TAG, "Selected media URI: " + uri.toString());
+                }
+            });
+
+    // Activity result launcher for taking photo with camera
+    private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            success -> {
+                if (success && currentMediaUri != null) {
+                    currentMediaType = "image";
+                    showImagePreviewDialog(currentMediaUri);
+                }
+            });
+
+
+
+    private void showImagePreviewDialog(Uri imageUri) {
+        binding.saveButtonContainer.setVisibility(View.VISIBLE);
+        // Ánh xạ các thành phần trong dialog
+        ImageView imagePreview = binding.avatarImage;
+        Button btnSave = binding.rightButton;
+        Button btnCancel = binding.leftButton;
+
+        // Hiển thị ảnh xem trước
+        Glide.with(getContext())
+                .load(imageUri)
+                .into(imagePreview);
+
+        // Xử lý sự kiện nút Lưu
+        btnSave.setOnClickListener(v -> {
+            binding.saveButtonContainer.setVisibility(View.GONE);
+
+        });
+        btnCancel.setOnClickListener(v -> {
+            // Xóa ảnh đã chọn
+            currentMediaUri = null;
+            binding.saveButtonContainer.setVisibility(View.GONE);
+            binding.avatarImage.setImageURI(Uri.fromFile(new File(userDetailLiveData.getValue().getPath_local_avatar())));
+
+            // Thông báo đã hủy
+            Toast.makeText(getContext(), "Đã hủy thay đổi ảnh đại diện", Toast.LENGTH_SHORT).show();
+        });
+    }
+
 
     private void initVariable() {
         this.apiManager = new ApiManager(this.getContext());
@@ -254,8 +323,73 @@ public class ProfileFragment extends Fragment {
     }
 
     private void editAvatar() {
-        // TODO: Thay đổi avatar
+        // Hiển thị dialog lựa chọn
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Chọn ảnh đại diện");
+        String[] options = {"Chụp ảnh", "Chọn từ thư viện"};
+
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Chụp ảnh
+                    if (checkCameraPermission()) {
+                        takePhoto();
+                    }
+                    break;
+                case 1: // Chọn từ thư viện
+                    openGallery();
+                    break;
+            }
+        });
+
+        builder.show();
     }
+
+    /**
+     * Create a temporary file for media capture
+     */
+    private File createMediaFile(String extension) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String fileName = "MEDIA_" + timeStamp + "_";
+        File storageDir = getContext().getFilesDir();
+        return File.createTempFile(fileName, extension, storageDir);
+    }
+
+    /**
+     * Open camera to take a photo
+     */
+    private void takePhoto() {
+        try {
+            File photoFile = createMediaFile(".jpg");
+
+            currentMediaUri = FileProvider.getUriForFile(this.getContext(),
+                    FILEPROVIDER_AUTHORITY,
+                    photoFile);
+            Log.i(TAG, "Photo URI: " + currentMediaUri.toString());
+            takePhotoLauncher.launch(currentMediaUri);
+
+        } catch (IOException ex) {
+            Log.e(TAG, "Error creating image file", ex);
+            Toast.makeText(this.getContext(), "Error creating image file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    /**
+     * Open gallery for media selection
+     */
+    private void openGallery() {
+        pickMediaLauncher.launch(new String[]{"image/*", "video/*"});
+    }
+
+
+    private boolean checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            return false;
+        }
+        return true;
+    }
+
 
     private void showEditProfileBottomSheet(UserDetail userDetail) {
         if (userDetail == null) {
