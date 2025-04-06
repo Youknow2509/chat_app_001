@@ -63,9 +63,9 @@ func (s *sChatBase) UserGetListChatGroupForUser(ctx context.Context, in *model.I
 	} else {
 		// 3. if dont have, get list chat for user
 		dataD, err := s.r.GetChatListGroupForUser(ctx, database.GetChatListGroupForUserParams{
-			UserID:   in.UserID,
-			Limit:    int32(in.Limit),
-			Offset:   int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+			UserID: in.UserID,
+			Limit:  int32(in.Limit),
+			Offset: int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
 		})
 		if err != nil {
 			fmt.Printf("Err get list chat for user %s", in.UserID)
@@ -322,7 +322,10 @@ func (s *sChatBase) GetListChatForUser(ctx context.Context, in *model.InputGetCh
 }
 
 // GetUserInChat implements service.IChatService.
-func (s *sChatBase) GetUserInChat(ctx context.Context, in *model.InputGetUserInChat) (out *model.GetUserInChatOutput, err error) {
+func (s *sChatBase) GetUserInChat(
+	ctx context.Context,
+	in *model.InputGetUserInChat,
+) (out *model.GetUserInChatOutput, err error) {
 	// 1. Check chat group is exist
 	chatGroupInfo, err := s.r.GetGroupInfo(ctx, in.ChatID)
 	if err != nil {
@@ -380,14 +383,19 @@ func (s *sChatBase) GetUserInChat(ctx context.Context, in *model.InputGetUserInC
 			return nil, err
 		}
 		// 5. set data to output
-		listUserId := make([]string, len(dataUserInChat))
+		listUser := make([]model.UserInfoBase, len(dataUserInChat))
 		for index, v := range dataUserInChat {
 			// out.ListUserID = append(out.ListUserID, v.UserID)
-			listUserId[index] = v.UserID
+			listUser[index] = model.UserInfoBase{
+				UserID: v.UserID,
+				UserAccount: v.UserEmail.String,
+				UserNickname: v.UserNickname.String,
+				UserAvatar: v.UserAvatar.String,
+			}
 		}
 		out = &model.GetUserInChatOutput{
 			ChatID:     in.ChatID,
-			ListUserID: listUserId,
+			Users: listUser,
 		}
 		// 6. save to cache
 		go func() {

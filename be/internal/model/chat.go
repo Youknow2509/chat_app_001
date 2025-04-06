@@ -32,8 +32,8 @@ type ChatInfoOutput struct {
 
 // GetUserInChat output
 type GetUserInChatOutput struct {
-	ChatID     string   `json:"chat_id"`
-	ListUserID []string `json:"list_user_id"`
+	ChatID string         `json:"chat_id"`
+	Users  []UserInfoBase `json:"users"`
 }
 
 // AddMemberToChat input
@@ -98,7 +98,6 @@ type InputGetUserInChatAdmin struct {
 	Page   int    `json:"page"`
 	Limit  int    `json:"limit"`
 }
-
 
 // Out get list chat for user
 type OutGetListChatForUser struct {

@@ -71,14 +71,19 @@ func (s *sChatAdmin) GetUserInChatAdmin(ctx context.Context, in *model.InputGetU
 			return nil, err
 		}
 		// 4. set data to output
-		listUserId := make([]string, len(dataUserInChat))
+		listUser := make([]model.UserInfoBase, len(dataUserInChat))
 		for index, v := range dataUserInChat {
 			// out.ListUserID = append(out.ListUserID, v.UserID)
-			listUserId[index] = v.UserID
+			listUser[index] = model.UserInfoBase{
+				UserID:       v.UserID,
+				UserAccount:  v.UserEmail.String,
+				UserNickname: v.UserNickname.String,
+				UserAvatar:   v.UserAvatar.String,
+			}
 		}
 		out = &model.GetUserInChatOutput{
-			ChatID:     in.ChatID,
-			ListUserID: listUserId,
+			ChatID: in.ChatID,
+			Users:  listUser,
 		}
 		// 6. save to cache
 		go func() {

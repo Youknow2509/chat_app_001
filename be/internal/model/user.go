@@ -2,6 +2,13 @@ package model
 
 import "time"
 
+type UserInfoBase struct {
+	UserID       string    `json:"user_id"`
+	UserAccount  string    `json:"user_account"`
+	UserNickname string    `json:"user_nickname"`
+	UserAvatar   string    `json:"user_avatar"`
+}
+
 // intput check friend user
 type CheckFriendUserInput struct {
 	User1 string `json:"user_1"`
