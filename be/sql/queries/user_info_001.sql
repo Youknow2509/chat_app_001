@@ -3,6 +3,10 @@ UPDATE `user_info`
 SET user_nickname = ?, user_avatar = ?, updated_at = NOW()
 WHERE user_account = ?;
 
+-- name: GetNickNameUserAndAvatarWithId :one
+SELECT user_nickname, user_avatar FROM `user_info`
+WHERE user_id = ? LIMIT 1;
+
 -- name: GetUserWithID :one
 SELECT
     user_info.user_id, 

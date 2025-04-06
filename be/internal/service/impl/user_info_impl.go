@@ -341,15 +341,23 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 	}()
 	// 6. notify to user
 	go func() {
-		notify.InitINotify(impl.GetNotifyImpl())
-		iNotify := notify.GetINotify()
-		err := iNotify.SendKafkaNotificationUser(
+		iUserAccept, err := s.r.GetNickNameUserAndAvatarWithId(
+			context.Background(),
 			cInfoRequest.ToUser.String,
-			"Accept friend request "+cInfoRequest.FromUser.String,
-			"Accept friend request",
-			"",
 		)
 		if err != nil {
+			fmt.Println("Err get nickname user")
+			return
+		}
+		notify.InitINotify(impl.GetNotifyImpl())
+		iNotify := notify.GetINotify()
+		errNotify := iNotify.SendKafkaNotificationUser(
+			cInfoRequest.FromUser.String,
+			"Accept friend request "+ iUserAccept.UserNickname.String,
+			"Accept friend request",
+			iUserAccept.UserAvatar.String,
+		)
+		if errNotify != nil {
 			fmt.Println("Err when sending notification")
 		}
 	}()
@@ -359,12 +367,12 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 // CreateFriendRequest implements service.IUserInfo.
 func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFriendRequestInput) (codeResult int, err error) {
 	// 1. check user send with id exists
-	cUserSend, err := s.r.CheckUserBaseExistsWithID(ctx, in.UserID)
+	iUserSend, err := s.r.GetUserWithID(ctx, in.UserID)
 	if err != nil {
 		global.Logger.Error("Err get user with id", zap.Error(err))
 		return response.ErrCodeUserNotFound, err
 	}
-	if cUserSend < 1 {
+	if iUserSend.UserID == "" {
 		global.Logger.Error("User is not exist")
 		return response.ErrCodeUserNotFound, fmt.Errorf("user is not exist")
 	}
@@ -440,9 +448,9 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 		iNotify := notify.GetINotify()
 		err := iNotify.SendKafkaNotificationUser(
 			iUserFriend.UserID,
-			"Friend request from "+in.UserID,
+			"Friend request from "+ iUserSend.UserNickname.String,
 			"Friend request",
-			"",
+			iUserSend.UserAvatar.String,
 		)
 		if err != nil {
 			fmt.Println("Err when sending notification")

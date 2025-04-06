@@ -230,6 +230,23 @@ func (q *Queries) FindUsers(ctx context.Context, arg FindUsersParams) ([]UserInf
 	return items, nil
 }
 
+const getNickNameUserAndAvatarWithId = `-- name: GetNickNameUserAndAvatarWithId :one
+SELECT user_nickname, user_avatar FROM ` + "`" + `user_info` + "`" + `
+WHERE user_id = ? LIMIT 1
+`
+
+type GetNickNameUserAndAvatarWithIdRow struct {
+	UserNickname sql.NullString
+	UserAvatar   sql.NullString
+}
+
+func (q *Queries) GetNickNameUserAndAvatarWithId(ctx context.Context, userID string) (GetNickNameUserAndAvatarWithIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getNickNameUserAndAvatarWithId, userID)
+	var i GetNickNameUserAndAvatarWithIdRow
+	err := row.Scan(&i.UserNickname, &i.UserAvatar)
+	return i, err
+}
+
 const getUserWithAccount = `-- name: GetUserWithAccount :one
 SELECT
     user_id, 
