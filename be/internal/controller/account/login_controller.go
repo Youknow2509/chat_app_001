@@ -65,9 +65,12 @@ func (cU *cUserLogin) Login(c *gin.Context) {
 	}
 
 	codeStatus, out, err := service.UserLogin().Login(c, &params)
-	if codeStatus != response.ErrCodeSuccess {
-		global.Logger.Error("Error login user", zap.Error(err))
-		response.ErrorResponse(c, codeStatus, response.GetMessageCode(codeStatus))
+	if codeStatus == response.ErrCodeUserNotFound {
+		response.SuccessResponse(c, codeStatus, response.GetMessageCode(codeStatus))
+		return
+	}
+	if codeStatus == response.ErrCodeAuthFailed {
+		response.SuccessResponse(c, codeStatus, response.GetMessageCode(codeStatus))
 		return
 	}
 	if err != nil {
@@ -97,9 +100,12 @@ func (cU *cUserLogin) Register(c *gin.Context) {
 	}
 
 	codeStatus, err := service.UserLogin().Register(c, &params)
-	if codeStatus != response.ErrCodeSuccess {
-		global.Logger.Error("Error register user", zap.Error(err))
-		response.ErrorResponse(c, codeStatus, response.GetMessageCode(codeStatus))
+	if codeStatus == response.ErrCodeUserHasExist {
+		response.SuccessResponse(c, codeStatus, response.GetMessageCode(codeStatus))
+		return
+	}
+	if codeStatus == response.ErrCodeOTPNotExist {
+		response.SuccessResponse(c, codeStatus, response.GetMessageCode(codeStatus))
 		return
 	}
 	if err != nil {
@@ -131,7 +137,7 @@ func (cU *cUserLogin) VerifyOTP(c *gin.Context) {
 	out, err := service.UserLogin().VerifyOTP(c, &params)
 	if err != nil {
 		global.Logger.Error("Error verifying user otp", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeVerifyOTPFail, err.Error())
+		response.SuccessResponse(c, response.ErrCodeVerifyOTPFail, err.Error())
 		return
 	}
 

@@ -358,7 +358,7 @@ func (s *sUserLogin) Login(ctx context.Context, in *model.LoginInput) (codeResul
 	// check user in table user_base
 	userBase, err := s.r.GetOneUserInfo(ctx, in.UserAccount)
 	if err != nil {
-		return response.ErrCodeAuthFailed, out, err
+		return response.ErrCodeUserNotFound, out, err
 	}
 	// check password
 	if !crypto.ComparePasswordWithHash(in.UserPassword, userBase.UserSalt, userBase.UserPassword) {
