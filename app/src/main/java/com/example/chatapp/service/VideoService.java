@@ -4,29 +4,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.VideoView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
-import com.example.chatapp.worker.VideoDownloadWorker;
+import com.example.chatapp.worker.MediaWorkManager;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -34,6 +27,9 @@ import java.util.function.Consumer;
  */
 public class VideoService {
     private static final String TAG = "VideoService";
+
+    // Lưu trữ player theo PlayerView để tái sử dụng và quản lý đúng cách
+    private static final Map<PlayerView, ExoPlayer> playerMap = new HashMap<>();
 
     /**
      * Tải và phát video trong Fragment
@@ -116,9 +112,9 @@ public class VideoService {
         // Kiểm tra nếu có file local
         boolean hasLocalFile = localPath != null && new File(localPath).exists();
 
-        // Tạo ExoPlayer
-        ExoPlayer player = new ExoPlayer.Builder(appContext).build();
-        playerView.setPlayer(player);
+        // Tạo hoặc tái sử dụng ExoPlayer
+        ExoPlayer player = getOrCreatePlayer(appContext, playerView);
+        player.clearMediaItems();
 
         if (hasLocalFile) {
             // Phát từ file local
@@ -140,12 +136,20 @@ public class VideoService {
                     player.play();
                 }
                 Log.d(TAG, "Streaming video from remote: " + remoteUrl);
+
+                // Thêm error listener để xử lý các lỗi streaming
+                player.addListener(new Player.Listener() {
+                    @Override
+                    public void onPlayerError(PlaybackException error) {
+                        Log.e(TAG, "Player error: " + error.getMessage());
+                        // Có thể xử lý fallback ở đây nếu cần
+                    }
+                });
             }
 
-            // Đồng thời tải trong background để lưu local
-            downloadVideoInBackground(
+            // Đồng thời tải trong background để lưu local qua MediaWorkManager
+            MediaWorkManager.getInstance(appContext).downloadVideo(
                     lifecycleOwner,
-                    appContext,
                     remoteUrl,
                     token,
                     (newPath) -> {
@@ -164,6 +168,21 @@ public class VideoService {
 
         // Thêm các listener cho lifecycle để release player khi không cần
         addLifecycleListeners(context, player, lifecycleOwner);
+    }
+
+    /**
+     * Lấy player hiện có hoặc tạo mới
+     */
+    private static ExoPlayer getOrCreatePlayer(Context context, PlayerView playerView) {
+        ExoPlayer player = playerMap.get(playerView);
+
+        if (player == null) {
+            player = new ExoPlayer.Builder(context).build();
+            playerView.setPlayer(player);
+            playerMap.put(playerView, player);
+        }
+
+        return player;
     }
 
     /**
@@ -191,7 +210,7 @@ public class VideoService {
         }
 
         Runnable updatePlayer = () -> {
-            ExoPlayer player = (ExoPlayer) playerView.getPlayer();
+            ExoPlayer player = playerMap.get(playerView);
             if (player != null) {
                 // Lưu vị trí hiện tại
                 long currentPosition = player.getCurrentPosition();
@@ -199,9 +218,8 @@ public class VideoService {
 
                 // Thay đổi nguồn sang file local
                 MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(new File(videoPath)));
-                player.setMediaItem(mediaItem);
+                player.setMediaItem(mediaItem, currentPosition);
                 player.prepare();
-                player.seekTo(currentPosition);
                 player.setPlayWhenReady(playWhenReady);
 
                 Log.d(TAG, "Updated player to use local file: " + videoPath);
@@ -233,12 +251,30 @@ public class VideoService {
      * Thêm các listener để giải phóng player khi không cần
      */
     private static void addLifecycleListeners(Object context, ExoPlayer player, LifecycleOwner lifecycleOwner) {
-        // This would need implementation based on your lifecycle architecture
-        // For simplicity, we'll just rely on explicit release calls
+        // Theo dõi lifecycle và giải phóng tài nguyên khi cần
+        if (context instanceof Fragment) {
+            Fragment fragment = (Fragment) context;
+            fragment.getViewLifecycleOwnerLiveData().observe(fragment, viewLifecycleOwner -> {
+                if (viewLifecycleOwner == null) {
+                    // Fragment's view is destroyed
+                    player.release();
+                    PlayerView playerView = null;
+                    for (Map.Entry<PlayerView, ExoPlayer> entry : playerMap.entrySet()) {
+                        if (entry.getValue() == player) {
+                            playerView = entry.getKey();
+                            break;
+                        }
+                    }
+                    if (playerView != null) {
+                        playerMap.remove(playerView);
+                    }
+                }
+            });
+        }
     }
 
     /**
-     * Tải video trong background
+     * Tải video trong background (không hiển thị)
      */
     public static void downloadVideoInBackground(
             @NonNull LifecycleOwner lifecycleOwner,
@@ -249,58 +285,76 @@ public class VideoService {
 
         Log.d(TAG, "Scheduling video download for URL: " + remoteUrl);
 
-        // Tạo input data cho worker
-        Data inputData = new Data.Builder()
-                .putString("url", remoteUrl)
-                .putString("token", token != null ? token : "")
-                .putString("type", "video")
-                .build();
-
-        // Tạo Work Request
-        OneTimeWorkRequest downloadWork = new OneTimeWorkRequest.Builder(VideoDownloadWorker.class)
-                .setInputData(inputData)
-                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-                .setConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build())
-                .addTag("video_download")
-                .build();
-
-        // Lên lịch công việc với unique ID
-        WorkManager.getInstance(context)
-                .enqueueUniqueWork(
-                        "video_download_" + remoteUrl.hashCode(),
-                        ExistingWorkPolicy.REPLACE,
-                        downloadWork
-                );
-
-        // Lắng nghe kết quả
-        WorkManager.getInstance(context).getWorkInfoByIdLiveData(downloadWork.getId())
-                .observe(lifecycleOwner, workInfo -> {
-                    if (workInfo == null) return;
-
-                    Log.d(TAG, "WorkInfo state changed: " + workInfo.getState().name());
-
-                    if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                        String path = workInfo.getOutputData().getString("path");
-                        Log.d(TAG, "Video downloaded successfully to: " + path);
-
-                        if (path != null && onComplete != null) {
-                            onComplete.accept(path);
-                        }
-                    } else if (workInfo.getState() == WorkInfo.State.FAILED) {
-                        Log.e(TAG, "Video download work failed");
-                    }
-                });
+        // Sử dụng MediaWorkManager để tải video
+        MediaWorkManager.getInstance(context).downloadVideo(
+                lifecycleOwner,
+                remoteUrl,
+                token,
+                onComplete
+        );
     }
 
     /**
-     * Giải phóng player
+     * Giải phóng một player cụ thể
      */
     public static void releasePlayer(PlayerView playerView) {
-        if (playerView != null && playerView.getPlayer() != null) {
-            playerView.getPlayer().release();
+        ExoPlayer player = playerMap.get(playerView);
+        if (player != null) {
+            player.release();
+            playerMap.remove(playerView);
             playerView.setPlayer(null);
         }
+    }
+
+    /**
+     * Giải phóng tất cả player
+     */
+    public static void releaseAllPlayers() {
+        for (Map.Entry<PlayerView, ExoPlayer> entry : playerMap.entrySet()) {
+            ExoPlayer player = entry.getValue();
+            PlayerView playerView = entry.getKey();
+
+            if (player != null) {
+                player.release();
+                playerView.setPlayer(null);
+            }
+        }
+        playerMap.clear();
+    }
+
+    /**
+     * Tạm dừng tất cả player (ví dụ: khi ứng dụng đi vào background)
+     */
+    public static void pauseAllPlayers() {
+        for (ExoPlayer player : playerMap.values()) {
+            if (player != null && player.isPlaying()) {
+                player.pause();
+            }
+        }
+    }
+
+    /**
+     * Kiểm tra xem có player nào đang phát không
+     */
+    public static boolean isAnyPlayerPlaying() {
+        for (ExoPlayer player : playerMap.values()) {
+            if (player != null && player.isPlaying()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Lấy player đang phát (hữu ích để hiển thị thông tin bài hiện tại)
+     */
+    @Nullable
+    public static ExoPlayer getCurrentlyPlayingPlayer() {
+        for (ExoPlayer player : playerMap.values()) {
+            if (player != null && player.isPlaying()) {
+                return player;
+            }
+        }
+        return null;
     }
 }

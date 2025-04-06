@@ -9,14 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -25,11 +17,10 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.chatapp.R;
-import com.example.chatapp.worker.PhotoDownloadWorker;
+import com.example.chatapp.worker.MediaWorkManager;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -40,13 +31,6 @@ public class ImageService {
 
     /**
      * Hiển thị ảnh vào ImageView trong Fragment với fallback tự động và tải về trong background
-     *
-     * @param fragment Fragment hiện tại, cần cho lifecycle
-     * @param imageView ImageView để hiển thị ảnh
-     * @param localPath Đường dẫn ảnh local
-     * @param remoteUrl URL ảnh từ server
-     * @param token Token xác thực (nếu cần)
-     * @param onImageDownloaded Callback khi tải thành công (nhận đường dẫn local mới)
      */
     public static void loadAndCacheImage(
             @NonNull Fragment fragment,
@@ -68,14 +52,6 @@ public class ImageService {
 
     /**
      * Hiển thị ảnh vào ImageView trong Activity với fallback tự động và tải về trong background
-     *
-     * @param activity Activity hiện tại, cần cho lifecycle
-     * @param imageView ImageView để hiển thị ảnh
-     * @param localPath Đường dẫn ảnh local
-     * @param remoteUrl URL ảnh từ server
-     * @param token Token xác thực (nếu cần)
-     * @param lifecycleOwner LifecycleOwner để lắng nghe kết quả WorkManager
-     * @param onImageDownloaded Callback khi tải thành công (nhận đường dẫn local mới)
      */
     public static void loadAndCacheImage(
             @NonNull Activity activity,
@@ -128,13 +104,12 @@ public class ImageService {
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         Log.d(TAG, "Failed to load image from local: " + localPath);
 
-                        // Lên lịch tải ảnh trong background
-                        downloadImageInBackground(
+                        // Sử dụng MediaWorkManager để tải ảnh
+                        MediaWorkManager.getInstance(appContext).downloadImage(
                                 lifecycleOwner,
-                                appContext,
                                 remoteUrl,
                                 token,
-                                (newPath) -> {
+                                newPath -> {
                                     // Gọi callback với đường dẫn mới
                                     if (onImageDownloaded != null) {
                                         onImageDownloaded.accept(newPath);
@@ -202,67 +177,5 @@ public class ImageService {
                 }
             });
         }
-    }
-
-    /**
-     * Chỉ tải ảnh trong background mà không hiển thị
-     *
-     * @param lifecycleOwner LifecycleOwner để gắn observer
-     * @param context Context ứng dụng
-     * @param remoteUrl URL ảnh cần tải
-     * @param token Token xác thực (nếu cần)
-     * @param onComplete Callback khi tải thành công (nhận đường dẫn local)
-     */
-    public static void downloadImageInBackground(
-            @NonNull LifecycleOwner lifecycleOwner,
-            @NonNull Context context,
-            @NonNull String remoteUrl,
-            @Nullable String token,
-            @Nullable Consumer<String> onComplete) {
-
-        Log.d(TAG, "Scheduling image download for URL: " + remoteUrl);
-
-        // Tạo input data cho worker
-        Data inputData = new Data.Builder()
-                .putString("url", remoteUrl)
-                .putString("token", token != null ? token : "")
-                .build();
-
-        // Tạo Work Request
-        OneTimeWorkRequest downloadWork = new OneTimeWorkRequest.Builder(PhotoDownloadWorker.class)
-                .setInputData(inputData)
-                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-                .setConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build())
-                .addTag("image_download")
-                .build();
-
-        // Lên lịch công việc với unique ID
-        WorkManager.getInstance(context)
-                .enqueueUniqueWork(
-                        "image_download_" + remoteUrl.hashCode(),
-                        ExistingWorkPolicy.REPLACE,
-                        downloadWork
-                );
-
-        // Lắng nghe kết quả
-        WorkManager.getInstance(context).getWorkInfoByIdLiveData(downloadWork.getId())
-                .observe(lifecycleOwner, workInfo -> {
-                    if (workInfo == null) return;
-
-                    Log.d(TAG, "WorkInfo state changed: " + workInfo.getState().name());
-
-                    if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                        String path = workInfo.getOutputData().getString("path");
-                        Log.d(TAG, "Image downloaded successfully to: " + path);
-
-                        if (path != null && onComplete != null) {
-                            onComplete.accept(path);
-                        }
-                    } else if (workInfo.getState() == WorkInfo.State.FAILED) {
-                        Log.e(TAG, "Image download work failed");
-                    }
-                });
     }
 }
