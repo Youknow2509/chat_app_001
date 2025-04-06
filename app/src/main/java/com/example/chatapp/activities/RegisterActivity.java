@@ -1,6 +1,7 @@
 package com.example.chatapp.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -28,7 +29,10 @@ import com.example.chatapp.models.request.AccountModels;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.databinding.ActivityRegisterV21Binding;
 import com.example.chatapp.network.HttpClient;
+import com.example.chatapp.network.NetworkMonitor;
+import com.example.chatapp.service.NetworkMonitorService;
 import com.example.chatapp.utils.Utils;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,11 +43,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity implements NetworkMonitor.NetworkStateListener {
 
     private ActivityRegisterV21Binding binding;
 
     private ApiManager apiManager;
+    // network
+    private View networkStatusView;
+    private NetworkMonitor networkMonitor;
     // PURPOSE REGISTER TEST
     private final String PURPOSE_REGISTER_TEST = "TEST_USER";
     private final String PURPOSE_REGISTER_PROD = "ANDROID_APP";
@@ -53,8 +60,11 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityRegisterV21Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        networkStatusView = findViewById(R.id.network_status_view);
 
         initVariableUse();
+
+        startNetworkMonitorService();
 
         binding.nextButton.setOnClickListener(v -> next());
         binding.backToLoginButton.setOnClickListener(v-> BackToIntent());
@@ -69,6 +79,8 @@ public class RegisterActivity extends AppCompatActivity {
     // initVariableUse
     private void initVariableUse() {
         apiManager = new ApiManager(this);
+        networkMonitor = NetworkMonitor.getInstance(getApplicationContext());
+
     }
 
     // handle click next button
@@ -116,4 +128,58 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
+    private void startNetworkMonitorService() {
+        Intent serviceIntent = new Intent(this, NetworkMonitorService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+    }
+
+
+    /**
+     * Thay đổi ui cho network
+     * @param isConnected boolean
+     */
+    private void updateNetworkUI(boolean isConnected) {
+        if (isConnected) {
+            networkStatusView.setVisibility(View.GONE);
+        } else {
+            networkStatusView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onNetworkStateChanged(boolean isAvailable) {
+        // Được gọi mỗi khi trạng thái mạng thay đổi
+        updateNetworkUI(isAvailable);
+
+        if (isAvailable) {
+            // Mạng đã được kết nối
+            // Tải lại dữ liệu, gửi tin nhắn đang chờ, etc.
+            showSnackbar("Mạng đã được kết nối");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Đăng ký nhận thông báo khi Activity hiển thị
+        networkMonitor.addListener(this);
+
+        // Cập nhật UI với trạng thái mạng hiện tại
+        updateNetworkUI(networkMonitor.isNetworkAvailable());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Hủy đăng ký khi Activity không hiển thị
+        networkMonitor.removeListener(this);
+    }
+    // Show a Snackbar with a message
+    private void showSnackbar(String message) {
+        Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+    }
 }

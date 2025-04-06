@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -41,15 +42,15 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
         setContentView(binding.getRoot());
 
         initVariable();
+        startNetworkMonitorService();
         getIntentData();
         setListeners();
-        startNetworkMonitorService();
         setupKeyboardLayoutListener();
     }
 
     private void initVariable() {
         apiManager = new ApiManager(this);
-        networkMonitor = NetworkMonitor.getInstance(this);
+        networkMonitor = NetworkMonitor.getInstance(getApplicationContext());
         networkStatusView = findViewById(R.id.network_status_view);
     }
 
@@ -193,7 +194,9 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
     }
 
     private void showToast(String message) {
-        runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
+//        runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        Log.d("Register3Activity", message);
     }
 
     private void updateNetworkUI(boolean isConnected) {
@@ -213,6 +216,8 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
     @Override
     public void onNetworkStateChanged(boolean isAvailable) {
         updateNetworkUI(isAvailable);
+        showToast("Mạng đã mất kết nối");
+
         if (isAvailable) {
             showToast("Mạng đã được kết nối");
         }
