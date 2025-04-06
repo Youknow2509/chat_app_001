@@ -24,16 +24,15 @@ import com.example.chatapp.utils.session.SessionManager;
 import com.example.chatapp.viewmodel.LoginViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
-public class LoginActivity extends AppCompatActivity implements NetworkMonitor.NetworkStateListener {
+public class LoginActivity extends BaseNetworkActivity {
 
     private ActivityLoginV2Binding binding;
     private FrameLayout progressOverlay;
     private LoginViewModel loginViewModel;
     private Context context;
     private SessionManager sessionManager;
-    // network
-    private View networkStatusView;
-    private NetworkMonitor networkMonitor;
+    //
+    View networkStatusView;
 
 
     @Override
@@ -51,10 +50,6 @@ public class LoginActivity extends AppCompatActivity implements NetworkMonitor.N
                 new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(LoginViewModel.class);
         context = this;
         sessionManager = new SessionManager(context);
-        networkMonitor = NetworkMonitor.getInstance(this);
-
-        startNetworkMonitorService();
-
         handleFieldMail();
 
         observeLiveData();
@@ -62,14 +57,6 @@ public class LoginActivity extends AppCompatActivity implements NetworkMonitor.N
         setListener();
     }
 
-    private void startNetworkMonitorService() {
-        Intent serviceIntent = new Intent(this, NetworkMonitorService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
-        }
-    }
 
     /**
      * set observe live data from view model
@@ -176,49 +163,13 @@ public class LoginActivity extends AppCompatActivity implements NetworkMonitor.N
         return progressOverlay;
     }
 
-    // Show a Snackbar with a message
-    private void showSnackbar(String message) {
-        Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Thay đổi ui cho network
-     * @param isConnected boolean
-     */
-    private void updateNetworkUI(boolean isConnected) {
-        if (isConnected) {
-            networkStatusView.setVisibility(View.GONE);
-        } else {
-            networkStatusView.setVisibility(View.VISIBLE);
-        }
+    @Override
+    protected void onNetworkAvailable() {
+        networkStatusView.setVisibility(View.GONE);
     }
 
     @Override
-    public void onNetworkStateChanged(boolean isAvailable) {
-        // Được gọi mỗi khi trạng thái mạng thay đổi
-        updateNetworkUI(isAvailable);
-
-        if (isAvailable) {
-            // Mạng đã được kết nối
-            // Tải lại dữ liệu, gửi tin nhắn đang chờ, etc.
-            showSnackbar("Mạng đã được kết nối");
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Đăng ký nhận thông báo khi Activity hiển thị
-        networkMonitor.addListener(this);
-
-        // Cập nhật UI với trạng thái mạng hiện tại
-        updateNetworkUI(networkMonitor.isNetworkAvailable());
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Hủy đăng ký khi Activity không hiển thị
-        networkMonitor.removeListener(this);
+    protected void onNetworkUnavailable() {
+        networkStatusView.setVisibility(View.VISIBLE);
     }
 }
