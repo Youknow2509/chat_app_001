@@ -1,6 +1,8 @@
 package com.example.chatapp.dto;
 
-public class ChatDTO {
+import java.io.Serializable;
+
+public class ChatDTO implements Serializable {
     private String chat_id;
     private String chat_name;
     private String avatar;

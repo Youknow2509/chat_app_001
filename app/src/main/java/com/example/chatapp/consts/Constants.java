@@ -60,6 +60,7 @@ public class Constants {
     public static final String EXTRA_CALL_ACTIVE = "com.example.chatapp.EXTRA_CALL_ACTIVE";
     public static final String EXTRA_CALL_TYPE = "com.example.chatapp.EXTRA_CALL_TYPE";
     public static final String EXTRA_CALLER_NAME = "com.example.chatapp.EXTRA_CALLER_NAME";
+    public static final String KEY_CHAT = "chatId";
 
 
     // Update this with your actual FCM server key

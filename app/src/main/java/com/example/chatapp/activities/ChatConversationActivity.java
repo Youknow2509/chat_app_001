@@ -19,12 +19,14 @@ import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.chatapp.R;
 import com.example.chatapp.adapters.ChatAdapter;
 import com.example.chatapp.adapters.MentionSuggestionAdapter;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityChatV2Binding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
+import com.example.chatapp.dto.ChatDTO;
 import com.example.chatapp.dto.MessageDTO;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.MentionSuggestion;
@@ -59,6 +61,7 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     private boolean isReceiverAvailable = true;
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
+    private ChatDTO chat;
     private StompClientManager stompClientManager;
     private SessionManager sessionManager;
     private ChatRepo chatRepo;
@@ -451,15 +454,33 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     }
 
     private void loadChatDetails() {
-        receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
-        assert receiverUser != null;
-        binding.userName.setText(receiverUser.name);
-        binding.userAvatar.setImageBitmap(getBitmap(receiverUser.image));
-        binding.userPhone.setText(receiverUser.email);
-        // Set conversionId for one-to-one chat
-//            conversionId = preferenceManager.getString(Constants.KEY_USER_ID) + "_" + receiverUser.id;
-        Log.d(TAG, "Loaded one-to-one chat with ID: " + conversionId);
+        try {
+            chat = (ChatDTO) getIntent().getSerializableExtra(Constants.KEY_CHAT);
+            binding.userName.setText(chat.getChatName());
+            Glide.with(this)
+                    .load(chat.getAvatar())
+                    .into(binding.userAvatar);
+            binding.userPhone.setText(chat.getChatId());
+
+            // Khởi tạo receiverUser từ chat
+            receiverUser = new User();
+            receiverUser.id = chat.getChatId();
+            receiverUser.name = chat.getChatName();
+            // receiverUser.image sẽ được xử lý sau
+
+            conversionId = chat.getChatId();
+        } catch (ClassCastException e) {
+            // Xử lý trường hợp nhận String thay vì ChatDTO
+            String chatId = getIntent().getStringExtra(Constants.KEY_CHAT);
+            conversionId = chatId;
+
+            // Khởi tạo receiverUser với thông tin tối thiểu
+            receiverUser = new User();
+            receiverUser.id = chatId;
+            receiverUser.name = "Chat " + chatId;
+        }
     }
+
 
     private Bitmap getBitmap(Bitmap bitmapImage) {
         return bitmapImage != null ? bitmapImage : null;

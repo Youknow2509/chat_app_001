@@ -45,14 +45,14 @@ public class Message extends Fragment {
         chatListItems = getChatListItems();
 
         // Khởi tạo Adapter chung
-        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
-            @Override
-            public void onUserClick(User user) {
-                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
-                intent.putExtra(Constants.KEY_USER, user);
-                startActivity(intent);
-            }
-        });
+//        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
+//            @Override
+//            public void onUserClick(User user) {
+//                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
+//                intent.putExtra(Constants.KEY_USER, user);
+//                startActivity(intent);
+//            }
+//        });
 
         chatListRecyclerView.setAdapter(chatListAdapter);
 
@@ -69,9 +69,9 @@ public class Message extends Fragment {
         List<ChatListItem> chatListItems = new ArrayList<>();
 
         // Thêm Users vào danh sách chung
-        for (User user : getUsers()) {
-            chatListItems.add(new ChatListItem(user));
-        }
+//        for (User user : getUsers()) {
+//            chatListItems.add(new ChatListItem(user));
+//        }
 
         return chatListItems;
     }

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.chatapp.databinding.ItemContainerGroupBinding;
 import com.example.chatapp.databinding.ItemContainerUserBinding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
+import com.example.chatapp.dto.ChatDTO;
 import com.example.chatapp.models.ChatListItem;
 import com.example.chatapp.models.Group;
 import com.example.chatapp.models.User;
@@ -22,7 +23,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static final int VIEW_TYPE_USER = 0;
 
     public interface ChatItemClickListener {
-        void onUserClick(User user);
+        void onUserClick(ChatDTO chatDTO);
     }
 
     public ChatListAdapter(List<ChatListItem> chatListItems, ChatItemClickListener listener) {
@@ -38,7 +39,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new UserViewHolder(ItemUserChatBinding.inflate(
+            return new ChatDTOViewHolder(ItemUserChatBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false
@@ -48,7 +49,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == VIEW_TYPE_USER) {
-            ((UserViewHolder) holder).setData(chatListItems.get(position).getUser());
+            ((ChatDTOViewHolder) holder).setData(chatListItems.get(position).getChatDTO());
         }
     }
 
@@ -57,17 +58,31 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return chatListItems.size();
     }
 
-    class UserViewHolder extends RecyclerView.ViewHolder {
+//    class UserViewHolder extends RecyclerView.ViewHolder {
+//        private final ItemUserChatBinding binding;
+//
+//        UserViewHolder(ItemUserChatBinding binding) {
+//            super(binding.getRoot());
+//            this.binding = binding;
+//        }
+//
+//        void setData(User user) {
+//            binding.nameText.setText(user.name);
+//            binding.getRoot().setOnClickListener(v -> listener.onUserClick(user));
+//        }
+//    }
+
+    class ChatDTOViewHolder extends RecyclerView.ViewHolder {
         private final ItemUserChatBinding binding;
 
-        UserViewHolder(ItemUserChatBinding binding) {
+        ChatDTOViewHolder(ItemUserChatBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
 
-        void setData(User user) {
-            binding.nameText.setText(user.name);
-            binding.getRoot().setOnClickListener(v -> listener.onUserClick(user));
+        void setData(ChatDTO chatDTO) {
+            binding.nameText.setText(chatDTO.getChatName());
+            binding.getRoot().setOnClickListener(v -> listener.onUserClick(chatDTO));
         }
     }
 }

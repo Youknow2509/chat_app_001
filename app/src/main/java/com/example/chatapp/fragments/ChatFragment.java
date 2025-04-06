@@ -61,15 +61,14 @@ public class ChatFragment extends Fragment {
     private List<ChatListItem> chatListItems;
     private ApiManager apiManager;
     private SessionManager sessionManager;
-    List<User> users;
+    List<ChatListItem> users;
+    private List<ChatDTO> chatDTOList;
     private FragmentChatV2Binding binding;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = FragmentChatV2Binding.inflate(getLayoutInflater());
-        apiManager = new ApiManager(FragmentChatV2Binding.inflate(getLayoutInflater()).getRoot().getContext());
         sessionManager = new SessionManager(getContext());
-        users = new ArrayList<>(); // Khởi tạo danh sách rỗng
+        chatDTOList = new ArrayList<>();
     }
 
 
@@ -77,11 +76,20 @@ public class ChatFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentChatV2Binding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        apiManager = new ApiManager(getContext());
 
-        binding.chatRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         chatListItems = new ArrayList<>();
+        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
+            @Override
+            public void onUserClick(ChatDTO chatDTO) {
+                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
+                intent.putExtra(Constants.KEY_CHAT, chatDTO);
+                startActivity(intent);
+            }
+        });
 
         binding.chatRecyclerView.setAdapter(chatListAdapter);
 
@@ -92,11 +100,6 @@ public class ChatFragment extends Fragment {
         });
 
         getUsersFromApi();
-        chatListItems = getChatListItems();
-
-
-        binding.chatRecyclerView.setAdapter(chatListAdapter);
-
 
         // Cau hinh option menu tren toolbar
         binding.addIcon.setOnClickListener(v -> {
@@ -140,9 +143,9 @@ public class ChatFragment extends Fragment {
     }
     private List<ChatListItem> getChatListItems() {
         List<ChatListItem> chatListItems = new ArrayList<>();
-        // Thêm Users vào danh sách chung
-        for (User user : users) {
-            chatListItems.add(new ChatListItem(user));
+        for (ChatDTO chatDTO : chatDTOList) {
+            ChatListItem chatListItem = new ChatListItem(chatDTO);
+            chatListItems.add(chatListItem);
         }
 
 
@@ -176,21 +179,35 @@ public class ChatFragment extends Fragment {
             public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ResponseData<Object> responseData = response.body();
-                    if (responseData.getCode() == 200 && "success".equals(responseData.getMessage())) {
-                        // Xử lý dữ liệu chat từ responseData.getData()
-                        users = convertToChatList(responseData.getData());
+                    if (responseData.getCode() == 20001 && "success".equals(responseData.getMessage())) {
+                        // Parse chat data
+                        chatDTOList = new ArrayList<>();
+                        Gson gson = new Gson();
+                        JsonElement jsonElement = JsonParser.parseString(gson.toJson(responseData.getData()));
+                        JsonArray jsonArray = jsonElement.getAsJsonArray();
 
-                        // Cập nhật danh sách chat và adapter sau khi có dữ liệu
+                        if (jsonArray != null && jsonArray.size() > 0) {
+                            Type listType = new TypeToken<List<ChatDTO>>() {}.getType();
+                            chatDTOList = gson.fromJson(jsonArray, listType);
+                        }
+
+                        // Update UI with chat data
                         chatListItems = getChatListItems();
+
+                        // Cập nhật adapter hiện tại thay vì tạo mới
                         chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
                             @Override
-                            public void onUserClick(User user) {
+                            public void onUserClick(ChatDTO chatDTO) {
                                 Intent intent = new Intent(getContext(), ChatConversationActivity.class);
-                                intent.putExtra(Constants.KEY_USER, user);
+                                intent.putExtra(Constants.KEY_CHAT, chatDTO);
                                 startActivity(intent);
                             }
                         });
+                        binding.chatRecyclerView.setAdapter(chatListAdapter);
+                        chatListAdapter.notifyDataSetChanged();
 
+                        // Log để kiểm tra
+                        Log.d("ChatFragment", "Loaded " + chatListItems.size() + " chat items");
                     } else {
                         Log.d("ChatFragment", "Error: " + responseData.getMessage());
                     }
@@ -199,33 +216,12 @@ public class ChatFragment extends Fragment {
                 }
             }
 
+
             @Override
             public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
                 Log.d("ChatFragment", "Request failed: " + t.getMessage());
             }
         });
-    }
-
-
-    private List<User> convertToChatList(Object data) {
-        List<User> result = new ArrayList<>();
-        try {
-            Gson gson = new Gson();
-            String jsonString = gson.toJson(data);
-            Type listType = new TypeToken<List<ChatDTO>>(){}.getType();
-            List<ChatDTO> chatDTOs = gson.fromJson(jsonString, listType);
-
-            for (ChatDTO chatDTO : chatDTOs) {
-                User user = new User();
-                user.setId(chatDTO.getChatId());
-                user.setName(chatDTO.getChatName());
-                // Xử lý avatar URL
-                result.add(user);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
     }
 
 }

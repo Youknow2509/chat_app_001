@@ -1,16 +1,20 @@
 package com.example.chatapp.models;
 
+import com.example.chatapp.dto.ChatDTO;
+import com.example.chatapp.fragments.ChatFragment;
+
 public class ChatListItem {
 
-    private User user;
+    private ChatDTO chatDTO;
 
-    public ChatListItem(User user) {
-        this.user = user;
+    public ChatListItem(ChatDTO chatDTO) {
+        this.chatDTO = chatDTO;
     }
 
 
-    public User getUser() {
-        return user;
+    public ChatDTO getChatDTO() {
+        return chatDTO;
     }
+
 
 }
