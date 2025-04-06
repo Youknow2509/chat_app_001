@@ -83,6 +83,7 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("ChatConversationActivity", "open ChatConversationActivity");
         sessionManager = SessionManager.getInstance();
         stompClientManager = StompClientManager.getInstance();
         binding = ActivityChatV2Binding.inflate(getLayoutInflater());
