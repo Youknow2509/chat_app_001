@@ -20,6 +20,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="-65dp" />
 
+    <!-- Title: Register -->
     <View
         android:id="@+id/headerBackground"
         android:layout_width="541dp"
@@ -27,9 +28,8 @@
         android:layout_marginBottom="424dp"
         android:background="@drawable/bg_header_curve"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="-65dp" />
+        tools:layout_editor_absoluteX="-64dp" />
 
-    <!-- Title: Register -->
     <TextView
         android:id="@+id/registerTitle"
         android:layout_width="wrap_content"
@@ -68,6 +68,20 @@
         android:src="@drawable/pen"
         app:layout_constraintBottom_toBottomOf="@id/avatarImage"
         app:layout_constraintEnd_toEndOf="@id/avatarImage" />
+
+    <ImageView
+        android:id="@+id/undoAvatar"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/circle_red_button"
+        android:padding="6dp"
+        android:src="@drawable/x"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/avatarImage"
+        app:layout_constraintStart_toStartOf="@id/avatarImage"
+        app:tint="#FFFFFF" />
 
     <!-- Send Button -->
     <LinearLayout

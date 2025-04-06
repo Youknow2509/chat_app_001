@@ -1,14 +1,26 @@
 package com.example.chatapp.activities;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
@@ -16,6 +28,14 @@ import com.example.chatapp.databinding.ActivityRegisterNameAvatarBinding;
 import com.example.chatapp.models.request.AccountModels;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.network.NetworkMonitor;
+import com.example.chatapp.utils.session.SessionManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Vector;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,6 +51,118 @@ public class CreateNameAndAvatarRegisterActivity extends BaseNetworkActivity {
     //
     private ApiManager apiManager;
 
+    private SessionManager sessionManager;
+
+    private String currentMediaType = "image"; // Default to image
+    private static final String FILEPROVIDER_AUTHORITY = "com.example.chatapp.fileprovider";
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private Uri currentMediaUri;
+
+    private String TAG = "CreateNameAndAvatarRegisterActivity";
+
+    private Context context;
+
+
+    private final ActivityResultLauncher<String[]> pickMediaLauncher = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+                if (uri != null) {
+                    // Persist permission for this URI
+                    context.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    // Hiển thị dialog xem trước ảnh
+                    showImagePreviewDialog(uri);
+
+                    Log.i(TAG, "Selected media URI: " + uri.toString());
+                }
+            });
+
+    // Activity result launcher for taking photo with camera
+    private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            success -> {
+                if (success && currentMediaUri != null) {
+                    currentMediaType = "image";
+                    showImagePreviewDialog(currentMediaUri);
+                }
+            });
+
+    private void showImagePreviewDialog(Uri imageUri) {
+        binding.undoAvatar.setVisibility(View.VISIBLE);
+        // Ánh xạ các thành phần trong dialog
+        ImageView imagePreview = binding.avatarImage;
+
+        // Hiển thị ảnh xem trước
+        Glide.with(context)
+                .load(imageUri)
+                .into(imagePreview);
+    }
+
+    private void editAvatar() {
+        // Hiển thị dialog lựa chọn
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Chọn ảnh đại diện");
+        String[] options = {"Chụp ảnh", "Chọn từ thư viện"};
+
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Chụp ảnh
+                    if (checkCameraPermission()) {
+                        takePhoto();
+                    }
+                    break;
+                case 1: // Chọn từ thư viện
+                    openGallery();
+                    break;
+            }
+        });
+
+        builder.show();
+    }
+
+    /**
+     * Open gallery for media selection
+     */
+    private void openGallery() {
+        pickMediaLauncher.launch(new String[]{"image/*", "video/*"});
+    }
+
+    /**
+     * Create a temporary file for media capture
+     */
+    private File createMediaFile(String extension) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String fileName = "MEDIA_" + timeStamp + "_";
+        File storageDir = context.getFilesDir();
+        return File.createTempFile(fileName, extension, storageDir);
+    }
+
+    /**
+     * Open camera to take a photo
+     */
+    private void takePhoto() {
+        try {
+            File photoFile = createMediaFile(".jpg");
+
+            currentMediaUri = FileProvider.getUriForFile(context,
+                    FILEPROVIDER_AUTHORITY,
+                    photoFile);
+            Log.i(TAG, "Photo URI: " + currentMediaUri.toString());
+            takePhotoLauncher.launch(currentMediaUri);
+
+        } catch (IOException ex) {
+            Log.e(TAG, "Error creating image file", ex);
+            Toast.makeText(context, "Error creating image file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CreateNameAndAvatarRegisterActivity.this, new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            return false;
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +177,9 @@ public class CreateNameAndAvatarRegisterActivity extends BaseNetworkActivity {
     }
 
     private void initVariable() {
+        context = this;
         apiManager = new ApiManager(this);
+        sessionManager = new SessionManager(this);
         networkMonitor = NetworkMonitor.getInstance(getApplicationContext());
         nwStatusView = findViewById(R.id.network_status_view);
     }
@@ -58,8 +192,13 @@ public class CreateNameAndAvatarRegisterActivity extends BaseNetworkActivity {
     }
 
     private void setListeners() {
+        binding.editAvatar.setOnClickListener(v -> editAvatar());
         binding.backToLoginButton.setOnClickListener(v -> backToPreviousStep());
         binding.nextButton.setOnClickListener(v -> CreateNameAccount());
+        binding.undoAvatar.setOnClickListener(v->{
+            binding.avatarImage.setImageResource(R.drawable.ic_about);
+            binding.undoAvatar.setVisibility(View.GONE);
+        });
     }
 
     private void setupKeyboardLayoutListener() {
