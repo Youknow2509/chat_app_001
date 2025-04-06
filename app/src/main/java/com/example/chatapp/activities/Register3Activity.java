@@ -24,16 +24,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Register3Activity extends AppCompatActivity implements NetworkMonitor.NetworkStateListener {
+public class Register3Activity extends BaseNetworkActivity {
     private ActivityRegisterV23Binding binding;
-
+    private View nwStatusView;
+    //
     private String mail;
     private String token;
     private String password;
-
+    //
     private ApiManager apiManager;
-    private NetworkMonitor networkMonitor;
-    private View networkStatusView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +42,6 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
         setContentView(binding.getRoot());
 
         initVariable();
-        startNetworkMonitorService();
         getIntentData();
         setListeners();
         setupKeyboardLayoutListener();
@@ -51,7 +50,7 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
     private void initVariable() {
         apiManager = new ApiManager(this);
         networkMonitor = NetworkMonitor.getInstance(getApplicationContext());
-        networkStatusView = findViewById(R.id.network_status_view);
+        nwStatusView = findViewById(R.id.network_status_view);
     }
 
     private void getIntentData() {
@@ -124,6 +123,10 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
 
     private void CreateNameAccount() {
         binding.progressOverlay.setVisibility(View.VISIBLE);
+        String name = binding.nameInput.toString();
+        if (!validateName(name)) {
+            return;
+        }
         apiManager.upgradePasswordRegister(
                 new AccountModels.UpdatePasswordInput(password, token),
                 new Callback<ResponseData<Object>>() {
@@ -151,6 +154,19 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
                     }
                 }
         );
+    }
+
+    private boolean validateName(String n) {
+        if (n.isEmpty()) {
+            binding.nameInput.setError("Vui lòng nhập tên người dùng!");
+            showToast("Vui lòng nhập tên người dùng!");
+            return false;
+        }
+        if (n.length() <= 3) {
+            binding.nameInput.setError("Tên người dùng phải có ít nhất 3 ký tự!");
+            return false;
+        }
+        return true;
     }
 
     private void UpdateNameAndAvatar() {
@@ -199,40 +215,21 @@ public class Register3Activity extends AppCompatActivity implements NetworkMonit
         Log.d("Register3Activity", message);
     }
 
-    private void updateNetworkUI(boolean isConnected) {
-        networkStatusView.setVisibility(isConnected ? View.GONE : View.VISIBLE);
-        binding.nextButton.setEnabled(isConnected);
-    }
-
-    private void startNetworkMonitorService() {
-        Intent serviceIntent = new Intent(this, NetworkMonitorService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
-        }
+    @Override
+    protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
+        binding.nextButton.setEnabled(true);
+        nwStatusView.setVisibility(View.GONE);
+        binding.avatarImage.setEnabled(true);
+        binding.editAvatar.setEnabled(true);
     }
 
     @Override
-    public void onNetworkStateChanged(boolean isAvailable) {
-        updateNetworkUI(isAvailable);
-        showToast("Mạng đã mất kết nối");
-
-        if (isAvailable) {
-            showToast("Mạng đã được kết nối");
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        networkMonitor.addListener(this);
-        updateNetworkUI(networkMonitor.isNetworkAvailable());
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        networkMonitor.removeListener(this);
+    protected void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
+        binding.nextButton.setEnabled(false);
+        nwStatusView.setVisibility(View.VISIBLE);
+        binding.avatarImage.setEnabled(false);
+        binding.editAvatar.setEnabled(false);
     }
 }
