@@ -52,13 +52,6 @@
             android:exported="false"
             android:theme="@style/Theme.ChatApp.NoActionBar" />
         <activity
-            android:name=".activities.Profile"
-            android:exported="false" />
-        <activity
-            android:name=".activities.SignUpActivity"
-            android:exported="false"
-            android:theme="@style/Theme.ChatApp.NoActionBar" />
-        <activity
             android:name=".activities.SearchingActivity"
             android:exported="false" />
         <activity
@@ -68,13 +61,6 @@
             android:name=".activities.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.OnboardingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.UpdatePasswordRegisterActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
             android:name=".activities.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -83,15 +69,15 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activities.Register2Activity"
+            android:name=".activities.VerifyOTPRegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activities.Register22Activity"
+            android:name=".activities.CreatePasswordRegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activities.Register3Activity"
+            android:name=".activities.CreateNameAndAvatarRegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity

@@ -3,41 +3,16 @@ package com.example.chatapp.activities;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.databinding.ActivityRegisterMailBinding;
 import com.example.chatapp.models.request.AccountModels;
 import com.example.chatapp.models.response.ResponseData;
-import com.example.chatapp.databinding.ActivityRegisterV21Binding;
-import com.example.chatapp.network.HttpClient;
-import com.example.chatapp.network.NetworkMonitor;
-import com.example.chatapp.service.NetworkMonitorService;
 import com.example.chatapp.utils.Utils;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,7 +20,7 @@ import retrofit2.Response;
 
 public class RegisterActivity extends BaseNetworkActivity {
 
-    private ActivityRegisterV21Binding binding;
+    private ActivityRegisterMailBinding binding;
 
     private ApiManager apiManager;
     // network
@@ -57,7 +32,7 @@ public class RegisterActivity extends BaseNetworkActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityRegisterV21Binding.inflate(getLayoutInflater());
+        binding = ActivityRegisterMailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         networkStatusView = findViewById(R.id.network_status_view);
 
@@ -106,7 +81,7 @@ public class RegisterActivity extends BaseNetworkActivity {
                             showToast("Vui lòng kiểm tra email để nhận mã xác nhận");
                         }
 
-                        Intent intent = new Intent(RegisterActivity.this, Register2Activity.class);
+                        Intent intent = new Intent(RegisterActivity.this, VerifyOTPRegisterActivity.class);
                         intent.putExtra("email", binding.mailEditText.getText().toString());
                         startActivity(intent);
                         finish();
@@ -122,7 +97,7 @@ public class RegisterActivity extends BaseNetworkActivity {
         );
 
         // Forward to OTP screen
-//        Intent intent = new Intent(RegisterActivity.this, Register2Activity.class);
+//        Intent intent = new Intent(RegisterActivity.this, VerifyOTPRegisterActivity.class);
 //        intent.putExtra("email", binding.mailEditText.getText().toString());
 //        startActivity(intent);
 //        finish();

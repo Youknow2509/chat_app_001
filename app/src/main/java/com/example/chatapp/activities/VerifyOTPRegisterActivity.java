@@ -12,25 +12,23 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.databinding.ActivityRegisterOtpBinding;
 import com.example.chatapp.models.request.AccountModels;
 import com.example.chatapp.models.response.ResponseData;
-import com.example.chatapp.databinding.ActivityRegisterV22Binding;
 import com.example.chatapp.utils.Utils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Register2Activity extends BaseNetworkActivity {
+public class VerifyOTPRegisterActivity extends BaseNetworkActivity {
 
     private EditText[] codeInputs;
     private View networkStatusView;
-    private ActivityRegisterV22Binding binding;
+    private ActivityRegisterOtpBinding binding;
     //
     private String tokenVerifyOTP;
     private String emailRegister;
@@ -40,7 +38,7 @@ public class Register2Activity extends BaseNetworkActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // TODO: ui time and block send otp dup
         super.onCreate(savedInstanceState);
-        binding = ActivityRegisterV22Binding.inflate(getLayoutInflater());
+        binding = ActivityRegisterOtpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         initVariableUse();
@@ -67,7 +65,7 @@ public class Register2Activity extends BaseNetworkActivity {
     }
 
     private void BackToIntent() {
-        Intent intent = new Intent(Register2Activity.this, RegisterActivity.class);
+        Intent intent = new Intent(VerifyOTPRegisterActivity.this, RegisterActivity.class);
         startActivity(intent);
         finish();
     }
@@ -95,7 +93,7 @@ public class Register2Activity extends BaseNetworkActivity {
 
                     // Nếu nhập đủ 6 ký tự, ẩn bàn phím
                     if (currentIndex == codeInputs.length - 1 && s.length() == 1) {
-                        Utils.hideKeyboard(Register2Activity.this);
+                        Utils.hideKeyboard(VerifyOTPRegisterActivity.this);
                         handleBtnRegister();
                     }
                 }
@@ -142,7 +140,7 @@ public class Register2Activity extends BaseNetworkActivity {
                     }
                     Log.d("SignUp", "Token verify otp: " + tokenVerifyOTP);
                     // OTP hợp lệ, điều hướng sang màn hình tiếp theo
-                    Intent intent = new Intent(Register2Activity.this, Register22Activity.class);
+                    Intent intent = new Intent(VerifyOTPRegisterActivity.this, CreatePasswordRegisterActivity.class);
                     intent.putExtra("email", email);
                     intent.putExtra("token", tokenVerifyOTP);
                     startActivity(intent);
@@ -161,7 +159,7 @@ public class Register2Activity extends BaseNetworkActivity {
             }
         });
 
-//        Intent intent = new Intent(Register2Activity.this, Register22Activity.class);
+//        Intent intent = new Intent(VerifyOTPRegisterActivity.this, CreatePasswordRegisterActivity.class);
 //        intent.putExtra("email", email);
 //        intent.putExtra("token", tokenVerifyOTP);
 //        startActivity(intent);

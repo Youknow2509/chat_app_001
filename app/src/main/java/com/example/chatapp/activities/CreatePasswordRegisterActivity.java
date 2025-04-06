@@ -6,22 +6,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
-import com.example.chatapp.consts.Constants;
-import com.example.chatapp.databinding.ActivityRegisterV225Binding;
-import com.example.chatapp.databinding.SignupBinding;
-import com.example.chatapp.models.request.AccountModels;
-import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.databinding.ActivityRegisterPasswordBinding;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class Register22Activity extends BaseNetworkActivity {
-    private ActivityRegisterV225Binding binding;
+public class CreatePasswordRegisterActivity extends BaseNetworkActivity {
+    private ActivityRegisterPasswordBinding binding;
     private View nwStatusView;
     //
     private String email;
@@ -29,14 +19,14 @@ public class Register22Activity extends BaseNetworkActivity {
     private String token;
     private ApiManager apiManager;
 
-    private final String TAG = "Register22Activity";
+    private final String TAG = "CreatePasswordRegisterActivity";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityRegisterV225Binding.inflate(getLayoutInflater());
+        binding = ActivityRegisterPasswordBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         nwStatusView = findViewById(R.id.network_status_view);
 
@@ -47,7 +37,7 @@ public class Register22Activity extends BaseNetworkActivity {
     }
 
     private void BackToIntent() {
-        Intent intent = new Intent(Register22Activity.this, Register2Activity.class);
+        Intent intent = new Intent(CreatePasswordRegisterActivity.this, VerifyOTPRegisterActivity.class);
         startActivity(intent);
         finish();
     }
@@ -94,7 +84,7 @@ public class Register22Activity extends BaseNetworkActivity {
 //                            showToast(response.body().getMessage());
 //                        } else {
 //                            showToast("Tạo mật khẩu người dùng thành công!");
-//                            Intent intent = new Intent(Register22Activity.this, Register3Activity.class);
+//                            Intent intent = new Intent(CreatePasswordRegisterActivity.this, CreateNameAndAvatarRegisterActivity.class);
 //                            intent.putExtra("mail", email);
 //                            intent.putExtra("password", password);
 //                            intent.putExtra("token", token);
@@ -110,7 +100,7 @@ public class Register22Activity extends BaseNetworkActivity {
 //                    }
 //                }
 //        );
-        Intent intent = new Intent(Register22Activity.this, Register3Activity.class);
+        Intent intent = new Intent(CreatePasswordRegisterActivity.this, CreateNameAndAvatarRegisterActivity.class);
         intent.putExtra("mail", email);
         intent.putExtra("password", password);
         intent.putExtra("token", token);

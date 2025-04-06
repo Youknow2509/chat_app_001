@@ -1,11 +1,8 @@
 package com.example.chatapp.fragments;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -23,8 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,7 +32,6 @@ import com.bumptech.glide.Glide;
 import com.example.chatapp.R;
 import com.example.chatapp.activities.AddFriendActivity;
 import com.example.chatapp.activities.CreateNewGroupActivity;
-import com.example.chatapp.activities.OnboardingActivity;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.FragmentProfileBinding;
@@ -45,8 +39,6 @@ import com.example.chatapp.models.UserDetail;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.request.UserModels;
 import com.example.chatapp.models.response.ResponseData;
-import com.example.chatapp.utils.Utils;
-import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -107,8 +99,6 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
-
-
     private void showImagePreviewDialog(Uri imageUri) {
         binding.saveButtonContainer.setVisibility(View.VISIBLE);
         // Ánh xạ các thành phần trong dialog
@@ -130,7 +120,10 @@ public class ProfileFragment extends Fragment {
             // Xóa ảnh đã chọn
             currentMediaUri = null;
             binding.saveButtonContainer.setVisibility(View.GONE);
-            binding.avatarImage.setImageURI(Uri.fromFile(new File(userDetailLiveData.getValue().getPath_local_avatar())));
+            binding.avatarImage.setImageURI(
+                    Uri.fromFile(new File(
+                            userDetailLiveData.getValue().getPath_local_avatar()
+                    )));
 
             // Thông báo đã hủy
             Toast.makeText(getContext(), "Đã hủy thay đổi ảnh đại diện", Toast.LENGTH_SHORT).show();
@@ -313,15 +306,6 @@ public class ProfileFragment extends Fragment {
                 }
         );
     }
-
-    private void signOut() {
-        this.sessionManager.logout();
-
-        // redirect to OnboardingActivity
-        startActivity(new Intent(this.getContext(), OnboardingActivity.class));
-        this.getActivity().finish();
-    }
-
     private void editAvatar() {
         // Hiển thị dialog lựa chọn
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());

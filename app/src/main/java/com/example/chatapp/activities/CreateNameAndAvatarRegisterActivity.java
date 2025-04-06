@@ -1,11 +1,9 @@
 package com.example.chatapp.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,18 +12,17 @@ import android.widget.Toast;
 import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
-import com.example.chatapp.databinding.ActivityRegisterV23Binding;
+import com.example.chatapp.databinding.ActivityRegisterNameAvatarBinding;
 import com.example.chatapp.models.request.AccountModels;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.network.NetworkMonitor;
-import com.example.chatapp.service.NetworkMonitorService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Register3Activity extends BaseNetworkActivity {
-    private ActivityRegisterV23Binding binding;
+public class CreateNameAndAvatarRegisterActivity extends BaseNetworkActivity {
+    private ActivityRegisterNameAvatarBinding binding;
     private View nwStatusView;
     //
     private String mail;
@@ -38,7 +35,7 @@ public class Register3Activity extends BaseNetworkActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityRegisterV23Binding.inflate(getLayoutInflater());
+        binding = ActivityRegisterNameAvatarBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         initVariable();
@@ -82,7 +79,7 @@ public class Register3Activity extends BaseNetworkActivity {
     }
 
     private void backToPreviousStep() {
-        Intent intent = new Intent(Register3Activity.this, Register22Activity.class);
+        Intent intent = new Intent(CreateNameAndAvatarRegisterActivity.this, CreatePasswordRegisterActivity.class);
         startActivity(intent);
         finish();
     }
@@ -203,7 +200,7 @@ public class Register3Activity extends BaseNetworkActivity {
     }
 
     private void goToLogin() {
-        Intent intent = new Intent(Register3Activity.this, LoginActivity.class);
+        Intent intent = new Intent(CreateNameAndAvatarRegisterActivity.this, LoginActivity.class);
         intent.putExtra("email", mail);
         startActivity(intent);
         finish();
@@ -212,7 +209,7 @@ public class Register3Activity extends BaseNetworkActivity {
     private void showToast(String message) {
 //        runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        Log.d("Register3Activity", message);
+        Log.d("CreateNameAndAvatarRegisterActivity", message);
     }
 
     @Override
