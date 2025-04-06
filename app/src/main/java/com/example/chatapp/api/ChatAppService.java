@@ -139,6 +139,12 @@ public interface ChatAppService {
             @Query("limit") int limit,
             @Query("page") int page);
 
+    @GET("/api/v1/chat/get-list-chat-private-for-user")
+    Call<ResponseData<Object>> getListChatPrivateForUser(
+            @Header("Authorization") String token,
+            @Query("limit") int limit,
+            @Query("page") int page);
+
     @GET("/api/v1/chat/get-user-in-chat")
     Call<ResponseData<Object>> getUserInChat(
             @Header("Authorization") String token,

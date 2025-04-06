@@ -349,6 +349,14 @@ public class ApiManager {
 
     }
 
+    public void getListChatPrivateForUser(String token, int limit, int page, Callback<ResponseData<Object>> callback) {
+        if (!checkNetworkConnection()) return;
+
+        Call<ResponseData<Object>> call = apiService.getListChatPrivateForUser(formatToken(token), limit, page);
+        call.enqueue(wrapCallback(call, callback));
+
+    }
+
     public void getUserInChat(String token, String chatId, int limit, int page, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 
