@@ -15,7 +15,7 @@ public class Constants {
     public static final String SHARED_PREFS_FILE_TOKEN = "SessionEncryptedPrefs";
     public static final int CODE_SUCCESS = 20001;
     public static final String HOST_SERVER = "khanhdew.ddns.net:8080"; // ws
-    public static final String URL_HOST_SERVER = "http://10.0.2.2:8082"; // http://10.0.2.2:8082 is local
+    public static final String URL_HOST_SERVER = "http://khanhdew.ddns.net:8080"; // http://10.0.2.2:8082 is local
     public static final String URL_HOST_SERVER_SIGN = "http://khanhdew.ddns.net:8080"; // http://10.0.2.2:8082 is local
 
     public static final int NUMBER_OF_THREADS_Write_EXECUTOR_DATABASE = 4;

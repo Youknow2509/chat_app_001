@@ -113,15 +113,16 @@ public class LoginActivity extends BaseNetworkActivity {
 
     // validate input login
     private boolean validateInput(String email, String password) {
-        if (email.isEmpty() || password.isEmpty()) {
-            binding.mailEditText.setError("Vui lòng nhập email");
-            binding.passwordEditText.setError("Vui lòng nhập mật khẩu");
-            return false;
-        }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.mailEditText.setError("Email không hợp lệ");
-            return false;
-        }
+        // TODO: enable when prod
+        //        if (email.isEmpty() || password.isEmpty()) {
+//            binding.mailEditText.setError("Vui lòng nhập email");
+//            binding.passwordEditText.setError("Vui lòng nhập mật khẩu");
+//            return false;
+//        }
+//        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+//            binding.mailEditText.setError("Email không hợp lệ");
+//            return false;
+//        }
         return true;
     }
 
@@ -157,14 +158,15 @@ public class LoginActivity extends BaseNetworkActivity {
 
     // validate email
     private boolean validateEmail(String email) {
-        if (email.isEmpty()) {
-            binding.mailEditText.setError("Vui lòng nhập email");
-            return false;
-        }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.mailEditText.setError("Email không hợp lệ");
-            return false;
-        }
+        // TODO: enable when prod
+        //        if (email.isEmpty()) {
+//            binding.mailEditText.setError("Vui lòng nhập email");
+//            return false;
+//        }
+//        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+//            binding.mailEditText.setError("Email không hợp lệ");
+//            return false;
+//        }
         return true;
     }
 
