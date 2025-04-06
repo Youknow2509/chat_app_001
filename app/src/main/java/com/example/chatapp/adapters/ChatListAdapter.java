@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.chatapp.databinding.ItemContainerGroupBinding;
 import com.example.chatapp.databinding.ItemContainerUserBinding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
@@ -80,8 +82,11 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.binding = binding;
         }
 
-        void setData(ChatDTO chatDTO) {
+        void setData(ChatDTO chatDTO){
             binding.nameText.setText(chatDTO.getChatName());
+            Glide.with(binding.getRoot().getContext())
+                    .load(chatDTO.getAvatar())
+                    .into(binding.avatarImage);
             binding.getRoot().setOnClickListener(v -> listener.onUserClick(chatDTO));
         }
     }

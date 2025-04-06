@@ -4,18 +4,26 @@ import static android.content.ContentValues.TAG;
 
 import static com.example.chatapp.consts.Constants.*;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +36,7 @@ import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityChatV2Binding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
 import com.example.chatapp.dto.ChatDTO;
+import com.example.chatapp.dto.MediaMessageDTO;
 import com.example.chatapp.dto.MessageDTO;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.MentionSuggestion;
@@ -39,15 +48,23 @@ import com.example.chatapp.repository.ChatRepo;
 import com.example.chatapp.utils.DataSync;
 import com.example.chatapp.utils.PreferenceManager;
 import com.example.chatapp.utils.StompClientManager;
+import com.example.chatapp.utils.cloudinary.CloudinaryManager;
+import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.session.SessionManager;
+import com.example.chatapp.viewmodel.LoginViewModel;
+import com.example.chatapp.viewmodel.SendMediaViewModel;
 import com.google.gson.Gson;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class ChatConversationActivity extends BaseNetworkActivity implements MessageObserver {
@@ -77,13 +94,73 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     private DataSync dataSync = DataSync.getInstance();
     private boolean isSynced = false;
 
+    private String type_message = "text";
+
 
     ////////
+    private SendMediaViewModel sendMediaViewModel;
     private RecyclerView mentionSuggestionRecyclerView;
     private MentionSuggestionAdapter mentionAdapter;
     private List<MentionSuggestion> mentionSuggestions;
     private boolean isMentioning = false;
     private int mentionStartIndex = -1;
+    private File savedMediaFile;
+    private static final String FILEPROVIDER_AUTHORITY = "com.example.chatapp.fileprovider";
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private Uri currentMediaUri;
+
+    private CloudinaryManager cloudinaryManager;
+
+
+    private final ActivityResultLauncher<String[]> pickMediaLauncher = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+                if (uri != null) {
+                    // Persist permission for this URI
+                    binding.getRoot().getContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    // Hiển thị dialog xem trước ảnh
+                    showImagePreviewDialog(uri);
+
+                    Log.i(TAG, "Selected media URI: " + uri.toString());
+                }
+            });
+
+    private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            success -> {
+                if (success && currentMediaUri != null) {
+                    showImagePreviewDialog(currentMediaUri);
+                }
+            });
+
+    private void showImagePreviewDialog(Uri imageUri) {
+        binding.messageEditText.setVisibility(View.GONE);
+        binding.imagePreview.setVisibility(View.VISIBLE);
+        binding.closeImageButton.setVisibility(View.VISIBLE);
+        binding.micButton.setVisibility(View.GONE);
+        binding.sendButton.setVisibility(View.VISIBLE);
+
+        Glide.with(binding.getRoot().getContext())
+                .load(imageUri)
+                .fitCenter()
+                .into(binding.imagePreview);
+
+        currentMediaUri = imageUri;
+        Log.d(TAG, "Image URI: " + imageUri.toString());
+        type_message = "image";
+
+        binding.closeImageButton.setOnClickListener(v -> {
+            binding.messageEditText.setVisibility(View.VISIBLE);
+            binding.imagePreview.setVisibility(View.GONE);
+            binding.closeImageButton.setVisibility(View.GONE);
+            binding.micButton.setVisibility(View.VISIBLE);
+            binding.sendButton.setVisibility(View.GONE);
+            type_message = "text";
+            currentMediaUri = null;
+        });
+    }
+
 
 
 
@@ -94,8 +171,10 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         sessionManager = SessionManager.getInstance();
         stompClientManager = StompClientManager.getInstance();
         binding = ActivityChatV2Binding.inflate(getLayoutInflater());
+        sendMediaViewModel = new ViewModelProvider(
+                this,
+                new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(SendMediaViewModel.class);
         this.nwStatusView = binding.networkStatusView.getRoot();
-
         chatRepo = new ChatRepo(this);
         setContentView(binding.getRoot());
         setListeners();
@@ -107,8 +186,8 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
 
 
         mentionSuggestions = new ArrayList<>();
-        mentionSuggestions.add(new MentionSuggestion("GEMINI", R.drawable.avatar_circle_bg));
-        mentionSuggestions.add(new MentionSuggestion("GROK", R.drawable.avatar_circle_bg));
+        mentionSuggestions.add(new MentionSuggestion("GEMINI_2_FLASH", R.drawable.avatar_circle_bg));
+        mentionSuggestions.add(new MentionSuggestion("DEEPSEEK_CHAT", R.drawable.avatar_circle_bg));
 
         // Khởi tạo RecyclerView cho gợi ý mention
         mentionSuggestionRecyclerView = binding.mentionSuggestionRecyclerView;
@@ -136,16 +215,11 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                     showMentionSuggestions();
                 }
                 // Nếu đang trong chế độ mention, kiểm tra xem người dùng đã gõ thêm ký tự nào không
-                else if (isMentioning) {
+                if (isMentioning) {
                     // Nếu người dùng xóa "@", tắt chế độ mention
                     if (mentionStartIndex >= text.length() || text.charAt(mentionStartIndex) != '@') {
                         isMentioning = false;
                         hideMentionSuggestions();
-                    }
-                    // Lọc danh sách gợi ý dựa trên những gì người dùng đã gõ sau "@"
-                    else if (mentionStartIndex < text.length() - 1) {
-                        String query = text.substring(mentionStartIndex + 1).toLowerCase();
-                        filterMentionSuggestions(query);
                     }
                 }
             }
@@ -159,6 +233,15 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         // Subscribe to message observable
         messageObservable = MessageObservable.getInstance();
         messageObservable.addObserver(this);
+
+        sendMediaViewModel.getStringUrlResult().observe(this ,
+                result -> {
+                if (result != null) {
+                    // Upload media to Cloudinary
+                    String mediaUrl = result;
+                    Log.d(TAG, "Media URL: " + mediaUrl);
+            }
+        });
 
     }
 
@@ -214,6 +297,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         // Ẩn danh sách gợi ý
         hideMentionSuggestions();
         isMentioning = false;
+        mentionStartIndex = -1;
     }
 
     @Override
@@ -250,49 +334,58 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     }
 
     private void SendMessage() {
-        String messageText = binding.messageEditText.getText().toString();
-        if (messageText.isEmpty()) {
-            return;
+        if(type_message.equals("text")){
+            String messageText = binding.messageEditText.getText().toString();
+            if (messageText.isEmpty()) {
+                return;
+            }
+
+            MessageDTO messageDTO = new MessageDTO(messageText, conversionId, "text");
+
+            // parse messageDTO to json string
+            Gson gson = new Gson();
+            String messageJson = gson.toJson(messageDTO);
+            stompClientManager.sendMessage(messageJson, new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) {
+                    if (throwable != null) {
+                        showToast("Error sending message");
+                    } else {
+                        Log.d(TAG, "Message sent successfully");
+                    }
+                }
+            });
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSenderId(sessionManager.getUserId());
+            chatMessage.setContent(messageText);
+            Date currentDate = new Date();
+            // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
+            String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
+            chatMessage.setDateTime(formattedDate);
+
+            chatMessage.setReceiverId(receiverUser.id);
+            chatMessages.add(chatMessage);
+        }
+        else{
+            // Handle sending media message
+            if (currentMediaUri != null) {
+                MediaUtils mediaUtils = new MediaUtils();
+            }
         }
 
-        MessageDTO messageDTO = new MessageDTO(messageText, conversionId, "text");
 
-        // parse messageDTO to json string
-        Gson gson = new Gson();
-        String messageJson = gson.toJson(messageDTO);
-        stompClientManager.sendMessage(messageJson, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) {
-                if (throwable != null) {
-                    showToast("Error sending message");
-                } else {
-                    Log.d(TAG, "Message sent successfully");
-                }
-            }
-        });
 
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSenderId(sessionManager.getUserId());
-        chatMessage.setContent(messageText);
-        Date currentDate = new Date();
-        // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
-        String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
-        chatMessage.setDateTime(formattedDate);
-
-        chatMessage.setReceiverId(receiverUser.id);
-
-        chatMessages.add(chatMessage);
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
         binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
         binding.messageEditText.setText(null);
-
-        // Notify observers about the new message
-        showToast("Message sent: " + messageText);
 
         if (!isReceiverAvailable) {
             showToast("Receiver is not available, message sent.");
         }
     }
+
+
 
     private void VoiceCall() {
         Intent intent = new Intent(getApplicationContext(), CallOrVideoCallActivity.class);
@@ -311,50 +404,46 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         startActivity(intent);
     }
 
-    // Activity result launcher for picking image/video from gallery
-//    private final ActivityResultLauncher<String[]> pickMediaLauncher = registerForActivityResult(
-//            new ActivityResultContracts.OpenDocument(),
-//            uri -> {
-//                if (uri != null) {
-//                    // Persist permission for this URI
-//                    getContentResolver().takePersistableUriPermission(uri,
-//                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//
-//                    // Determine media type
-//                    currentMediaType = MediaUtils.getMediaType(ChatConversationActivity.this, uri);
-//
-//                    Log.i(TAG, "Selected media type: " + currentMediaType);
-//                    Log.i(TAG, "Selected media URI: " + uri.toString());
-//                    handleMediaResult(uri);
-//                }
-//            });
-
-    // Activity result launcher for taking photo with camera
-//    private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(
-//            new ActivityResultContracts.TakePicture(),
-//            success -> {
-//                if (success && currentMediaUri != null) {
-//                    currentMediaType = "image";
-//                    handleMediaResult(currentMediaUri);
-//                }
-//            });
-//
-//    // Activity result launcher for recording video with camera
-//    private final ActivityResultLauncher<Uri> takeVideoLauncher = registerForActivityResult(
-//            new ActivityResultContracts.CaptureVideo(),
-//            success -> {
-//                if (success && currentMediaUri != null) {
-//                    currentMediaType = "video";
-//                    handleMediaResult(currentMediaUri);
-//                }
-//            });
-
+    /**
+     * Create a temporary file for media capture
+     */
+    private File createMediaFile(String extension) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String fileName = "MEDIA_" + timeStamp + "_";
+        File storageDir = getFilesDir();
+        return File.createTempFile(fileName, extension, storageDir);
+    }
     private void TakeCamera() {
-        // TODO: Implement TakeCamera functionality
+        try {
+            File photoFile = createMediaFile(".jpg");
+            Uri photoURI = FileProvider.getUriForFile(this,
+                    FILEPROVIDER_AUTHORITY,
+                    photoFile);
+            Uri file = MediaUtils.saveToMediaStore(this, photoFile,
+                    "image");
+            Log.d(TAG, "Saved photo to: " + file.getPath());
+            currentMediaUri = FileProvider.getUriForFile(this,
+                    FILEPROVIDER_AUTHORITY,
+                    photoFile);
+            Log.i(TAG, "Photo URI: " + currentMediaUri.toString());
+            takePhotoLauncher.launch(currentMediaUri);
+
+        } catch (IOException ex) {
+            Log.e(TAG, "Error creating image file", ex);
+            Toast.makeText(this, "Error creating image file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    /**
+     * Open gallery for media selection
+     */
+    private void openGallery() {
+        pickMediaLauncher.launch(new String[]{"image/*", "video/*"});
     }
 
     private void AttachFile() {
-        // TODO: Implement AttachFile functionality
+        openGallery();
     }
 
     private void Mic() {

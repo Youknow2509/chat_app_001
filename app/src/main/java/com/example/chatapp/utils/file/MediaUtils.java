@@ -471,7 +471,7 @@ public class MediaUtils {
             if ("image".equals(mediaType)) {
                 contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/MyApp");
             } else {
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, "Movies/MyApp");
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, "Movi  es/MyApp");
             }
             contentValues.put(MediaStore.MediaColumns.IS_PENDING, 1);
         }
