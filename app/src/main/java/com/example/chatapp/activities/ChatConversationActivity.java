@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.example.chatapp.R;
 import com.example.chatapp.adapters.ChatAdapter;
 import com.example.chatapp.adapters.MentionSuggestionAdapter;
+import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityChatV2Binding;
 import com.example.chatapp.databinding.ItemUserChatBinding;
@@ -35,6 +36,7 @@ import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.observers.MessageObserver;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.repository.ChatRepo;
+import com.example.chatapp.utils.DataSync;
 import com.example.chatapp.utils.PreferenceManager;
 import com.example.chatapp.utils.StompClientManager;
 import com.example.chatapp.utils.session.SessionManager;
@@ -46,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ChatConversationActivity extends BaseNetworkActivity implements MessageObserver {
 
@@ -54,7 +57,8 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
 
     private MessageObservable messageObservable;
 
-    private String conversionId = "789e0123-a456-42f5-b678-556655440000";
+    private String conversionId;
+    private final String TAG = "ChatConversationActivity";
 
     private User receiverUser;
 
@@ -67,9 +71,11 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     private SessionManager sessionManager;
     private ChatRepo chatRepo;
     private int currentOffset = 0;
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 20;
     private boolean isLoading = false;
-    private boolean hasMoreMessages = true;
+    private volatile boolean hasMoreMessages = true;
+    private DataSync dataSync = DataSync.getInstance();
+    private boolean isSynced = false;
 
 
     ////////
@@ -95,6 +101,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         setListeners();
         loadChatDetails();
         binding.progressBar.setVisibility(View.GONE);
+
         init();
         Log.i(TAG, "onCreate: CREREASDSDASDAS");
 
@@ -233,6 +240,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         binding.cameraIcon.setOnClickListener(v -> TakeCamera());
         binding.attachIcon.setOnClickListener(v -> AttachFile());
         binding.chatToolbar.menuButton.setOnClickListener(v -> ShowMore());
+        binding.chatToolbar.syncButton.setOnClickListener(v -> syncWithServer());
     }
 
     private void ShowMore() {
@@ -252,7 +260,16 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         // parse messageDTO to json string
         Gson gson = new Gson();
         String messageJson = gson.toJson(messageDTO);
-        stompClientManager.sendMessage(messageJson);
+        stompClientManager.sendMessage(messageJson, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) {
+                if (throwable != null) {
+                    showToast("Error sending message");
+                } else {
+                    Log.d(TAG, "Message sent successfully");
+                }
+            }
+        });
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setSenderId(sessionManager.getUserId());
@@ -349,7 +366,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     }
 
     private void init() {
-        conversionId = "789e0123-a456-42f5-b678-556655440000";
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatMessages = new ArrayList<>();
 
@@ -361,6 +377,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                 sessionManager
         );
 
+        dataSync.init(new ApiManager(this), chatRepo, sessionManager);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true); // Show newest messages at the bottom
@@ -397,8 +414,10 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                 if (messages != null) {
                     currentOffset += messages.size();
 
-                    if (messages.isEmpty()) {
+                    // If we received fewer messages than requested, we've reached the end
+                    if (messages.size() < PAGE_SIZE) {
                         hasMoreMessages = false;
+
                     }
                 }
 
@@ -409,6 +428,46 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void syncWithServer() {
+        if (isSynced) {
+            showToast("Already synchronized");
+            return;
+        }
+
+        binding.chatToolbar.syncButton.setEnabled(false); // Disable button during sync
+        binding.progressBar.setVisibility(View.VISIBLE); // Show progress indicator
+
+        dataSync.syncMessage(conversionId, new DataSync.SyncCallback<>() {
+                @Override
+                public void onComplete(List<Message> data) {
+                    // Add more detailed logging to diagnose the issue
+                    Log.d(TAG, "Data sync completed with " + data.size() + " messages");
+                    Log.d(TAG, "Response data details: " + (data.isEmpty() ? "empty list" : "first message ID: " + data.get(0).getId()));
+
+                    runOnUiThread(() -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        binding.chatToolbar.syncButton.setEnabled(true);
+
+                        if (data.isEmpty()) {
+                            // Check if this is actually an empty response or a potential error
+                            showToast("No new messages update");
+                        }
+                    });
+                }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(TAG, "Sync error: " + errorMessage);
+                runOnUiThread(() -> {
+                    binding.progressBar.setVisibility(View.GONE);
+                    binding.chatToolbar.syncButton.setEnabled(true);
+                    showToast("Sync failed: " + errorMessage);
+                });
+            }
+        });
+        showToast("Sync completed");
     }
 
     private void processLoadedMessages(List<Message> messages, boolean isFirstLoad) {
@@ -485,7 +544,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         }
     }
 
-
     private Bitmap getBitmap(Bitmap bitmapImage) {
         return bitmapImage != null ? bitmapImage : null;
     }
@@ -533,7 +591,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
 
                 // Notify adapter about the new item and scroll to it
                 int newPosition = chatMessages.size() - 1;
-                chatAdapter.notifyItemInserted(newPosition);
+                chatAdapter.notifyDataSetChanged();
                 binding.chatRecyclerView.smoothScrollToPosition(newPosition);
             });
         } else {

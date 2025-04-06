@@ -96,7 +96,6 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
         NavigationUI.setupWithNavController(binding.navView, navController);
         requestCameraPermission();
         stompClientManager.subscribeTopic(sessionManager.getUserId());
-        stompClientManager.subscribeTopic("123e4567-e89b-12d3-a456-426614174000");
     }
 
     @Override

@@ -77,6 +77,10 @@ public class ChatRepo {
         return messageDao.getMessagesPaged(conversationId, limit, offset);
     }
 
+    public Long getLastMessageTimestamp(String conversationId) {
+        return messageDao.getLastMessageTimestamp(conversationId);
+    }
+
     // Conversations
     public LiveData<List<ConversationWithLastMessage>> getConversationsForCurrentUser(String userId) {
         MutableLiveData<List<ConversationWithLastMessage>> data = new MutableLiveData<>();

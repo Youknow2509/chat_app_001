@@ -12,6 +12,7 @@ import com.example.chatapp.models.request.ChatModels.*;
 import com.example.chatapp.models.request.TokenModels.*;
 import com.example.chatapp.models.request.UserModels.*;
 import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.network.NetworkConnectionInterceptor;
 import com.example.chatapp.service.TokenRefreshService;
 import com.example.chatapp.utils.Utils;
@@ -89,6 +90,7 @@ public class ApiManager {
 
     /**
      * Kiểm tra kết nối mạng trước khi thực hiện API call
+     *
      * @return true nếu có kết nối mạng, false nếu không
      */
     private boolean checkNetworkConnection() {
@@ -409,7 +411,15 @@ public class ApiManager {
         if (!checkNetworkConnection()) return;
 
         Call<ResponseData<Object>> call = apiService.sendToken(userFbToken);
-        call.enqueue(wrapCallback(call, callback));
+        call.enqueue(callback);
+    }
 
+    // === Message Management ===
+    public void getMessagesByChatId(String userId, String chatId, int size, int page, Callback<List<Message>> callback) {
+        if (!checkNetworkConnection()) return;
+
+        // TODO Add page to API
+        Call<List<Message>> call = apiService.getMessagesByChatId(userId, chatId, page, size);
+        call.enqueue(callback);
     }
 }

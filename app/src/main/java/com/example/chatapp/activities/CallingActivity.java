@@ -109,40 +109,40 @@ public class CallingActivity extends AppCompatActivity {
     }
 
     private void setupSignaling() {
-        stompClientManager.setOnSignalingEventListener(new SignalingObserver() {
-
-            @Override
-            public void onOfferReceived(SessionDescription offer) {
-                webRTCManager.setRemoteDescription(new SdpObservable(), offer);
-            }
-
-            @Override
-            public void onAnswerReceived(SessionDescription answer) {
-                webRTCManager.setRemoteDescription(new SdpObservable(), answer);
-            }
-
-            @Override
-            public void onIceCandidateReceived(IceCandidate iceCandidate) {
-                webRTCManager.addIceCandidate(iceCandidate);
-            }
-
-            @Override
-            public void onSignalingEvent(WebRTCMessage message) {
-                if(message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
-                    // parse message payload to SessionDescription
-                    SessionDescription offer = gson.fromJson(message.getPayload(), SessionDescription.class);
-                    onOfferReceived(offer);
-                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.ANSWER.getType())) {
-                    // parse message payload to SessionDescription
-                    SessionDescription answer = gson.fromJson(message.getPayload(), SessionDescription.class);
-                    onAnswerReceived(answer);
-                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.CANDIDATE.getType())) {
-                    // parse message payload to IceCandidate
-                    IceCandidate iceCandidate = gson.fromJson(message.getPayload(), IceCandidate.class);
-                    onIceCandidateReceived(iceCandidate);
-                }
-            }
-        });
+//        stompClientManager.setOnSignalingEventListener(new SignalingObserver() {
+//
+//            @Override
+//            public void onOfferReceived(SessionDescription offer) {
+//                webRTCManager.setRemoteDescription(new SdpObservable(), offer);
+//            }
+//
+//            @Override
+//            public void onAnswerReceived(SessionDescription answer) {
+//                webRTCManager.setRemoteDescription(new SdpObservable(), answer);
+//            }
+//
+//            @Override
+//            public void onIceCandidateReceived(IceCandidate iceCandidate) {
+//                webRTCManager.addIceCandidate(iceCandidate);
+//            }
+//
+//            @Override
+//            public void onSignalingEvent(WebRTCMessage message) {
+//                if(message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
+//                    // parse message payload to SessionDescription
+//                    SessionDescription offer = gson.fromJson(message.getPayload(), SessionDescription.class);
+//                    onOfferReceived(offer);
+//                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.ANSWER.getType())) {
+//                    // parse message payload to SessionDescription
+//                    SessionDescription answer = gson.fromJson(message.getPayload(), SessionDescription.class);
+//                    onAnswerReceived(answer);
+//                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.CANDIDATE.getType())) {
+//                    // parse message payload to IceCandidate
+//                    IceCandidate iceCandidate = gson.fromJson(message.getPayload(), IceCandidate.class);
+//                    onIceCandidateReceived(iceCandidate);
+//                }
+//            }
+//        });
     }
 
 

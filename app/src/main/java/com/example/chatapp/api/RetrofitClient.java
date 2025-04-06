@@ -1,14 +1,26 @@
 package com.example.chatapp.api;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.network.AuthInterceptor;
+import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.network.NetworkConnectionInterceptor;
 import com.example.chatapp.network.NetworkMonitor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -24,6 +36,7 @@ public class RetrofitClient {
     private ChatAppService chatAppService;
     private CloudinaryService cloudinaryService;
     private final NetworkMonitor networkMonitor;
+    private final String TAG = "RetrofitClient";
 
     private RetrofitClient(Context context) {
         // Khởi tạo NetworkMonitor
@@ -51,8 +64,17 @@ public class RetrofitClient {
 
         // Configure Gson
         Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
+                .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                    @Override
+                    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                        try {
+                            return new Date(json.getAsLong());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing date: " + json, e);
+                            return null;
+                        }
+                    }
+                }).create();
 
         // Create Retrofit instance
         retrofit = new Retrofit.Builder()

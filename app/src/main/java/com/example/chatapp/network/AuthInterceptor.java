@@ -104,7 +104,8 @@ public class AuthInterceptor implements Interceptor {
                 EndPoint.VERIFY_ACCOUNT,
                 EndPoint.UPDATE_USER_NAME_AND_AVATAR,
                 EndPoint.VERIFY_FORGOT_PASSWORD,
-                EndPoint.VALID_TOKEN
+                EndPoint.VALID_TOKEN,
+                EndPoint.FB_TOKEN
         };
 
         String path = request.url().encodedPath();

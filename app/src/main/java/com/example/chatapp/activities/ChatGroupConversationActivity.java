@@ -39,7 +39,7 @@ public class ChatGroupConversationActivity extends AppCompatActivity implements 
 
     private MessageObservable messageObservable;
 
-    private String conversionId = "789e0123-a456-42f5-b678-556655440000";
+    private String conversionId;
 
     private Group receiverGroup;
 
@@ -232,7 +232,6 @@ public class ChatGroupConversationActivity extends AppCompatActivity implements 
                 ItemGroupChatBinding binding1 = ItemGroupChatBinding.inflate(getLayoutInflater());
                 binding1.dateText.setText(message.getDateTime());
                 binding1.messageText.setText(message.getContent());
-
 
                 chatAdapter.notifyDataSetChanged();
             });

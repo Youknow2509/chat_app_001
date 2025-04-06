@@ -51,6 +51,9 @@ public interface MessageDao {
     @Query("SELECT * FROM messages WHERE chatId = :conversationId ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
     LiveData<List<Message>> getMessagesPaged(String conversationId, int limit, int offset);
 
+    @Query("SELECT createdAt FROM messages WHERE chatId = :conversationId ORDER BY createdAt DESC LIMIT 1")
+    Long getLastMessageTimestamp(String conversationId);
+
     // Hỗ trợ Paging Library
     @Query("SELECT * FROM messages WHERE chatId = :conversationId ORDER BY createdAt DESC")
     PagingSource<Integer, Message> getMessagesPagingSource(String conversationId);

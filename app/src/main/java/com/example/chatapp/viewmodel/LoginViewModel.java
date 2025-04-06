@@ -11,10 +11,12 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
+import com.example.chatapp.dto.UserFbToken;
 import com.example.chatapp.models.UserProfileSession;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.Utils;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -95,6 +97,7 @@ public class LoginViewModel extends AndroidViewModel {
                     String accessToken = Utils.getDataBody(response.body(), "token");
                     String refreshToken = Utils.getDataBody(response.body(), "refresh_token");
                     Log.d(TAG, "Login success: " + accessToken);
+
                     accessTokenLiveData.setValue(accessToken);
                     refreshTokenLiveData.setValue(refreshToken);
                     getUserInfo(accessToken);
@@ -110,6 +113,30 @@ public class LoginViewModel extends AndroidViewModel {
                 errorMessageLiveData.setValue("Network error! Please try again.");
             }
         });
+    }
+
+    private void sendFirebaseToken(String userId){
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.d("FCM_DEBUG", "Fetching FCM Token failed", task.getException());
+                        return;
+                    }
+                    String token = task.getResult();
+                    Log.d("FCM_DEBUG", "Manual Token: " + token);
+                    // TODO Get userId
+                    UserFbToken userFbToken = new UserFbToken(userId, token, "on", true);
+                    apiManager.sendToken(userFbToken, new Callback<ResponseData<Object>>() {
+                        @Override
+                        public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+
+                        }
+                    });
+                });
     }
 
     private void getUserInfo(String token) {
@@ -136,6 +163,7 @@ public class LoginViewModel extends AndroidViewModel {
                     user.setRefreshToken(refreshTokenLiveData.getValue());
                     //
                     Log.d(TAG, "Get user info success: " + user.getName());
+                    sendFirebaseToken(user.getId());
                     userProfileLiveData.setValue(user);
                 } else {
                     Log.e(TAG, "Error getting user info: " + response.body().getMessage());

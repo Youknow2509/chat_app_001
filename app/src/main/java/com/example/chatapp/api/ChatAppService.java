@@ -6,6 +6,9 @@ import com.example.chatapp.models.request.ChatModels.*;
 import com.example.chatapp.models.request.TokenModels.*;
 import com.example.chatapp.models.request.UserModels.*;
 import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.models.sqlite.Message;
+
+import java.util.List;
 
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
@@ -176,5 +179,11 @@ public interface ChatAppService {
     @POST("/api/v1/token")
     Call<ResponseData<Object>> sendToken(@Body UserFbToken userFbToken);
 
-
+    // =========== Message Management ============
+    @GET("/api/v1/messages/{chatId}")
+    Call<List<Message>> getMessagesByChatId(
+            @Header("X-User-ID") String userId,
+            @Path("chatId") String chatId,
+            @Query("page") int page,
+            @Query("size") int size);
 }

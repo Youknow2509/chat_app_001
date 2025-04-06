@@ -32,6 +32,7 @@ import org.webrtc.IceCandidate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.reactivex.disposables.Disposable;
 import ua.naiksoftware.stomp.Stomp;
@@ -57,6 +58,7 @@ public class StompClientManager {
     private SessionManager sessionManager;
     private ChatRepo chatRepo;
     private Context context;
+    private List<String> topics = new ArrayList<>();
 
     private StompClientManager() {
         // Initialize your StompClient here
@@ -99,6 +101,7 @@ public class StompClientManager {
                     case CLOSED:
                         Log.d(TAG, "Stomp connection closed");
                         isConnected = false;
+                        reconnect();
                         break;
                 }
             }, throwable -> {
@@ -157,6 +160,10 @@ public class StompClientManager {
                 }
             } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
                 Log.e(TAG, "Max reconnection attempts reached. Giving up automatic reconnection.");
+            } else if (isConnected) {
+                Log.d(TAG, "Reconnected successfully!");
+                reconnectAttempts = 0; // Reset attempts on successful connection
+                topics.forEach(this::subscribeTopic);
             }
         };
 
@@ -166,22 +173,6 @@ public class StompClientManager {
 
     @SuppressLint("CheckResult")
     public void subscribeTopic(String userId) {
-
-        if (mStompClient == null) {
-            Log.e(TAG, "Cannot subscribe: client not connected. Attempting to reconnect...");
-            initStompClient(); // Try to reinitialize
-            int attempts = 0;
-            while (!mStompClient.isConnected()) {
-                reconnect();
-                attempts++;
-                Log.d(TAG, "Attempting to reconnect... Attempt #" + attempts);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
 
         Log.d(TAG, "Subscribing to topic: /topic/" + userId);
 
@@ -205,19 +196,14 @@ public class StompClientManager {
                 }, throwable -> {
                     Log.e(TAG, "Error on subscribe topic", throwable);
                 });
-
+        if (!topics.contains(userId))
+            topics.add(userId);
         Log.d(TAG, "Subscription created for: /topic/" + userId);
     }
 
     private ChatMessage parseToChatMessage(StompMessage stompMessage) {
         try {
-            ChatMessage obj = gson.fromJson(stompMessage.getPayload(), ChatMessage.class);
-
-            ChatMessage chatMessage = new ChatMessage();
-
-//             set chat id from obj id
-//            chatMessage.
-            return obj;
+            return gson.fromJson(stompMessage.getPayload(), ChatMessage.class);
         } catch (Exception e) {
             Log.e(TAG, "Error parsing message", e);
             return null;
@@ -225,22 +211,14 @@ public class StompClientManager {
     }
 
     @SuppressLint("CheckResult")
-    public void sendMessage(String message) {
-        if (!mStompClient.isConnected()) {
-            Log.e(TAG, "Cannot send message: client not connected. Attempting to reconnect...");
-            initStompClient(); // Try to reinitialize
-            int attempts = 0;
-            while (!mStompClient.isConnected()) {
-                reconnect();
-                attempts++;
-                Log.d(TAG, "Attempting to reconnect... Attempt #" + attempts);
-            }
-        }
-
+    public void sendMessage(String message,  Consumer<Throwable> onError) {
         mStompClient.send(SEND_MESSAGE_DESTINATION, message).subscribe(() -> {
             Log.d(TAG, "Message sent successfully");
         }, throwable -> {
             Log.e(TAG, "Error sending message", throwable);
+            if (onError != null) {
+                onError.accept(throwable);
+            }
         });
     }
 
