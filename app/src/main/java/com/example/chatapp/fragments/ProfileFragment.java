@@ -1,13 +1,16 @@
 package com.example.chatapp.fragments;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
@@ -15,6 +18,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,8 +66,9 @@ import java.util.Locale;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.example.chatapp.service.ImageService;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends BaseNetworkFragment {
     //
     private FragmentProfileBinding binding;
     //
@@ -98,6 +110,36 @@ public class ProfileFragment extends Fragment {
                     showImagePreviewDialog(currentMediaUri);
                 }
             });
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        binding = FragmentProfileBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+        initVariable();
+        setListener();
+        observeLiveData();
+        return view;
+    }
+
+    /**
+     * Xử lí khi không có mạng
+     */
+    @Override
+    protected void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
+
+    }
+
+    /**
+     * Xử lí khi có mạng
+     */
+    @Override
+    protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
+    }
 
     private void showImagePreviewDialog(Uri imageUri) {
         binding.saveButtonContainer.setVisibility(View.VISIBLE);
@@ -152,19 +194,6 @@ public class ProfileFragment extends Fragment {
         this.progressOverlay = binding.progressOverlay;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        binding = FragmentProfileBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
-        initVariable();
-//        initDataToView(userDetailLiveData.getValue());
-        setListener();
-        observeLiveData();
-        return view;
-    }
-
     /**
      * observeLiveData
      */
@@ -195,28 +224,35 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Init data in view
-     */
-    private void initDataToView(UserDetail userDetail) {
-        if (userDetail == null) {
-            Log.e(TAG, "UserDetail is null");
-            return;
-        }
-        binding.profileName.setText(userDetail.getName());
-        binding.emailDetail.setText(userDetail.getEmail());
-        binding.genderDetail.setText(userDetail.getGender());
-        binding.birthdayDetail.setText(userDetail.getBirthday());
+         * Init data in view
+         */
+        private void initDataToView(UserDetail userDetail) {
+            if (userDetail == null) {
+                Log.e(TAG, "UserDetail is null");
+                return;
+            }
+            binding.profileName.setText(userDetail.getName());
+            binding.emailDetail.setText(userDetail.getEmail());
+            binding.genderDetail.setText(userDetail.getGender());
+            binding.birthdayDetail.setText(userDetail.getBirthday());
 
-        String url_avatar_local = userDetail.getPath_local_avatar();
-        File avatar_file = new File(url_avatar_local);
-        if (avatar_file.exists()) {
-            Log.d(TAG, "Load avatar from local: " + url_avatar_local + "success");
-            binding.avatarImage.setImageURI(Uri.fromFile(avatar_file));
-        } else {
-            Log.d(TAG, "Load avatar from local: " + url_avatar_local + "error");
-        }
+            String url_avatar_local = userDetail.getPath_local_avatar();
+            String url_host_avt = sessionManager.getUserAvatar();
+            Context applicationContext = requireContext().getApplicationContext();
+
+            ImageService.loadAndCacheImage(
+                        this,                       // Fragment hiện tại
+                        binding.avatarImage,                // ImageView để hiển thị
+                        userDetail.getPath_local_avatar(),  // Đường dẫn local
+                        sessionManager.getUserAvatar(),     // URL từ server
+                        sessionManager.getAccessToken(),    // Token xác thực
+                        newPath -> {
+                            // Lưu đường dẫn mới
+                            userDetail.setPath_local_avatar(newPath);
+                            sessionManager.setPathFileAvatarUser(newPath);
+                        }
+                );
     }
-
 
     /**
      * listen event in element
@@ -233,7 +269,6 @@ public class ProfileFragment extends Fragment {
                 // Bạn có thể hiển thị một thông báo cho người dùng hoặc làm gì đó khác.
             }
         });
-//        binding.signoutButton.setOnClickListener(v -> signOut());
         binding.addIcon.setOnClickListener(v -> {
             // Tạo popup menu
             PopupMenu popupMenu = new PopupMenu(getContext(), binding.addIcon);
@@ -306,6 +341,7 @@ public class ProfileFragment extends Fragment {
                 }
         );
     }
+
     private void editAvatar() {
         // Hiển thị dialog lựa chọn
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
