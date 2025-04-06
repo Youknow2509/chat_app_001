@@ -47,9 +47,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class ChatConversationActivity extends AppCompatActivity implements MessageObserver {
+public class ChatConversationActivity extends BaseNetworkActivity implements MessageObserver {
 
     private ActivityChatV2Binding binding;
+    private View nwStatusView;
 
     private MessageObservable messageObservable;
 
@@ -87,6 +88,8 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
         sessionManager = SessionManager.getInstance();
         stompClientManager = StompClientManager.getInstance();
         binding = ActivityChatV2Binding.inflate(getLayoutInflater());
+        this.nwStatusView = binding.networkStatusView.getRoot();
+
         chatRepo = new ChatRepo(this);
         setContentView(binding.getRoot());
         setListeners();
@@ -542,5 +545,17 @@ public class ChatConversationActivity extends AppCompatActivity implements Messa
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
+    }
+
+    @Override
+    protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
+        nwStatusView.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
+        nwStatusView.setVisibility(View.VISIBLE);
     }
 }
