@@ -99,6 +99,9 @@ public class LoginActivity extends BaseNetworkActivity {
         binding.nextButton.setOnClickListener(v -> {
             String email = binding.mailEditText.getText().toString().trim();
             String password = binding.passwordEditText.getText().toString().trim();
+            if (!validateInput(email, password)) {
+                return;
+            }
             loginViewModel.signIn(email, password);
         });
 
@@ -107,6 +110,20 @@ public class LoginActivity extends BaseNetworkActivity {
 
         // Handle forgot password button click
         binding.forgotPasswordText.setOnClickListener(v -> forgotPassword());
+    }
+
+    // validate input login
+    private boolean validateInput(String email, String password) {
+        if (email.isEmpty() || password.isEmpty()) {
+            binding.mailEditText.setError("Vui lòng nhập email");
+            binding.passwordEditText.setError("Vui lòng nhập mật khẩu");
+            return false;
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.mailEditText.setError("Email không hợp lệ");
+            return false;
+        }
+        return true;
     }
 
     // Handle email pre-filled from previous screen (register or password reset)
@@ -132,7 +149,24 @@ public class LoginActivity extends BaseNetworkActivity {
     private void forgotPassword() {
         progressOverlay.setVisibility(View.VISIBLE);
         String email = binding.mailEditText.getText().toString().trim();
+        if (!validateEmail(email)) {
+            progressOverlay.setVisibility(View.GONE);
+            return;
+        }
         loginViewModel.forgotPassword(email);
+    }
+
+    // validate email
+    private boolean validateEmail(String email) {
+        if (email.isEmpty()) {
+            binding.mailEditText.setError("Vui lòng nhập email");
+            return false;
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.mailEditText.setError("Email không hợp lệ");
+            return false;
+        }
+        return true;
     }
 
     // Save session after successful login
@@ -165,11 +199,18 @@ public class LoginActivity extends BaseNetworkActivity {
 
     @Override
     protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
         networkStatusView.setVisibility(View.GONE);
+        binding.nextButton.setEnabled(true);
+        binding.forgotPasswordText.setEnabled(true);
     }
 
     @Override
     protected void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
         networkStatusView.setVisibility(View.VISIBLE);
+        binding.nextButton.setEnabled(false);
+        binding.forgotPasswordText.setEnabled(false);
+
     }
 }
