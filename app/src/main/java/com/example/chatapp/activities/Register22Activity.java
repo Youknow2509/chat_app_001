@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.R;
 import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityRegisterV225Binding;
@@ -19,9 +20,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Register22Activity extends AppCompatActivity {
+public class Register22Activity extends BaseNetworkActivity {
     private ActivityRegisterV225Binding binding;
-
+    private View nwStatusView;
+    //
     private String email;
 
     private String token;
@@ -36,6 +38,7 @@ public class Register22Activity extends AppCompatActivity {
 
         binding = ActivityRegisterV225Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        nwStatusView = findViewById(R.id.network_status_view);
 
         initVariableUse();
 
@@ -117,12 +120,15 @@ public class Register22Activity extends AppCompatActivity {
 
     private Boolean isValidSignUp(String email, String password, String confirmPassword) {
         if (password.isEmpty()) {
+            binding.passwordInput.setError("Please enter your password");
             showToast("Please enter your password");
             return false;
         } else if (confirmPassword.isEmpty()) {
+            binding.passwordAgainInput.setError("Please confirm your password");
             showToast("Please confirm your password");
             return false;
         } else if (!password.equals(confirmPassword)) {
+            binding.passwordAgainInput.setError("Password and Confirm Password must match");
             showToast("Password and Confirm Password must match");
             return false;
         }
@@ -131,5 +137,20 @@ public class Register22Activity extends AppCompatActivity {
 
     private void showToast(String message) {
         runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
+        nwStatusView.setVisibility(View.GONE);
+        binding.nextButton.setEnabled(true);
+    }
+
+    @Override
+    protected void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
+        nwStatusView.setVisibility(View.VISIBLE);
+        binding.nextButton.setEnabled(false);
+
     }
 }

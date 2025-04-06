@@ -26,12 +26,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Register2Activity extends AppCompatActivity {
+public class Register2Activity extends BaseNetworkActivity {
 
     private EditText[] codeInputs;
-
+    private View networkStatusView;
     private ActivityRegisterV22Binding binding;
-
+    //
     private String tokenVerifyOTP;
     private String emailRegister;
     private ApiManager apiManager;
@@ -73,6 +73,8 @@ public class Register2Activity extends AppCompatActivity {
     }
 
     private void initVariableUse() {
+        networkStatusView = findViewById(R.id.network_status_view);
+
         apiManager = new ApiManager(this);
     }
 
@@ -194,4 +196,19 @@ public class Register2Activity extends AppCompatActivity {
         runOnUiThread(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
     }
 
+    @Override
+    protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
+        networkStatusView.setVisibility(View.GONE);
+        binding.nextButton.setEnabled(true);
+        binding.resendText.setEnabled(true);
+    }
+
+    @Override
+    protected void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
+        networkStatusView.setVisibility(View.VISIBLE);
+        binding.nextButton.setEnabled(false);
+        binding.resendText.setEnabled(false);
+    }
 }

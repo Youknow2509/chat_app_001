@@ -29,23 +29,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="-65dp" />
 
-    <Button
-        android:id="@+id/backToLoginButton"
-        android:layout_width="110dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/rounded_button"
-        android:drawableLeft="@drawable/back_white"
-        android:drawablePadding="8dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="20dp"
-        android:text="Login"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <!-- Title: Register -->
     <TextView
         android:id="@+id/registerTitle"
@@ -176,12 +159,27 @@
             android:textSize="16sp" />
     </FrameLayout>
 
-    <!-- 👇 Di chuyển phần này xuống dưới cùng để hiển thị trên hết -->
     <include
         android:id="@+id/network_status_view"
         layout="@layout/network_status_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="10dp"
+        app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/backToLoginButton"
+        android:layout_width="110dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/rounded_button"
+        android:drawableLeft="@drawable/back_white"
+        android:drawablePadding="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="20dp"
+        android:text="Login"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

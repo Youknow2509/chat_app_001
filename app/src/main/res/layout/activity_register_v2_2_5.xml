@@ -40,7 +40,6 @@
         app:layout_constraintStart_toStartOf="@+id/network_status_view"
         app:layout_constraintTop_toTopOf="@+id/network_status_view" />
 
-
     <!-- Register Text -->
     <TextView
         android:id="@+id/registerText"
@@ -56,9 +55,6 @@
         app:layout_constraintTop_toTopOf="@+id/backToLoginButton" />
 
     <!-- Enter your mobile phone Text -->
-
-    <!-- SMS Code Text -->
-
     <TextView
         android:id="@+id/enterPhoneText"
         android:layout_width="wrap_content"
@@ -102,7 +98,7 @@
 
             <ImageView
                 android:layout_width="45dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_info"
                 android:scaleType="centerInside" />
 
@@ -129,7 +125,7 @@
 
             <ImageView
                 android:layout_width="45dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_info"
                 android:scaleType="centerInside" />
 

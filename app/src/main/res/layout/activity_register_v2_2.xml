@@ -20,7 +20,7 @@
         android:layout_height="0dp"
         android:background="@drawable/blue_wave_background"
         app:layout_constraintHeight_percent="0.35"
-        app:layout_constraintTop_toTopOf="@+id/network_status_view" />
+        app:layout_constraintTop_toBottomOf="@+id/network_status_view" />
 
     <Button
         android:id="@+id/backToLoginButton"
@@ -38,7 +38,6 @@
         android:textColor="#FFFFFF"
         app:layout_constraintStart_toStartOf="@+id/network_status_view"
         app:layout_constraintTop_toTopOf="@+id/network_status_view" />
-
 
     <!-- Register Text -->
     <TextView
@@ -222,6 +221,7 @@
         app:layout_constraintTop_toTopOf="@+id/network_status_view"
         app:layout_constraintVertical_bias="0.568"
         tools:ignore="MissingConstraints" />
+
     <!-- Progress Overlay -->
     <FrameLayout
         android:id="@+id/progress_overlay"
@@ -253,4 +253,5 @@
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
     </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
