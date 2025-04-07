@@ -101,8 +101,14 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
         sessionManager = new SessionManager(this);
         stompClientManager = StompClientManager.getInstance();
         stompClientManager.setSessionManager(sessionManager, this);
+
+
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_message, R.id.nav_group, R.id.nav_profile, R.id.nav_more)
+                .build();
+        NavigationUI.setupWithNavController(binding.navView, navController);
         stompClientManager.subscribeTopic(sessionManager.getUserId());
-        Log.i(TAG, "FBTOKEN: " + sessionManager.getFbToken());
         stompClientManager.setOnSignalingEventListener(new SignalingObserver() {
             @Override
             public void onOfferReceived(SessionDescription offer) {
@@ -131,7 +137,7 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
 
             @Override
             public void onSignalingEvent(WebRTCMessage message) {
-                if(message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
+                if (message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
                     // parse message payload to SessionDescription
                     SessionDescription offer = gson.fromJson(message.getPayload(), SessionDescription.class);
                     onOfferReceived(offer);
@@ -146,12 +152,6 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
                 }
             }
         });
-
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_message, R.id.nav_group, R.id.nav_profile, R.id.nav_more)
-                .build();
-        NavigationUI.setupWithNavController(binding.navView, navController);
         requestCameraPermission();
 
     }

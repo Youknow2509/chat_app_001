@@ -90,7 +90,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("ChatConversationActivity", "open ChatConversationActivity");
         sessionManager = SessionManager.getInstance();
         stompClientManager = StompClientManager.getInstance();
         binding = ActivityChatV2Binding.inflate(getLayoutInflater());
@@ -103,12 +102,9 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         binding.progressBar.setVisibility(View.GONE);
 
         init();
-        Log.i(TAG, "onCreate: CREREASDSDASDAS");
-
-
         mentionSuggestions = new ArrayList<>();
-        mentionSuggestions.add(new MentionSuggestion("GEMINI", R.drawable.avatar_circle_bg));
-        mentionSuggestions.add(new MentionSuggestion("GROK", R.drawable.avatar_circle_bg));
+        mentionSuggestions.add(new MentionSuggestion("GEMINI_2_FLASH", R.drawable.avatar_circle_bg));
+        mentionSuggestions.add(new MentionSuggestion("DEEPSEEK_CHAT", R.drawable.avatar_circle_bg));
 
         // Khởi tạo RecyclerView cho gợi ý mention
         mentionSuggestionRecyclerView = binding.mentionSuggestionRecyclerView;
@@ -189,6 +185,12 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         } else {
             showMentionSuggestions();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        messageObservable.removeObserver(this);
+        super.onDestroy();
     }
 
     private void handleMentionSelection(MentionSuggestion suggestion) {
@@ -285,9 +287,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
         binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
         binding.messageEditText.setText(null);
-
-        // Notify observers about the new message
-        showToast("Message sent: " + messageText);
 
         if (!isReceiverAvailable) {
             showToast("Receiver is not available, message sent.");
@@ -549,32 +548,17 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     }
 
     private boolean isMessageRelevantToThisChat(ChatMessage message) {
-        if (message == null) {
-            Log.e(TAG, "Message is null");
-            return false;
-        }
-
-        // Check if conversionId is properly set
-        if (conversionId == null || conversionId.isEmpty()) {
-            Log.e(TAG, "conversionId is not properly set");
-            return false;
-        }
-
         // Check for actual match
-        boolean isRelevant = conversionId.equals(message.getChatId());
-        Log.d(TAG, "Message relevance check: " + isRelevant +
-                " (conversionId=" + conversionId + ", messageChatId=" + message.getChatId() + ")");
-        return isRelevant;
+        return conversionId.equals(message.getChatId());
     }
 
 
     @Override
     public void onMessageReceived(ChatMessage message) {
-        Log.d(TAG, "onMessageReceived: " + message.getContent() + " for chatId: " + message.getChatId()
-                + ", my conversionId: " + conversionId);
 
         if (isMessageRelevantToThisChat(message)) {
-            Log.d(TAG, "Message is relevant to this chat, updating UI");
+            Log.i(TAG, "New message for: " + message.getChatId() + " - " + message.getContent());
+
             runOnUiThread(() -> {
                 // Remove any temporary messages with null ID
                 chatMessages.stream().filter(chatMessage -> chatMessage.getId() == null).findFirst().ifPresent(chatMessage -> {
@@ -594,10 +578,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                 chatAdapter.notifyDataSetChanged();
                 binding.chatRecyclerView.smoothScrollToPosition(newPosition);
             });
-        } else {
-            Log.d(TAG, "Message is NOT relevant to this chat");
         }
-
     }
 
     @Override
