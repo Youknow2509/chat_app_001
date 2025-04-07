@@ -25,6 +25,7 @@ import com.example.chatapp.databinding.ActivityCallOrVideoCallBinding;
 import com.example.chatapp.databinding.ActivityCallReturnBinding;
 import com.example.chatapp.databinding.ToolbarChatBinding;
 import com.example.chatapp.fragments.ChatFragment;
+import com.example.chatapp.utils.WebRTCManager;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
@@ -60,6 +61,8 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
 
     private CameraSource cameraSource;
     private static final int CAMERA_FACING = CameraSource.CAMERA_FACING_FRONT;
+    private String TAG = "CallOrVideoCallActivity";
+    private WebRTCManager webRTCManager = WebRTCManager.getInstance();
 
 
     @Override
@@ -72,6 +75,7 @@ public class CallOrVideoCallActivity extends AppCompatActivity {
         binding.toggleMicButton.setOnClickListener(v -> switchOptionMicrophone());
         binding.toggleCameraButton.setOnClickListener(v -> switchOptionCamera());
         binding.endCallButton.setOnClickListener(v -> onBackPressed());
+        Log.i(TAG, "onCreate: ");
     }
 
     private void switchOptionMicrophone() {

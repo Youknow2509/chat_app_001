@@ -118,21 +118,22 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        android:padding="12dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
 
         <!-- Suggestion RecyclerView -->
 
         <LinearLayout
             android:id="@+id/messageInputLayout"
-            android:layout_width="327dp"
-            android:background="@drawable/bg_input_box"
-            android:layout_height="wrap_content">
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_input_box">
 
             <EditText
                 android:id="@+id/messageEditText"
@@ -141,9 +142,9 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:hint="Type a message ..."
+                android:inputType="text"
                 android:paddingStart="12dp"
                 android:paddingEnd="40dp"
-                android:inputType="text"
                 android:textColor="#000000"
                 android:textColorHint="#999999" />
 
@@ -160,9 +161,9 @@
                 android:id="@+id/attachIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginEnd="@dimen/_15sdp"
                 android:layout_gravity="center"
                 android:layout_marginStart="10dp"
+                android:layout_marginEnd="@dimen/_15sdp"
                 android:src="@drawable/paperclip_2"
                 app:tint="#999999" />
         </LinearLayout>
@@ -176,18 +177,18 @@
                 android:id="@+id/micButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/mic__rec"
                 android:background="@drawable/bg_header_curve"
                 android:padding="12dp"
+                android:src="@drawable/mic__rec"
                 android:visibility="visible" />
 
             <ImageView
                 android:id="@+id/sendButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/plain_3"
                 android:background="@drawable/bg_header_curve"
                 android:padding="12dp"
+                android:src="@drawable/plain_3"
                 android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>

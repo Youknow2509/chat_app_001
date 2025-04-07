@@ -23,7 +23,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.databinding.ActivityMainBinding;
+import com.example.chatapp.models.WebRTCMessage;
 import com.example.chatapp.network.NetworkMonitor;
+import com.example.chatapp.observers.SignalingObserver;
 import com.example.chatapp.utils.cloudinary.CloudinaryManager;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.android.material.snackbar.Snackbar;
@@ -32,9 +34,14 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.example.chatapp.R;
 import com.example.chatapp.utils.StompClientManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.Gson;
+
+import org.webrtc.IceCandidate;
+import org.webrtc.SessionDescription;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class HomeActivity extends AppCompatActivity implements NetworkMonitor.NetworkStateListener {
@@ -48,6 +55,7 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
     //
     private NetworkMonitor networkMonitor;
     private View networkStatusView;
+    private Gson gson = new Gson();
 
     // Khai báo BroadcastReceiver
     private BroadcastReceiver callStateReceiver = new BroadcastReceiver() {
@@ -93,6 +101,51 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
         sessionManager = new SessionManager(this);
         stompClientManager = StompClientManager.getInstance();
         stompClientManager.setSessionManager(sessionManager, this);
+        stompClientManager.subscribeTopic(sessionManager.getUserId());
+        Log.i(TAG, "FBTOKEN: " + sessionManager.getFbToken());
+        stompClientManager.setOnSignalingEventListener(new SignalingObserver() {
+            @Override
+            public void onOfferReceived(SessionDescription offer) {
+                Log.i(TAG, "onOfferReceived: " + offer.description);
+                // redirect to call activity
+                Intent intent = new Intent(HomeActivity.this, CallOrVideoCallActivity.class);
+
+                intent.putExtra("CALL_TYPE", "video");
+                intent.putExtra("CALLER_NAME", sessionManager.getUserName());
+                intent.putExtra("CALLER_ID", sessionManager.getUserId());
+
+                intent.putExtra("OFFER", offer.description);
+
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAnswerReceived(SessionDescription answer) {
+
+            }
+
+            @Override
+            public void onIceCandidateReceived(IceCandidate iceCandidate) {
+
+            }
+
+            @Override
+            public void onSignalingEvent(WebRTCMessage message) {
+                if(message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
+                    // parse message payload to SessionDescription
+                    SessionDescription offer = gson.fromJson(message.getPayload(), SessionDescription.class);
+                    onOfferReceived(offer);
+                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.ANSWER.getType())) {
+                    // parse message payload to SessionDescription
+                    SessionDescription answer = gson.fromJson(message.getPayload(), SessionDescription.class);
+                    onAnswerReceived(answer);
+                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.CANDIDATE.getType())) {
+                    // parse message payload to IceCandidate
+                    IceCandidate iceCandidate = gson.fromJson(message.getPayload(), IceCandidate.class);
+                    onIceCandidateReceived(iceCandidate);
+                }
+            }
+        });
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
@@ -100,7 +153,7 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
                 .build();
         NavigationUI.setupWithNavController(binding.navView, navController);
         requestCameraPermission();
-        stompClientManager.subscribeTopic(sessionManager.getUserId());
+
     }
 
     /**

@@ -9,6 +9,7 @@ import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.models.sqlite.Message;
 
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
@@ -178,6 +179,14 @@ public interface ChatAppService {
     // ============ Notification ============
     @POST("/api/v1/token")
     Call<ResponseData<Object>> sendToken(@Body UserFbToken userFbToken);
+
+    @DELETE("/api/v1/token/{token}")
+    Call<String> deleteToken(
+            @Path("token") String token);
+
+    @POST("/api/v1/token/user")
+    Call<String> sendUserLocation(
+            @Body Map user);
 
     // =========== Message Management ============
     @GET("/api/v1/messages/{chatId}")

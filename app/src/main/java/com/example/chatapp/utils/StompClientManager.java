@@ -211,7 +211,7 @@ public class StompClientManager {
     }
 
     @SuppressLint("CheckResult")
-    public void sendMessage(String message,  Consumer<Throwable> onError) {
+    public void sendMessage(String message, Consumer<Throwable> onError) {
         mStompClient.send(SEND_MESSAGE_DESTINATION, message).subscribe(() -> {
             Log.d(TAG, "Message sent successfully");
         }, throwable -> {
@@ -263,15 +263,15 @@ public class StompClientManager {
     }
 
     public void setOnSignalingEventListener(SignalingObserver listener) {
-        if (mStompClient != null && isConnected) {
-            mStompClient.topic("/topic/call/123e4567-e89b-12d3-a456-426614174000").subscribe(topicMessage -> {
-                Log.d(TAG, "Received signaling message: " + topicMessage.getPayload());
-                WebRTCMessage webRTCMessage = gson.fromJson(topicMessage.getPayload(), WebRTCMessage.class);
-                listener.onSignalingEvent(webRTCMessage);
-            }, throwable -> {
-                Log.e(TAG, "Error on subscribe signaling topic", throwable);
-            });
-        }
+
+        mStompClient.topic("/topic/call/" + sessionManager.getUserId()).subscribe(topicMessage -> {
+            Log.d(TAG, "Received signaling message: " + topicMessage.getPayload());
+            WebRTCMessage webRTCMessage = gson.fromJson(topicMessage.getPayload(), WebRTCMessage.class);
+            listener.onSignalingEvent(webRTCMessage);
+        }, throwable -> {
+            Log.e(TAG, "Error on subscribe signaling topic", throwable);
+        });
+
     }
 
     public void sendIceCandidate(String receiverId, IceCandidate candidate) {

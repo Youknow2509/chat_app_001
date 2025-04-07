@@ -19,6 +19,7 @@ import com.example.chatapp.utils.Utils;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -414,11 +415,44 @@ public class ApiManager {
         call.enqueue(callback);
     }
 
+    public void deleteToken(String token) {
+        if (!checkNetworkConnection()) return;
+        Call<String> call = apiService.deleteToken(token);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void sendUserLocation(String userId, double lat, double lon){
+        if (!checkNetworkConnection()) return;
+        Map<String, Object> user = new HashMap<>();
+        user.put("userId", userId);
+        user.put("lat", lat);
+        user.put("lon", lon);
+        Call<String> call = apiService.sendUserLocation(user);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+            }
+        });
+    }
+
     // === Message Management ===
     public void getMessagesByChatId(String userId, String chatId, int size, int page, Callback<List<Message>> callback) {
         if (!checkNetworkConnection()) return;
 
-        // TODO Add page to API
         Call<List<Message>> call = apiService.getMessagesByChatId(userId, chatId, page, size);
         call.enqueue(callback);
     }

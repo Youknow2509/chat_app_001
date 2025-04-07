@@ -23,6 +23,7 @@ public class UserProfileSession {
     private JSONObject settings;
     private String accessToken;
     private String refreshToken;
+    private String fbToken;
 
     public UserProfileSession() {
         // Constructor mặc định
@@ -157,5 +158,13 @@ public class UserProfileSession {
                 ", displayName='" + displayName + '\'' +
                 ", status='" + status + '\'' +
                 '}';
+    }
+
+    public String getFbToken() {
+        return fbToken;
+    }
+
+    public void setFbToken(String fbToken) {
+        this.fbToken = fbToken;
     }
 }
