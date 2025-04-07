@@ -131,6 +131,13 @@ definitions:
       user_accept_id:
         type: string
     type: object
+  model.UpdateAvatarUserInput:
+    properties:
+      avatar_url:
+        type: string
+      user_id:
+        type: string
+    type: object
   model.UpdateNameAndAvatarRegisterInput:
     properties:
       mail:
@@ -151,8 +158,6 @@ definitions:
     type: object
   model.UpdateUserInfoInput:
     properties:
-      user_avatar:
-        type: string
       user_birthday:
         type: string
       user_gender:
@@ -1372,6 +1377,37 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrResponseData'
       summary: Update password user for user
+      tags:
+      - User Info
+  /api/v1/user/update_user_avatar:
+    post:
+      consumes:
+      - application/json
+      description: Update avatar user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 'Update user avatar '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateAvatarUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Update avatar user
       tags:
       - User Info
   /api/v1/user/update_user_info:

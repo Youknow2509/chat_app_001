@@ -3,6 +3,19 @@ UPDATE `user_info`
 SET user_nickname = ?, user_avatar = ?, updated_at = NOW()
 WHERE user_account = ?;
 
+-- name: UpdateAvatarWithID :exec
+UPDATE `user_info`
+SET user_avatar = ?, updated_at = NOW()
+WHERE user_id = ?;
+
+-- name: UpdateUserInfoBase :exec
+UPDATE `user_info`
+SET user_nickname = ?, 
+    user_gender = ?, 
+    user_birthday = ?,
+    updated_at = NOW()
+WHERE user_id = ?;
+
 -- name: GetNickNameUserAndAvatarWithId :one
 SELECT user_nickname, user_avatar FROM `user_info`
 WHERE user_id = ? LIMIT 1;

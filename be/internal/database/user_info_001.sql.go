@@ -471,6 +471,22 @@ func (q *Queries) RemoveUser(ctx context.Context, userID string) error {
 	return err
 }
 
+const updateAvatarWithID = `-- name: UpdateAvatarWithID :exec
+UPDATE ` + "`" + `user_info` + "`" + `
+SET user_avatar = ?, updated_at = NOW()
+WHERE user_id = ?
+`
+
+type UpdateAvatarWithIDParams struct {
+	UserAvatar sql.NullString
+	UserID     string
+}
+
+func (q *Queries) UpdateAvatarWithID(ctx context.Context, arg UpdateAvatarWithIDParams) error {
+	_, err := q.db.ExecContext(ctx, updateAvatarWithID, arg.UserAvatar, arg.UserID)
+	return err
+}
+
 const updateNameAndAvatar = `-- name: UpdateNameAndAvatar :exec
 UPDATE ` + "`" + `user_info` + "`" + `
 SET user_nickname = ?, user_avatar = ?, updated_at = NOW()
@@ -485,5 +501,31 @@ type UpdateNameAndAvatarParams struct {
 
 func (q *Queries) UpdateNameAndAvatar(ctx context.Context, arg UpdateNameAndAvatarParams) error {
 	_, err := q.db.ExecContext(ctx, updateNameAndAvatar, arg.UserNickname, arg.UserAvatar, arg.UserAccount)
+	return err
+}
+
+const updateUserInfoBase = `-- name: UpdateUserInfoBase :exec
+UPDATE ` + "`" + `user_info` + "`" + `
+SET user_nickname = ?, 
+    user_gender = ?, 
+    user_birthday = ?,
+    updated_at = NOW()
+WHERE user_id = ?
+`
+
+type UpdateUserInfoBaseParams struct {
+	UserNickname sql.NullString
+	UserGender   NullUserInfoUserGender
+	UserBirthday sql.NullTime
+	UserID       string
+}
+
+func (q *Queries) UpdateUserInfoBase(ctx context.Context, arg UpdateUserInfoBaseParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserInfoBase,
+		arg.UserNickname,
+		arg.UserGender,
+		arg.UserBirthday,
+		arg.UserID,
+	)
 	return err
 }

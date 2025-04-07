@@ -1,0 +1,18 @@
+
+FROM golang:alpine AS builder
+
+WORKDIR /build
+
+COPY . .
+
+RUN go mod download
+
+RUN go build -o crm.chatappbackend.createdb.com ./cmd/database_create
+
+FROM scratch
+
+COPY ./config /config
+
+COPY --from=builder /build/crm.chatappbackend.createdb.com /
+
+ENTRYPOINT [ "/crm.chatappbackend.createdb.com", "config/prod.yaml" ]

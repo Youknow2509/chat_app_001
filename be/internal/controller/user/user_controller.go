@@ -17,6 +17,42 @@ var User = new(cUser)
 type cUser struct {
 }
 
+// @Summary      Update avatar user
+// @Description  Update avatar user
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        body body  model.UpdateAvatarUserInput  true  "Update user avatar "
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /api/v1/user/update_user_avatar [post]
+func (cU *cUser) UpdateUserAvatar(c *gin.Context) {
+	// get user id from token in headers
+    userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
+    if err != nil {
+        global.Logger.Error("Error getting user id from token", zap.Error(err))
+        response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+        return
+    }
+    // get body params
+    var params model.UpdateAvatarUserInput
+    if err := c.ShouldBindJSON(&params); err != nil {
+        global.Logger.Error("Error binding input", zap.Error(err))
+        response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+        return
+    }
+    params.UserID = userIDReq
+    // call to service
+    code, err := service.UserInfo().UpdateAvatarUser(c.Request.Context(), &params)
+	if err != nil {
+		global.Logger.Error("Error updating avatar user", zap.Error(err))
+		response.ErrorResponse(c, code, response.GetMessageCode(code))
+		return
+	}
+	response.SuccessResponse(c, response.ErrCodeSuccess, nil)
+}
+
 // @Summary      Check friend user
 // @Description  Check if user is friend with another user - Show details friends
 // @Tags         User Info

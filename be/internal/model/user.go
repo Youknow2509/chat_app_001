@@ -2,11 +2,17 @@ package model
 
 import "time"
 
+// UpdateAvatarUserInput
+type UpdateAvatarUserInput struct {
+	UserID    string `json:"user_id"`
+	AvatarURL string `json:"avatar_url"`
+}
+
 type UserInfoBase struct {
-	UserID       string    `json:"user_id"`
-	UserAccount  string    `json:"user_account"`
-	UserNickname string    `json:"user_nickname"`
-	UserAvatar   string    `json:"user_avatar"`
+	UserID       string `json:"user_id"`
+	UserAccount  string `json:"user_account"`
+	UserNickname string `json:"user_nickname"`
+	UserAvatar   string `json:"user_avatar"`
 }
 
 // intput check friend user
@@ -72,7 +78,6 @@ type UserFindInput struct {
 type UpdateUserInfoInput struct {
 	UserID       string `json:"user_id"`
 	UserNickName string `json:"user_nickname"`
-	UserAvatar   string `json:"user_avatar"`
 	UserBirthday string `json:"user_birthday"`
 	UserGender   string `json:"user_gender"`
 }

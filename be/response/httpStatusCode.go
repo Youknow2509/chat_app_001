@@ -102,6 +102,7 @@ const (
 	ErrCodeUpdateNameAndAvatar       = 120019
 	ErrCodeFriendRequestNotExists    = 120020
 	ErrCodeCheckFriendUser           = 120021
+	ErrCodeUpdateAvatar              = 120022
 	// redis error codes
 	ErrCodeRedisGetData = 130001
 	ErrCodeRedisSetData = 130002
@@ -109,6 +110,7 @@ const (
 
 // message
 var msg = map[int]string{
+	ErrCodeUpdateAvatar:              "update avatar failed",
 	ErrCodeCheckFriendUser:           "check friend user failed",
 	ErrCodeFriendRequestNotExists:    "friend request not exists",
 	ErrCodeTimeIsValid:               "time is valid",

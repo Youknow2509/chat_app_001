@@ -28,8 +28,35 @@ type sUserInfo struct {
 	r *database.Queries
 }
 
+// UpdateAvatarUser implements service.IUserInfo.
+func (s *sUserInfo) UpdateAvatarUser(ctx context.Context, in *model.UpdateAvatarUserInput) (codeResult int, err error) {
+	// 1. check user info exist
+	cUserBase, err := s.r.CheckUserBaseExistsWithID(ctx, in.UserID)
+	if err != nil {
+		global.Logger.Error("Err check user base exists", zap.Error(err))
+		return response.ErrCodeUserBaseNotFound, err
+	}
+	if cUserBase < 1 {
+		global.Logger.Error("User not found", zap.Error(err))
+		return response.ErrCodeUserNotFound, fmt.Errorf("user not found")
+	}
+	// 2. update avatar
+	err = s.r.UpdateAvatarWithID(
+		ctx, 
+		database.UpdateAvatarWithIDParams{
+			UserID: in.UserID,
+			UserAvatar: sql.NullString{String: in.AvatarURL, Valid: true},
+		},
+	)
+	if err != nil {
+        global.Logger.Error("Err update avatar", zap.Error(err))
+	return response.ErrCodeUpdateAvatar, err
+    }
+	return response.ErrCodeSuccess, nil
+}
+
 // CheckFriendUser implements service.IUserInfo.
-func (s *sUserInfo) CheckFriendUser(ctx context.Context, in *model.CheckFriendUserInput) (codeResult int, out model.CheckFriendUserOutput ,err error) {
+func (s *sUserInfo) CheckFriendUser(ctx context.Context, in *model.CheckFriendUserInput) (codeResult int, out model.CheckFriendUserOutput, err error) {
 	// check user 2 exist
 	mUser2, err := s.r.GetIDUserWithEmail(ctx, in.User2)
 	if err != nil {
@@ -59,7 +86,7 @@ func (s *sUserInfo) CheckFriendUser(ctx context.Context, in *model.CheckFriendUs
 		}
 		return response.ErrCodeSuccess, out, nil
 	}
-	
+
 	// check friend exist
 	cFriend, err := s.r.GetFriendRequestInfoWithUser(ctx, database.GetFriendRequestInfoWithUserParams{
 		FromUser: sql.NullString{String: in.User1, Valid: true},
@@ -74,12 +101,12 @@ func (s *sUserInfo) CheckFriendUser(ctx context.Context, in *model.CheckFriendUs
 	}
 	if cFriend.ID == "" {
 		return response.ErrCodeFriendRequestNotExists, out, fmt.Errorf("friend request not exists")
-    }
+	}
 	out = model.CheckFriendUserOutput{
 		FriendID: cFriend.ID,
-		User1: in.User1,
-		User2: in.User2,
-		Status: cFriend.Status.String,
+		User1:    in.User1,
+		User2:    in.User2,
+		Status:   cFriend.Status.String,
 		CreateAt: cFriend.CreatedAt.Time,
 	}
 	// 4. save to cache
@@ -96,8 +123,8 @@ func (s *sUserInfo) CheckFriendUser(ctx context.Context, in *model.CheckFriendUs
 			return
 		}
 	}()
-	
-	return  response.ErrCodeSuccess, out, nil
+
+	return response.ErrCodeSuccess, out, nil
 }
 
 // ListFriendUser implements service.IUserInfo.
@@ -353,7 +380,7 @@ func (s *sUserInfo) AcceptFriendRequest(ctx context.Context, in *model.AcceptFri
 		iNotify := notify.GetINotify()
 		errNotify := iNotify.SendKafkaNotificationUser(
 			cInfoRequest.FromUser.String,
-			"Accept friend request "+ iUserAccept.UserNickname.String,
+			"Accept friend request "+iUserAccept.UserNickname.String,
 			"Accept friend request",
 			iUserAccept.UserAvatar.String,
 		)
@@ -448,7 +475,7 @@ func (s *sUserInfo) CreateFriendRequest(ctx context.Context, in *model.CreateFri
 		iNotify := notify.GetINotify()
 		err := iNotify.SendKafkaNotificationUser(
 			iUserFriend.UserID,
-			"Friend request from "+ iUserSend.UserNickname.String,
+			"Friend request from "+iUserSend.UserNickname.String,
 			"Friend request",
 			iUserSend.UserAvatar.String,
 		)
@@ -495,9 +522,8 @@ func (s *sUserInfo) DeleteFriend(ctx context.Context, in *model.DeleteFriendInpu
 		err = global.Rdb.Del(context.Background(), key2).Err()
 		if err != nil {
 			fmt.Printf("Err when deleting cache check friend user %s\n", idFriend)
-        }
+		}
 	}()
-
 
 	return response.ErrCodeSuccess, nil
 }
@@ -755,17 +781,16 @@ func (s *sUserInfo) UpdateUserInfo(ctx context.Context, in *model.UpdateUserInfo
 
 	// 2. update user info
 	go func() {
-		err := s.r.EditUserByUserIdForUser(context.Background(), database.EditUserByUserIdForUserParams{
-			UserID:       in.UserID,
-			UserNickname: sql.NullString{String: in.UserNickName, Valid: true},
-			UserAvatar:   sql.NullString{String: in.UserAvatar, Valid: true},
-			UserMobile:   sql.NullString{String: "", Valid: true},
-			UserGender: database.NullUserInfoUserGender{
-				UserInfoUserGender: database.UserInfoUserGender(in.UserGender),
-				Valid:              true,
-			},
-			UserBirthday: sql.NullTime{Time: timeBirthday, Valid: true},
-		})
+		err := s.r.UpdateUserInfoBase(context.Background(),
+			database.UpdateUserInfoBaseParams{
+				UserID:       in.UserID,
+				UserNickname: sql.NullString{String: in.UserNickName, Valid: true},
+				UserGender: database.NullUserInfoUserGender{
+					UserInfoUserGender: database.UserInfoUserGender(in.UserGender),
+					Valid:              true,
+				},
+				UserBirthday: sql.NullTime{Time: timeBirthday, Valid: true},
+			})
 		if err != nil {
 			fmt.Println("Err when updating user info")
 		}

@@ -1747,6 +1747,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/user/update_user_avatar": {
+            "post": {
+                "description": "Update avatar user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Update avatar user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Update user avatar ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateAvatarUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/update_user_info": {
             "put": {
                 "description": "Update nick name, ... information user",
@@ -2166,6 +2213,17 @@ const docTemplate = `{
                 }
             }
         },
+        "model.UpdateAvatarUserInput": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.UpdateNameAndAvatarRegisterInput": {
             "type": "object",
             "properties": {
@@ -2197,9 +2255,6 @@ const docTemplate = `{
         "model.UpdateUserInfoInput": {
             "type": "object",
             "properties": {
-                "user_avatar": {
-                    "type": "string"
-                },
                 "user_birthday": {
                     "type": "string"
                 },
