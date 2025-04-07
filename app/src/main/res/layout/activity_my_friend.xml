@@ -37,7 +37,12 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-
+                <ImageView
+                    android:id="@+id/backIcon"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:contentDescription="Add"
+                    android:src="@drawable/back_white" />
                 <ImageView
                     android:id="@+id/logoIcon"
                     android:layout_width="36dp"
@@ -56,20 +61,6 @@
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/searchIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="16dp"
-                    android:contentDescription="Search"
-                    android:src="@drawable/search" />
-
-                <ImageView
-                    android:id="@+id/addIcon"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:contentDescription="Add"
-                    android:src="@drawable/plus" />
             </LinearLayout>
 
             <EditText
@@ -117,6 +108,7 @@
             app:cardElevation="2dp">
 
             <LinearLayout
+                android:id="@+id/FriendInvitationLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
@@ -175,11 +167,16 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycleViewUser"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="414dp"
+        android:layout_height="550dp"
+        android:layout_marginTop="81dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/FriendInvitation" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout"
+        app:layout_constraintTop_toTopOf="@+id/frameLayout"
+        tools:layout_editor_absoluteX="-3dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
