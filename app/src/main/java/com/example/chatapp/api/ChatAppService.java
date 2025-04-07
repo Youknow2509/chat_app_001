@@ -47,6 +47,9 @@ public interface ChatAppService {
     @GET("/api/v1/user/get_user_info")
     Call<ResponseData<Object>> getUserInfo(@Header("Authorization") String token);
 
+    @POST("/api/v1/user/update_user_avatar")
+    Call<ResponseData<Object>> updateAvatar(@Header("Authorization") String token, @Body UpdateUserAvatarInput input);
+
     @PUT("/api/v1/user/update_user_info")
     Call<ResponseData<Object>> updateUserInfo(
             @Header("Authorization") String token,

@@ -251,7 +251,7 @@ public class TokenRefreshService extends Service implements NetworkMonitor.Netwo
                         // Parse dữ liệu token mới
                         try {
                             JSONObject tokenData = new JSONObject(data.toString());
-                            String newAccessToken = tokenData.getString("access_token");
+                            String newAccessToken = tokenData.getString("token");
                             String newRefreshToken = tokenData.getString("refresh_token");
 
                             // Cập nhật token trong SessionManager

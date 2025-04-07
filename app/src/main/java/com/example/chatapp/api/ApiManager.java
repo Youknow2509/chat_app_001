@@ -199,6 +199,14 @@ public class ApiManager {
 
     }
 
+    public void updateAvatar(String token, String userId, String avatarUrl, Callback<ResponseData<Object>> callback) {
+        if (!checkNetworkConnection()) return;
+
+        UpdateUserAvatarInput input = new UpdateUserAvatarInput(userId, avatarUrl);
+        Call<ResponseData<Object>> call = apiService.updateAvatar(formatToken(token), input);
+        call.enqueue(wrapCallback(call, callback));
+    }
+
     public void updatePassword(String token, String userId, String oldPassword, String newPassword, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 

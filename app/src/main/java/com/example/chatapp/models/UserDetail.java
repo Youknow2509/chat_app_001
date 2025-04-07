@@ -7,7 +7,6 @@ public class UserDetail {
     private String email;
     private String gender;
     private String birthday;
-    private String address;
     //
     public UserDetail() {
     }
@@ -20,14 +19,13 @@ public class UserDetail {
         this.birthday = birthday;
     }
 
-    public UserDetail(String name, String url_avatar, String path_local_avatar, String email, String gender, String birthday, String address) {
+    public UserDetail(String name, String url_avatar, String path_local_avatar, String email, String gender, String birthday) {
         this.name = name;
         this.url_avatar = url_avatar;
         this.path_local_avatar = path_local_avatar;
         this.email = email;
         this.gender = gender;
         this.birthday = birthday;
-        this.address = address;
     }
 
     // to string
@@ -40,7 +38,6 @@ public class UserDetail {
                 ", email='" + email + '\'' +
                 ", gender='" + gender + '\'' +
                 ", birthday='" + birthday + '\'' +
-                ", address='" + address + '\'' +
                 '}';
     }
 
@@ -91,13 +88,5 @@ public class UserDetail {
 
     public void setBirthday(String birthday) {
         this.birthday = birthday;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 }
