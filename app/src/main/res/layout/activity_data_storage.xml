@@ -6,26 +6,99 @@
     android:layout_height="match_parent"
     tools:context=".activities.StorageManagerActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:layout_height="wrap_content">
+
+    <View
+            android:id="@+id/toolbarBackground"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_marginBottom="-100dp"
+            android:background="@drawable/bg_toolbar_gradient_bulelight" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/chatToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/bg_toolbar_gradient"
+        android:paddingHorizontal="0dp"
+        app:layout_scrollFlags="scroll|enterAlways">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Thanh tìm kiếm đè lên -->
+            <LinearLayout
+                android:id="@+id/toolbarContent"
+                android:layout_width="368dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/backButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:contentDescription="Add"
+                    android:src="@drawable/back_white" />
+
+                <ImageView
+                    android:id="@+id/logoIcon"
+                    android:layout_width="36dp"
+                    android:layout_marginStart="@dimen/_40sdp"
+                    android:layout_height="36dp"
+                    android:contentDescription="Logo"
+                    android:src="@drawable/logo" />
+
+                <TextView
+                    android:id="@+id/appTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="E-Chat"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/searchInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:hint="Search"
+                android:background="@drawable/search_input_bg"
+                android:drawableStart="@drawable/search"
+                android:drawablePadding="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="48dp"
+                android:textColor="#000000"
+                android:textColorHint="#999999"
+                android:textSize="16sp"
+                android:inputType="text"
+                android:visibility="gone" />
+        </FrameLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <include
         android:id="@+id/network_status_view"
         layout="@layout/network_status_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar"/>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:layout_height="611dp"
+        android:layout_marginTop="100dp"
+        app:layout_constraintTop_toBottomOf="@id/chatToolbar">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardStorageSummary"
@@ -165,9 +238,10 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="2dp"
             app:layout_constraintTop_toBottomOf="@id/cardStorageSummary"
-            app:tabMode="fixed">
+            app:tabMode="fixed"
+            tools:layout_editor_absoluteX="-2dp">
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
@@ -191,8 +265,8 @@
         </com.google.android.material.tabs.TabLayout>
 
         <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_width="409dp"
+            android:layout_height="262dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@id/layoutActions"
@@ -201,7 +275,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewMedia"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="262dp" />
 
             <TextView
                 android:id="@+id/tvNoMedia"

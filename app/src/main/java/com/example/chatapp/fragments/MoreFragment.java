@@ -16,6 +16,7 @@ import com.example.chatapp.activities.ChatGroupConversationActivity;
 import com.example.chatapp.activities.CreateNewGroupActivity;
 
 import com.example.chatapp.activities.LoginActivity;
+import com.example.chatapp.activities.MyFriendActivity;
 import com.example.chatapp.activities.SearchingActivity;
 import com.example.chatapp.activities.StorageManagerActivity;
 import com.example.chatapp.adapters.GroupListAdapter;
@@ -127,6 +128,12 @@ public class MoreFragment extends Fragment {
             // redirect to OnboardingActivity
             startActivity(new Intent(this.getContext(), LoginActivity.class));
             this.getActivity().finish();
+        });
+
+        //Friend
+        binding.inviteFriendsLayout.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), MyFriendActivity.class);
+            startActivity(intent);
         });
 
         // data and storage

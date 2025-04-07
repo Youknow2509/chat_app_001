@@ -16,4 +16,10 @@
     <color name="secondary_text">#757575</color>
     <color name="input_background">#ECECEC</color>
     <color name="error">#B00020</color>
+    <color name="colorPrimary">#4A90E2</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="colorWarning">#4A90E2</color>
+    <color name="colorSuccess">#3700B3</color>
+    <color name="colorDanger">#03DAC5</color>
 </resources>

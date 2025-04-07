@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +46,9 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
     private Button btnClearAll, btnClearOld;
     private FloatingActionButton fabDelete;
     private Toolbar toolbar;
+
+    private ImageView backButton;
+
     private TextView tvNoMedia;
     private ProgressBar loadingIndicator;
 
@@ -67,7 +71,6 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         setContentView(R.layout.activity_data_storage);
 
         initializeViews();
-        setupToolbar();
         setupRecyclerView();
         setupTabLayout();
         setupButtons();
@@ -94,9 +97,10 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
         btnClearAll = findViewById(R.id.btnClearAll);
         btnClearOld = findViewById(R.id.btnClearOld);
         fabDelete = findViewById(R.id.fabDelete);
-        toolbar = findViewById(R.id.toolbar);
         tvNoMedia = findViewById(R.id.tvNoMedia);
         loadingIndicator = findViewById(R.id.loadingIndicator);
+        backButton = findViewById(R.id.backButton);
+
     }
 
     // tạo toolbar
@@ -152,6 +156,9 @@ public class StorageManagerActivity extends AppCompatActivity implements MediaAd
                 mediaAdapter.toggleSelectionMode();
                 updateUIForSelectionMode(true);
             }
+        });
+        backButton.setOnClickListener(v -> {
+            finish();
         });
     }
 
