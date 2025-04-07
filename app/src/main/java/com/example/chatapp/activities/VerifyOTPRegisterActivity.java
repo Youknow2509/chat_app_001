@@ -33,6 +33,8 @@ public class VerifyOTPRegisterActivity extends BaseNetworkActivity {
     private String tokenVerifyOTP;
     private String emailRegister;
     private ApiManager apiManager;
+    private final String PURPOSE_REGISTER_PROD = "ANDROID_APP";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,44 @@ public class VerifyOTPRegisterActivity extends BaseNetworkActivity {
         setupOtpInputs();
         binding.nextButton.setOnClickListener(v -> handleBtnRegister());
         binding.backToLoginButton.setOnClickListener(v -> BackToIntent());
+        binding.resendText.setOnClickListener(l -> {
+            callResendOTP();
+        });
+    }
+
+    /**
+     * call api resend otp
+     */
+    private void callResendOTP() {
+        apiManager.registerUser(
+                new AccountModels.RegisterInput(
+                        emailRegister,
+                        PURPOSE_REGISTER_PROD,
+                        1
+                ),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+                        if (response.body() == null) {
+                            showToast("Lỗi kết nối đến máy chủ");
+                            return;
+                        }
+                        int code = response.body().getCode();
+                        if (code != Constants.CODE_SUCCESS) {
+                            String message = Utils.getMessageByCode(code);
+                            showToast(message);
+                        } else {
+                            showToast("Vui lòng kiểm tra email để nhận mã xác nhận");
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        binding.progressOverlay.setVisibility(View.GONE);
+                        showToast("Lỗi kết nối đến máy chủ");
+                    }
+                }
+        );
     }
 
     /**
