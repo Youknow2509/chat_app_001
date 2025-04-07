@@ -52,6 +52,9 @@ func (s *sUserInfo) UpdateAvatarUser(ctx context.Context, in *model.UpdateAvatar
         global.Logger.Error("Err update avatar", zap.Error(err))
 	return response.ErrCodeUpdateAvatar, err
     }
+	// 3. delete cache 
+	key := fmt.Sprintf("user_info::%s", in.UserID)
+	_ = global.Rdb.Del(ctx, key).Err()
 	return response.ErrCodeSuccess, nil
 }
 
@@ -677,7 +680,7 @@ func (s *sUserInfo) GetUserInfo(ctx context.Context, userID string) (out model.U
 		}
 		// 4. save to cache
 		go func() {
-			timeEx := time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE) * time.Hour
+			timeEx := time.Duration(consts.TIME_SAVE_CACHE_OFTEN_USE) * time.Minute
 			cacheInput, err := json.Marshal(out)
 			if err != nil {
 				fmt.Printf("Err when marshal cache user info %s\n", iUser.UserID)
