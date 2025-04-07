@@ -3,6 +3,7 @@ package com.example.chatapp.consts;
 import java.util.HashMap;
 
 public class Constants {
+    public static final String CLOUDINARY_CLOUD_NAME = "dan8zea37";
     public static final String URL_AVATAR_DEFAULT = "https://res.cloudinary.com/dan8zea37/image/upload/v1743573154/avatar_default_k7t5oq.png";
     public static final int DEFAULT_MEDIA_RETENTION_DAYS = 30; // 1 m
     public static final int DEFAULT_MESSAGE_RETENTION_DAYS = 90; // 3 m
@@ -15,8 +16,8 @@ public class Constants {
     public static final String SHARED_PREFS_FILE_TOKEN = "SessionEncryptedPrefs";
     public static final int CODE_SUCCESS = 20001;
     public static final String HOST_SERVER = "khanhdew.ddns.net:8080"; // ws
-    public static final String URL_HOST_SERVER = "http://khanhdew.ddns.net:8080"; // http://10.0.2.2:8082 is local
-    public static final String URL_HOST_SERVER_SIGN = "http://khanhdew.ddns.net:8261"; // http://10.0.2.2:8082 is local
+    public static final String URL_HOST_SERVER = "http://khanhdew.ddns.net:8080"; // http://10.0.2.2:8082 is local - host http://khanhdew.ddns.net:8080
+    public static final String URL_HOST_SERVER_SIGN = "http://khanhdew.ddns.net:8245"; // http://10.0.2.2:8080 is local - host http://khanhdew.ddns.net:8245
 
     public static final int NUMBER_OF_THREADS_Write_EXECUTOR_DATABASE = 4;
     public static final String DATABASE_NAME = "chatAppDatabase";

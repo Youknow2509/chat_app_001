@@ -2,17 +2,26 @@ package com.example.chatapp.models.request;
 
 public class UserModels {
 
+    public static class UpdateUserAvatarInput {
+        private String user_id;
+
+        private String avatar_url;
+
+        public UpdateUserAvatarInput(String user_id, String avatar_url) {
+            this.user_id = user_id;
+            this.avatar_url = avatar_url;
+        }
+    }
+
     public static class UpdateUserInfoInput {
         private String user_id;
         private String user_nickname;
-        private String user_avatar;
         private String user_birthday;
         private String user_gender;
 
-        public UpdateUserInfoInput(String user_id, String user_nickname, String user_avatar, String birthday, String user_gender) {
+        public UpdateUserInfoInput(String user_id, String user_nickname, String birthday, String user_gender) {
             this.user_id = user_id;
             this.user_nickname = user_nickname;
-            this.user_avatar = user_avatar;
             this.user_birthday = birthday;
             this.user_gender = user_gender;
         }

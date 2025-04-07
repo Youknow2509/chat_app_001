@@ -118,15 +118,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        android:padding="12dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-
-        <!-- Suggestion RecyclerView -->
 
         <LinearLayout
             android:id="@+id/messageInputLayout"
@@ -191,7 +189,6 @@
                 app:tint="#999999" />
         </LinearLayout>
 
-
         <FrameLayout
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -201,18 +198,18 @@
                 android:id="@+id/micButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/mic__rec"
                 android:background="@drawable/bg_header_curve"
                 android:padding="12dp"
+                android:src="@drawable/mic__rec"
                 android:visibility="visible" />
 
             <ImageView
                 android:id="@+id/sendButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/plain_3"
                 android:background="@drawable/bg_header_curve"
                 android:padding="12dp"
+                android:src="@drawable/plain_3"
                 android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>

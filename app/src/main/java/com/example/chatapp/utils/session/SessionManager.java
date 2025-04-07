@@ -3,6 +3,8 @@ package com.example.chatapp.utils.session;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
+
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 
@@ -20,6 +22,7 @@ import org.json.JSONObject;
 public class SessionManager {
     // Các key bảo mật
     private static final String PREF_NAME = "ChatAppPrefs";
+    private static final String FB_TOKEN = "fb_token";
     private static final String KEY_ACCESS_TOKEN = "access_token";
     private static final String KEY_REFRESH_TOKEN = "refresh_token";
     private static final String KEY_USER_ID = "user_id";
@@ -89,6 +92,12 @@ public class SessionManager {
         return instance;
     }
 
+    public void saveFBToken(String fbToken) {
+        Log.i("asdfadsf", "saveFBToken: " + fbToken);
+        editor.putString(FB_TOKEN, fbToken);
+        editor.apply();
+    }
+
     // Các phương thức xử lý thông tin xác thực (giữ nguyên như cũ)
     public void saveAuthData(String accessToken, String refreshToken, String userId) {
         editor.putString(KEY_ACCESS_TOKEN, accessToken);
@@ -118,6 +127,10 @@ public class SessionManager {
 
     public String getAccessToken() {
         return sharedPreferences.getString(KEY_ACCESS_TOKEN, null);
+    }
+
+    public String getFbToken(){
+        return sharedPreferences.getString(FB_TOKEN, null);
     }
 
     public String getRefreshToken() {
@@ -327,6 +340,15 @@ public class SessionManager {
      */
     public String getUserAvatar() {
         return userPreferences.getString(KEY_USER_AVATAR, "");
+    }
+
+    /**
+     * Cập nhập url ảnh đại diện người dùng
+     * @param url URL mới
+     */
+    public void setUserAvatar(String url) {
+        userEditor.putString(KEY_USER_AVATAR, url);
+        userEditor.apply();
     }
 
     /**

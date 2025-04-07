@@ -2,6 +2,7 @@ package com.example.chatapp.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.example.chatapp.activities.LoginActivity;
 import com.example.chatapp.activities.SearchingActivity;
 import com.example.chatapp.activities.StorageManagerActivity;
 import com.example.chatapp.adapters.GroupListAdapter;
+import com.example.chatapp.api.ApiManager;
 import com.example.chatapp.databinding.FragmentMoreBinding;
 import com.example.chatapp.models.GroupListItem;
 import com.example.chatapp.models.Group;
@@ -35,12 +37,14 @@ public class MoreFragment extends Fragment {
     private List<GroupListItem> chatListItems;
     //
     private SessionManager sessionManager;
+    private ApiManager apiManager;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMoreBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        apiManager = new ApiManager(this.getContext());
         chatListAdapter = new GroupListAdapter(chatListItems, new GroupListAdapter.ChatItemClickListener() {
             @Override
             public void onGroupClick(Group group) {
@@ -117,6 +121,7 @@ public class MoreFragment extends Fragment {
             Intent serviceIntent = new Intent(this.getContext(), TokenRefreshService.class);
             this.getContext().stopService(serviceIntent);
 
+            apiManager.deleteToken(sessionManager.getFbToken());
             this.sessionManager.logout();
 
             // redirect to OnboardingActivity

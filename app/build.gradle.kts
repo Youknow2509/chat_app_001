@@ -87,6 +87,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.5.0")
     implementation("com.squareup.retrofit2:adapter-rxjava2:2.5.0")
     implementation("com.squareup.retrofit2:retrofit:2.5.0")
+    // video
+    implementation("com.google.android.exoplayer:exoplayer:2.18.2")
 
 }
 
@@ -146,6 +148,7 @@ dependencies {
 dependencies {
     val work_version = "2.8.1"
     implementation("androidx.work:work-runtime:$work_version")
+    implementation("androidx.startup:startup-runtime:1.1.1")
     implementation(libs.work.runtime)
 }
 

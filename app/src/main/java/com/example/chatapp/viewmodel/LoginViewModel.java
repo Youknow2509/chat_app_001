@@ -18,6 +18,8 @@ import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.Utils;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -115,7 +117,7 @@ public class LoginViewModel extends AndroidViewModel {
         });
     }
 
-    private void sendFirebaseToken(String userId){
+    private void sendFirebaseToken(UserProfileSession user) {
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -124,8 +126,13 @@ public class LoginViewModel extends AndroidViewModel {
                     }
                     String token = task.getResult();
                     Log.d("FCM_DEBUG", "Manual Token: " + token);
-                    // TODO Get userId
-                    UserFbToken userFbToken = new UserFbToken(userId, token, "on", true);
+
+                    // Set the token on user object
+                    user.setFbToken(token);
+                    // Update LiveData with the user that now has a token
+                    userProfileLiveData.postValue(user);
+
+                    UserFbToken userFbToken = new UserFbToken(user.getId(), token, "on", true);
                     apiManager.sendToken(userFbToken, new Callback<ResponseData<Object>>() {
                         @Override
                         public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
@@ -133,7 +140,6 @@ public class LoginViewModel extends AndroidViewModel {
 
                         @Override
                         public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-
                         }
                     });
                 });
@@ -163,8 +169,8 @@ public class LoginViewModel extends AndroidViewModel {
                     user.setRefreshToken(refreshTokenLiveData.getValue());
                     //
                     Log.d(TAG, "Get user info success: " + user.getName());
-                    sendFirebaseToken(user.getId());
                     userProfileLiveData.setValue(user);
+                    sendFirebaseToken(user);
                 } else {
                     Log.e(TAG, "Error getting user info: " + response.body().getMessage());
                     errorMessageLiveData.setValue("Error getting user info: " + response.body().getMessage());

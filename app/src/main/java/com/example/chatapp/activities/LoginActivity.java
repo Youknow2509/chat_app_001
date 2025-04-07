@@ -179,6 +179,7 @@ public class LoginActivity extends BaseNetworkActivity {
                 user.getRefreshToken(),
                 user.getId()
         );
+        sessionManager.saveFBToken(user.getFbToken());
 
         // Khởi động TokenRefreshService
         Intent serviceIntent = new Intent(this, TokenRefreshService.class);
