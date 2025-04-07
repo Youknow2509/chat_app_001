@@ -33,9 +33,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ChatGroupConversationActivity extends AppCompatActivity implements MessageObserver {
+public class ChatGroupConversationActivity extends BaseNetworkActivity implements MessageObserver {
 
     private ActivityChatGroupBinding binding;
+    private View nwStatusView;
 
     private MessageObservable messageObservable;
 
@@ -59,6 +60,7 @@ public class ChatGroupConversationActivity extends AppCompatActivity implements 
         sessionManager = SessionManager.getInstance();
         binding = ActivityChatGroupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        nwStatusView = binding.networkStatusView.getRoot();
         setListeners();
         loadChatDetails();
         binding.progressBar.setVisibility(View.GONE);
@@ -249,5 +251,18 @@ public class ChatGroupConversationActivity extends AppCompatActivity implements 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
+    }
+
+
+    @Override
+    protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
+        nwStatusView.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
+        nwStatusView.setVisibility(View.VISIBLE);
     }
 }
