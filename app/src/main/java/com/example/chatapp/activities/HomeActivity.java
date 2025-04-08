@@ -230,7 +230,7 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
         if (isAvailable) {
             // Mạng đã được kết nối
             // Tải lại dữ liệu, gửi tin nhắn đang chờ, etc.
-            showSnackbar("Mạng đã được kết nối");
+//            showSnackbar("Mạng đã được kết nối");
         }
     }
 

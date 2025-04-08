@@ -390,6 +390,30 @@
                     android:src="@drawable/ic_arrow_right" />
             </LinearLayout>
 
+            <!-- refresh token -->
+            <LinearLayout
+                android:id="@+id/refreshTokenLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_refresh"
+                    app:tint="#F44336" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:text="Token"
+                    android:textColor="#F44336"
+                    android:textSize="16sp" />
+            </LinearLayout>
             <!-- Logout -->
             <LinearLayout
                 android:id="@+id/logoutLayout"
@@ -403,7 +427,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/logout"
-                    android:tint="#F44336" />
+                    app:tint="#F44336" />
 
                 <TextView
                     android:layout_width="0dp"

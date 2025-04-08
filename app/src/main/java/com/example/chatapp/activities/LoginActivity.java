@@ -75,7 +75,9 @@ public class LoginActivity extends BaseNetworkActivity {
         loginViewModel.getUserProfileLiveData().observe(this, user -> {
             // Save session and save avatar
             saveSession(user);
-            loginViewModel.saveAvatarUser(user.getAvatarUrl());
+//            loginViewModel.saveAvatarUser(user.getAvatarUrl());
+            sessionManager.setPathFileAvatarUser("");
+            navigateToHome();
         });
 
         loginViewModel.getErrorMessageLiveData().observe(this, errorMessage -> {
@@ -180,6 +182,7 @@ public class LoginActivity extends BaseNetworkActivity {
                 user.getId()
         );
         sessionManager.saveFBToken(user.getFbToken());
+        sessionManager.setUserAvatar(user.getAvatarUrl());
 
         // Khởi động TokenRefreshService
         Intent serviceIntent = new Intent(this, TokenRefreshService.class);
