@@ -121,7 +121,7 @@ public class WebRTCManager {
         this.isAudioEnabled = isAudioEnabled;
         this.isVideoEnabled = isVideoEnabled;
         mediaStream = peerConnectionFactory.createLocalMediaStream("ARDAMS");
-        if(isAudioEnabled){
+        if (isAudioEnabled) {
             // Create audio source
             MediaConstraints audioConstraints = new MediaConstraints();
             AudioSource audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
@@ -131,7 +131,7 @@ public class WebRTCManager {
         }
 
         // Create video source and track
-        if(isVideoEnabled){
+        if (isVideoEnabled) {
             // Configure local video view
             localVideoView.init(eglBase.getEglBaseContext(), null);
             localVideoView.setEnableHardwareScaler(true);
@@ -151,15 +151,16 @@ public class WebRTCManager {
         // Create media stream
 
 
-
     }
 
     public PeerConnection createPeerConnection(PeerConnection.Observer observer) {
         List<PeerConnection.IceServer> iceServers = new ArrayList<>();
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
 
-//        iceServers.add(PeerConnection.IceServer.builder("khanhdew.ddns.net:3478")
-//                .createIceServer());
+        iceServers.add(PeerConnection.IceServer.builder("turn:khanhdew.ddns.net:3478")
+                .setUsername("a")
+                .setPassword("a")
+                .createIceServer());
 
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(iceServers);
         rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN;
