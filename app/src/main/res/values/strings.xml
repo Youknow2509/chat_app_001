@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ChatApp</string>
+    <string name="app_name">EChat</string>
     <string name="enter_your_email_address">Enter your email address</string>
 
     <string name="no_internet_connection">Không có kết nối internet</string>
