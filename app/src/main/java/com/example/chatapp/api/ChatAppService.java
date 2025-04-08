@@ -1,19 +1,41 @@
 package com.example.chatapp.api;
 
 import com.example.chatapp.dto.UserFbToken;
-import com.example.chatapp.models.request.AccountModels.*;
-import com.example.chatapp.models.request.ChatModels.*;
-import com.example.chatapp.models.request.TokenModels.*;
-import com.example.chatapp.models.request.UserModels.*;
+import com.example.chatapp.models.request.AccountModels.LoginInput;
+import com.example.chatapp.models.request.AccountModels.RefreshTokenInput;
+import com.example.chatapp.models.request.AccountModels.RegisterInput;
+import com.example.chatapp.models.request.AccountModels.UpdatePasswordInput;
+import com.example.chatapp.models.request.AccountModels.UpgradeNameAndAvatarRegisterInput;
+import com.example.chatapp.models.request.AccountModels.VerifyInput;
+import com.example.chatapp.models.request.ChatModels.AddMemberToChatInput;
+import com.example.chatapp.models.request.ChatModels.ChangeAdminGroupChatInput;
+import com.example.chatapp.models.request.ChatModels.CreateChatGroupInput;
+import com.example.chatapp.models.request.ChatModels.CreateChatPrivateInput;
+import com.example.chatapp.models.request.ChatModels.UpgradeChatInfoInput;
+import com.example.chatapp.models.request.TokenModels.JwtInput;
+import com.example.chatapp.models.request.UserModels.AcceptFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.CreateFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.DeleteFriendInput;
+import com.example.chatapp.models.request.UserModels.EndFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.RejectFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.UpdateUserAvatarInput;
+import com.example.chatapp.models.request.UserModels.UpdateUserInfoInput;
+import com.example.chatapp.models.request.UserModels.UserChangePasswordInput;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.models.sqlite.Message;
 
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
-import retrofit2.http.*;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ChatAppService {
 
@@ -78,6 +100,12 @@ public interface ChatAppService {
             @Query("limit") int limit,
             @Query("page") int page);
 
+    @GET("/api/v1/user/get_friend_request_send")
+    Call<ResponseData<Object>> getListFriendRequestSend(
+            @Header("Authorization") String token,
+            @Query("limit") int limit,
+            @Query("page") int page);
+
     @POST("/api/v1/user/accept_friend_request")
     Call<ResponseData<Object>> acceptFriendRequest(
             @Header("Authorization") String token,
@@ -91,12 +119,12 @@ public interface ChatAppService {
     @DELETE("/api/v1/user/end_friend_request")
     Call<ResponseData<Object>> endFriendRequest(
             @Header("Authorization") String token,
-            @Body EndFriendRequestInput input);
+            @Query("request_id") String requestId);
 
     @DELETE("/api/v1/user/delete_friend")
     Call<ResponseData<Object>> deleteFriend(
             @Header("Authorization") String token,
-            @Body DeleteFriendInput input);
+            @Query("friend_mail") String friendEmail);
 
     // ============ Chat Management ============
 
@@ -128,7 +156,9 @@ public interface ChatAppService {
     @DELETE("/api/v1/chat/del-men-from-chat")
     Call<ResponseData<Object>> deleteMemberFromChat(
             @Header("Authorization") String token,
-            @Body DelMenForChatInput input);
+            @Query("chat_id") String chatId,
+            @Query("del_user_id") String userId
+    );
 
     @PUT("/api/v1/chat/change-admin-group-chat")
     Call<ResponseData<Object>> changeAdminGroupChat(
@@ -138,7 +168,7 @@ public interface ChatAppService {
     @DELETE("/api/v1/chat/del-chat")
     Call<ResponseData<Object>> deleteChat(
             @Header("Authorization") String token,
-            @Body DelChatInput input);
+            @Query("chat_id") String chatId);
 
     @GET("/api/v1/chat/get-list-chat-for-user")
     Call<ResponseData<Object>> getListChatForUser(

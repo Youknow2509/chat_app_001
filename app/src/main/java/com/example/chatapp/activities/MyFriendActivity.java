@@ -25,8 +25,6 @@ public class MyFriendActivity extends AppCompatActivity {
 
         binding.FriendInvitationText.setOnClickListener(v->openViewInvitation());
         binding.backIcon.setOnClickListener(v->onBackPressed());
-
-
     }
 
     private void openViewInvitation() {

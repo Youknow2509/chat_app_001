@@ -1,22 +1,38 @@
 package com.example.chatapp.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.R;
 import com.example.chatapp.adapters.FriendInvitationAdapter;
+import com.example.chatapp.api.ApiManager;
+import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.FriendInvitation;
+import com.example.chatapp.models.response.FriendItemRequest;
+import com.example.chatapp.models.response.FriendItemRequestSend;
+import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.utils.session.SessionManager;
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FriendInvitationActivity extends AppCompatActivity {
 
@@ -27,28 +43,230 @@ public class FriendInvitationActivity extends AppCompatActivity {
     private Button btnAcceptAll, btnRejectAll;
     private FriendInvitationAdapter adapter;
 
+    private final String TAG = "FriendInvitationActivity";
+    private ApiManager apiManager;
+    private SessionManager sessionManager;
     private List<FriendInvitation> receivedInvitations = new ArrayList<>();
     private List<FriendInvitation> sentInvitations = new ArrayList<>();
+    private MutableLiveData<List<FriendItemRequest>> listFriendRequestLive = new MutableLiveData<>();
+    private MutableLiveData<List<FriendItemRequestSend>> listFriendRequestSendLive = new MutableLiveData<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invitation_list);
 
-        // Khởi tạo các view
+        apiManager = new ApiManager(this);
+        sessionManager = SessionManager.getInstance();
+
+        // Initialize views
         initViews();
 
-        // Thiết lập adapter cho RecyclerView
+        // Setup adapter for RecyclerView
         setupRecyclerView();
 
-        // Thiết lập sự kiện cho TabLayout
+        // Setup TabLayout events
         setupTabLayout();
 
-        // Thiết lập sự kiện cho các nút
-        setupButtons();
+        // Setup LiveData observers
+        setupObservers();
 
-        // Tải dữ liệu ban đầu (lời mời đã nhận)
+        // Fetch data from server
+        getDataFromServer();
+
+        // Load initial data (received invitations)
         loadReceivedInvitations();
+    }
+
+    /**
+     * Setup LiveData observers
+     */
+    private void setupObservers() {
+        // Observer for received friend requests
+        listFriendRequestLive.observe(this, friendRequests -> {
+            if (friendRequests != null) {
+                // Convert FriendItemRequestSend to FriendInvitation
+                receivedInvitations.clear();
+                for (FriendItemRequest request : friendRequests) {
+                    receivedInvitations.add(
+                            new FriendInvitation(
+                                    request.getRequest_id(),
+                                    request.getFrom_user(),
+                                    request.getUser_nickname(),
+                                    request.getCreated_at(),
+                                    request.getUser_avatar(),
+                                    FriendInvitation.STATUS_PENDING)
+                    );
+                }
+
+                // Update UI if currently on the Received tab
+                if (tabLayout.getSelectedTabPosition() == 0) {
+                    adapter.updateData(receivedInvitations, true);
+                    updateEmptyStateVisibility(receivedInvitations);
+                }
+            }
+        });
+
+        // Observer for sent friend requests
+        listFriendRequestSendLive.observe(this, friendRequests -> {
+            if (friendRequests != null) {
+                // Convert FriendItemRequestSend to FriendInvitation
+                sentInvitations.clear();
+                for (FriendItemRequestSend request : friendRequests) {
+                    // Determine status based on request status
+                    int status = FriendInvitation.STATUS_PENDING;
+                    if (request.getStatus_request() != null) {
+                        if (request.getStatus_request().equals("accepted")) {
+                            status = FriendInvitation.STATUS_ACCEPTED;
+                        } else if (request.getStatus_request().equals("rejected")) {
+                            status = FriendInvitation.STATUS_REJECTED;
+                        }
+                    }
+
+                    sentInvitations.add(
+                            new FriendInvitation(
+                                    request.getRequest_id(),
+                                    request.getTo_user(),
+                                    request.getUser_nickname(),
+                                    request.getCreated_at(),
+                                    request.getUser_avatar(),
+                                    status)
+                    );
+                }
+
+                // Update UI if currently on the Sent tab
+                if (tabLayout.getSelectedTabPosition() == 1) {
+                    adapter.updateData(sentInvitations, false);
+                    updateEmptyStateVisibility(sentInvitations);
+                }
+            }
+        });
+    }
+
+    /**
+     * Update empty state message visibility
+     */
+    private void updateEmptyStateVisibility(List<FriendInvitation> list) {
+        if (list.isEmpty()) {
+            tvNoInvitations.setVisibility(View.VISIBLE);
+            tvNoInvitations.setText(tabLayout.getSelectedTabPosition() == 0 ?
+                    "Không có lời mời kết bạn nào" :
+                    "Bạn chưa gửi lời mời kết bạn nào");
+        } else {
+            tvNoInvitations.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Fetch data from server
+     */
+    private void getDataFromServer() {
+        showLoading(true);
+
+        // Get received friend requests
+        fetchReceivedFriendRequests();
+
+        // Get sent friend requests
+        fetchSentFriendRequests();
+    }
+
+    /**
+     * Fetch received friend requests
+     */
+    private void fetchReceivedFriendRequests() {
+        apiManager.getListFriendRequest(
+                sessionManager.getAccessToken(),
+                20,
+                1,
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            try {
+                                ResponseData<Object> responseData = response.body();
+                                if (responseData.getCode() == Constants.CODE_SUCCESS && responseData.getData() != null) {
+                                    // Convert the data object to the expected type
+                                    Gson gson = new Gson();
+                                    String json = gson.toJson(responseData.getData());
+                                    Type type = new TypeToken<List<FriendItemRequest>>(){}.getType();
+                                    List<FriendItemRequest> requests = gson.fromJson(json, type);
+
+                                    // Update LiveData
+                                    listFriendRequestLive.setValue(requests);
+                                } else {
+                                    // Handle API error
+                                    handleApiError(responseData.getMessage());
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing response: " + e.getMessage());
+                                handleApiError("Lỗi xử lý dữ liệu");
+                            }
+                        } else {
+                            handleApiError("Lỗi kết nối máy chủ");
+                        }
+                        showLoading(false);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        Log.e(TAG, "onFailure: " + t.getMessage());
+                        handleApiError("Lỗi lấy yêu cầu kết bạn");
+                        showLoading(false);
+                    }
+                }
+        );
+    }
+
+    /**
+     * Fetch sent friend requests
+     */
+    private void fetchSentFriendRequests() {
+        apiManager.getListFriendRequestSend(
+                sessionManager.getAccessToken(),
+                20,
+                1,
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            try {
+                                ResponseData<Object> responseData = response.body();
+                                if (responseData.getCode() == Constants.CODE_SUCCESS && responseData.getData() != null) {
+                                    // Convert the data object to the expected type
+                                    Gson gson = new Gson();
+                                    String json = gson.toJson(responseData.getData());
+                                    Type type = new TypeToken<List<FriendItemRequestSend>>(){}.getType();
+                                    List<FriendItemRequestSend> requests = gson.fromJson(json, type);
+
+                                    // Update LiveData
+                                    listFriendRequestSendLive.setValue(requests);
+                                } else {
+                                    // Handle API error
+                                    handleApiError(responseData.getMessage());
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing response: " + e.getMessage());
+                                handleApiError("Lỗi xử lý dữ liệu");
+                            }
+                        } else {
+                            handleApiError("Lỗi kết nối máy chủ");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        Log.e(TAG, "onFailure: " + t.getMessage());
+                        handleApiError("Lỗi lấy danh sách kết bạn đã gửi");
+                    }
+                }
+        );
+    }
+
+    /**
+     * Handle API error
+     */
+    private void handleApiError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void initViews() {
@@ -59,7 +277,7 @@ public class FriendInvitationActivity extends AppCompatActivity {
         btnAcceptAll = findViewById(R.id.btnAcceptAll);
         btnRejectAll = findViewById(R.id.btnRejectAll);
 
-        // Thiết lập nút quay lại
+        // Setup back button
         findViewById(R.id.backButton).setOnClickListener(v -> finish());
     }
 
@@ -67,21 +285,26 @@ public class FriendInvitationActivity extends AppCompatActivity {
         recyclerViewInvitations.setLayoutManager(new LinearLayoutManager(this));
         adapter = new FriendInvitationAdapter(this, receivedInvitations, true);
         recyclerViewInvitations.setAdapter(adapter);
+
+        // Setup item click listeners
+        adapter.setOnAcceptClickListener(position -> acceptInvitation(position));
+        adapter.setOnRejectClickListener(position -> rejectInvitation(position));
+        adapter.setOnCancelClickListener(position -> cancelInvitation(position));
     }
 
     private void setupTabLayout() {
-        // Thêm listener cho TabLayout
+        // Add listener for TabLayout
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
                 if (position == 0) {
-                    // Tab "Đã nhận"
+                    // "Received" tab
                     loadReceivedInvitations();
                     btnAcceptAll.setVisibility(View.VISIBLE);
                     btnRejectAll.setVisibility(View.VISIBLE);
                 } else {
-                    // Tab "Đã gửi"
+                    // "Sent" tab
                     loadSentInvitations();
                     btnAcceptAll.setVisibility(View.GONE);
                     btnRejectAll.setVisibility(View.GONE);
@@ -90,40 +313,28 @@ public class FriendInvitationActivity extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                // Không cần xử lý
+                // Not needed
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                // Không cần xử lý
+                // Not needed
             }
         });
-    }
-
-    private void setupButtons() {
-        btnAcceptAll.setOnClickListener(v -> acceptAllInvitations());
-        btnRejectAll.setOnClickListener(v -> rejectAllInvitations());
     }
 
     private void loadReceivedInvitations() {
         showLoading(true);
 
-        // Mô phỏng việc tải dữ liệu từ server
-        // Trong thực tế, bạn sẽ gọi API để lấy danh sách lời mời đã nhận
-        receivedInvitations.clear();
-
-        // Thêm dữ liệu mẫu
-        receivedInvitations.add(new FriendInvitation("1", "Nguyễn Văn A", "nguyenvana@example.com", "2 giờ trước", FriendInvitation.STATUS_PENDING));
-        receivedInvitations.add(new FriendInvitation("2", "Trần Thị B", "tranthib@example.com", "1 ngày trước", FriendInvitation.STATUS_PENDING));
-
-        // Cập nhật adapter với dữ liệu mới
-        adapter.updateData(receivedInvitations, true);
-
-        // Hiển thị thông báo nếu không có lời mời
-        if (receivedInvitations.isEmpty()) {
-            tvNoInvitations.setVisibility(View.VISIBLE);
+        // Use data from LiveData if available
+        List<FriendItemRequest> requests = listFriendRequestLive.getValue();
+        if (requests != null && !requests.isEmpty()) {
+            // Use the data from LiveData (already processed in observer)
+            adapter.updateData(receivedInvitations, true);
+            updateEmptyStateVisibility(receivedInvitations);
         } else {
-            tvNoInvitations.setVisibility(View.GONE);
+            // If no data in LiveData, show empty state message
+            updateEmptyStateVisibility(receivedInvitations);
         }
 
         showLoading(false);
@@ -132,46 +343,146 @@ public class FriendInvitationActivity extends AppCompatActivity {
     private void loadSentInvitations() {
         showLoading(true);
 
-        // Mô phỏng việc tải dữ liệu từ server
-        // Trong thực tế, bạn sẽ gọi API để lấy danh sách lời mời đã gửi
-        sentInvitations.clear();
-
-        // Thêm dữ liệu mẫu
-        sentInvitations.add(new FriendInvitation("3", "Lê Văn C", "levanc@example.com", "3 giờ trước", FriendInvitation.STATUS_PENDING));
-        sentInvitations.add(new FriendInvitation("4", "Phạm Thị D", "phamthid@example.com", "5 ngày trước", FriendInvitation.STATUS_ACCEPTED));
-        sentInvitations.add(new FriendInvitation("5", "Hoàng Văn E", "hoangvane@example.com", "1 tuần trước", FriendInvitation.STATUS_REJECTED));
-
-        // Cập nhật adapter với dữ liệu mới
-        adapter.updateData(sentInvitations, false);
-
-        // Hiển thị thông báo nếu không có lời mời
-        if (sentInvitations.isEmpty()) {
-            tvNoInvitations.setVisibility(View.VISIBLE);
+        // Use data from LiveData if available
+        List<FriendItemRequestSend> requests = listFriendRequestSendLive.getValue();
+        if (requests != null && !requests.isEmpty()) {
+            // Use the data from LiveData (already processed in observer)
+            adapter.updateData(sentInvitations, false);
+            updateEmptyStateVisibility(sentInvitations);
         } else {
-            tvNoInvitations.setVisibility(View.GONE);
+            // If no data in LiveData, show empty state message
+            updateEmptyStateVisibility(sentInvitations);
         }
 
         showLoading(false);
     }
 
-    private void acceptAllInvitations() {
-        // Xử lý chấp nhận tất cả lời mời
-        for (FriendInvitation invitation : receivedInvitations) {
-            invitation.setStatus(FriendInvitation.STATUS_ACCEPTED);
-        }
-        adapter.notifyDataSetChanged();
+    private void acceptInvitation(int position) {
+        showLoading(true);
+        FriendInvitation invitation = receivedInvitations.get(position);
 
-        // Trong thực tế, bạn sẽ gọi API để chấp nhận tất cả lời mời
+        apiManager.acceptFriendRequest(
+                sessionManager.getAccessToken(),
+                invitation.getRequest_id(),
+                sessionManager.getUserId(),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            ResponseData<Object> responseData = response.body();
+                            if (responseData.getCode() == Constants.CODE_SUCCESS) {
+                                Toast.makeText(FriendInvitationActivity.this,
+                                        "Đã chấp nhận lời mời kết bạn", Toast.LENGTH_SHORT).show();
+
+                                // Update local data
+                                invitation.setStatus(FriendInvitation.STATUS_ACCEPTED);
+                                adapter.notifyItemChanged(position);
+
+                                // Refresh data from server after a delay
+                                recyclerViewInvitations.postDelayed(() -> getDataFromServer(), 1000);
+                            } else {
+                                handleApiError(responseData.getMessage());
+                            }
+                        } else {
+                            handleApiError("Lỗi kết nối máy chủ");
+                        }
+                        showLoading(false);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        Log.e(TAG, "onFailure: " + t.getMessage());
+                        handleApiError("Lỗi kết nối");
+                        showLoading(false);
+                    }
+                }
+        );
     }
 
-    private void rejectAllInvitations() {
-        // Xử lý từ chối tất cả lời mời
-        for (FriendInvitation invitation : receivedInvitations) {
-            invitation.setStatus(FriendInvitation.STATUS_REJECTED);
-        }
-        adapter.notifyDataSetChanged();
+    private void rejectInvitation(int position) {
+        showLoading(true);
+        FriendInvitation invitation = receivedInvitations.get(position);
 
-        // Trong thực tế, bạn sẽ gọi API để từ chối tất cả lời mời
+        apiManager.rejectFriendRequest(
+                sessionManager.getAccessToken(),
+                invitation.getRequest_id(),
+                sessionManager.getUserId(),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            ResponseData<Object> responseData = response.body();
+                            if (responseData.getCode() == Constants.CODE_SUCCESS) {
+                                Toast.makeText(FriendInvitationActivity.this,
+                                        "Đã từ chối lời mời kết bạn", Toast.LENGTH_SHORT).show();
+
+                                // Update local data
+                                invitation.setStatus(FriendInvitation.STATUS_REJECTED);
+                                adapter.notifyItemChanged(position);
+
+                                // Refresh data from server after a delay
+                                recyclerViewInvitations.postDelayed(() -> getDataFromServer(), 1000);
+                            } else {
+                                handleApiError(responseData.getMessage());
+                            }
+                        } else {
+                            handleApiError("Lỗi kết nối máy chủ");
+                        }
+                        showLoading(false);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        Log.e(TAG, "onFailure: " + t.getMessage());
+                        handleApiError("Lỗi kết nối");
+                        showLoading(false);
+                    }
+                }
+        );
+    }
+
+    private void cancelInvitation(int position) {
+        showLoading(true);
+        FriendInvitation invitation = sentInvitations.get(position);
+
+        apiManager.endFriendRequest(
+                sessionManager.getAccessToken(),
+                invitation.getRequest_id(),
+                new Callback<ResponseData<Object>>() {
+                    @Override
+                    public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            ResponseData<Object> responseData = response.body();
+                            if (responseData.getCode() == Constants.CODE_SUCCESS) {
+                                Toast.makeText(FriendInvitationActivity.this,
+                                        "Đã hủy lời mời kết bạn", Toast.LENGTH_SHORT).show();
+
+                                // Remove from list
+                                sentInvitations.remove(position);
+                                adapter.notifyItemRemoved(position);
+                                adapter.notifyItemRangeChanged(position, sentInvitations.size());
+
+                                // Check if list is empty
+                                updateEmptyStateVisibility(sentInvitations);
+
+                                // Refresh data from server after a delay
+                                recyclerViewInvitations.postDelayed(() -> getDataFromServer(), 1000);
+                            } else {
+                                handleApiError(responseData.getMessage());
+                            }
+                        } else {
+                            handleApiError("Lỗi kết nối máy chủ");
+                        }
+                        showLoading(false);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
+                        Log.e(TAG, "onFailure: " + t.getMessage());
+                        handleApiError("Lỗi kết nối");
+                        showLoading(false);
+                    }
+                });
     }
 
     private void showLoading(boolean isLoading) {
@@ -182,6 +493,14 @@ public class FriendInvitationActivity extends AppCompatActivity {
         } else {
             loadingIndicator.setVisibility(View.GONE);
             recyclerViewInvitations.setVisibility(View.VISIBLE);
+            // The empty state text visibility is managed separately
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning to this activity
+        getDataFromServer();
     }
 }
