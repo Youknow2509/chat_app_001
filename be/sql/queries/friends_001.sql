@@ -84,13 +84,16 @@ LIMIT ? OFFSET ?;
 
 -- name: GetFriendRequestUserReceive :many
 SELECT
-    id,
-    from_user,
-    status,
-    created_at
-FROM friend_requests
-WHERE to_user = ?
-ORDER BY created_at DESC
+    fr.id,
+    fr.from_user,
+    fr.status,
+    fr.created_at,
+    ui.user_nickname,
+    ui.user_avatar
+FROM friend_requests fr
+JOIN user_info ui ON ui.user_id = fr.from_user
+WHERE fr.to_user = ? AND fr.status = 'pending'
+ORDER BY fr.created_at DESC
 LIMIT ? OFFSET ?;
 
 -- name: GetFriendRequestCount :one

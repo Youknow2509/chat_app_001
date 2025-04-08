@@ -224,13 +224,16 @@ func (q *Queries) GetFriendRequestInfoWithUser(ctx context.Context, arg GetFrien
 
 const getFriendRequestUserReceive = `-- name: GetFriendRequestUserReceive :many
 SELECT
-    id,
-    from_user,
-    status,
-    created_at
-FROM friend_requests
-WHERE to_user = ?
-ORDER BY created_at DESC
+    fr.id,
+    fr.from_user,
+    fr.status,
+    fr.created_at,
+    ui.user_nickname,
+    ui.user_avatar
+FROM friend_requests fr
+JOIN user_info ui ON ui.user_id = fr.from_user
+WHERE fr.to_user = ? AND fr.status = 'pending'
+ORDER BY fr.created_at DESC
 LIMIT ? OFFSET ?
 `
 
@@ -241,10 +244,12 @@ type GetFriendRequestUserReceiveParams struct {
 }
 
 type GetFriendRequestUserReceiveRow struct {
-	ID        string
-	FromUser  sql.NullString
-	Status    sql.NullString
-	CreatedAt sql.NullTime
+	ID           string
+	FromUser     sql.NullString
+	Status       sql.NullString
+	CreatedAt    sql.NullTime
+	UserNickname sql.NullString
+	UserAvatar   sql.NullString
 }
 
 func (q *Queries) GetFriendRequestUserReceive(ctx context.Context, arg GetFriendRequestUserReceiveParams) ([]GetFriendRequestUserReceiveRow, error) {
@@ -261,6 +266,8 @@ func (q *Queries) GetFriendRequestUserReceive(ctx context.Context, arg GetFriend
 			&i.FromUser,
 			&i.Status,
 			&i.CreatedAt,
+			&i.UserNickname,
+			&i.UserAvatar,
 		); err != nil {
 			return nil, err
 		}

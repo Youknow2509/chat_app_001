@@ -468,18 +468,18 @@ func (ct *cChat) ChangeAdminGroupChat(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Authorization Bearer token"
-// @Param        payload body model.DelChatInput true "payload"
+// @Param        chat_id query string true "Chat ID"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /api/v1/chat/del-chat [delete]
 func (ct *cChat) DelChat(c *gin.Context) {
-	// get body input
-	var parameters *model.DelChatInput
-	if err := c.ShouldBindJSON(&parameters); err != nil {
-		global.Logger.Error("Error binding input", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+	// get parameter input
+	chatID := c.Query("chat_id")
+	if chatID == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Chat ID is required")
 		return
 	}
+
 	// get user id from token
 	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
 	if err != nil {
@@ -487,9 +487,13 @@ func (ct *cChat) DelChat(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
 	}
-	parameters.AdminChatID = userIDReq
+	// 
+	parameters := model.DelChatInput{
+		ChatID:      chatID,
+		AdminChatID: userIDReq,
+	}
 	// call to service
-	codeRes, err := service.ChatServiceAdmin().DelChat(c, parameters)
+	codeRes, err := service.ChatServiceAdmin().DelChat(c, &parameters)
 	if codeRes != response.ErrCodeSuccess {
 		global.Logger.Error("Error deleting chat", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))
@@ -510,16 +514,21 @@ func (ct *cChat) DelChat(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Authorization Bearer token"
-// @Param        payload body model.DelMenForChatInput true "payload"
+// @Param        chat_id query string true "Chat ID"
+// @Param        del_user_id query string true "User ID delete"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /api/v1/chat/del-men-from-chat [delete]
 func (ct *cChat) DelMemberForChat(c *gin.Context) {
-	// get body input
-	var parameters *model.DelMenForChatInput
-	if err := c.ShouldBindJSON(&parameters); err != nil {
-		global.Logger.Error("Error binding input", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+	// get query input
+	chatID := c.Query("chat_id")
+	if chatID == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "Chat ID is required")
+		return
+	}
+	delUserID := c.Query("del_user_id")
+	if delUserID == "" {
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, "User ID delete is required")
 		return
 	}
 	// get user id from token
@@ -529,9 +538,13 @@ func (ct *cChat) DelMemberForChat(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
 	}
-	parameters.AdminChatID = userIDReq
+	parameters := model.DelMenForChatInput{
+		AdminChatID: userIDReq,
+		UserDelID:   delUserID,
+		ChatID:      chatID,
+	}
 	// call to service
-	codeRes, err := service.ChatServiceAdmin().DelMenForChat(c, parameters)
+	codeRes, err := service.ChatServiceAdmin().DelMenForChat(c, &parameters)
 	if codeRes != response.ErrCodeSuccess {
 		global.Logger.Error("Error deleting member from chat", zap.Error(err))
 		response.ErrorResponse(c, codeRes, response.GetMessageCode(codeRes))

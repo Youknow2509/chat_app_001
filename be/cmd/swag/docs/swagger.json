@@ -228,13 +228,11 @@
                         "required": true
                     },
                     {
-                        "description": "payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.DelChatInput"
-                        }
+                        "type": "string",
+                        "description": "Chat ID",
+                        "name": "chat_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -275,13 +273,18 @@
                         "required": true
                     },
                     {
-                        "description": "payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.DelMenForChatInput"
-                        }
+                        "type": "string",
+                        "description": "Chat ID",
+                        "name": "chat_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID delete",
+                        "name": "del_user_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1176,13 +1179,11 @@
                         "required": true
                     },
                     {
-                        "description": "delete friend user information",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.DeleteFriendInput"
-                        }
+                        "type": "string",
+                        "description": "friend mail",
+                        "name": "friend_mail",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1223,13 +1224,11 @@
                         "required": true
                     },
                     {
-                        "description": "End friend request",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.EndFriendRequestInput"
-                        }
+                        "type": "string",
+                        "description": "request id",
+                        "name": "request_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2125,53 +2124,6 @@
             "type": "object",
             "properties": {
                 "email_friend": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.DelChatInput": {
-            "type": "object",
-            "properties": {
-                "admin_chat_id": {
-                    "type": "string"
-                },
-                "chat_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.DelMenForChatInput": {
-            "type": "object",
-            "properties": {
-                "admin_chat_id": {
-                    "type": "string"
-                },
-                "chat_id": {
-                    "type": "string"
-                },
-                "user_del_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.DeleteFriendInput": {
-            "type": "object",
-            "properties": {
-                "friend_email": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.EndFriendRequestInput": {
-            "type": "object",
-            "properties": {
-                "request_id": {
                     "type": "string"
                 },
                 "user_id": {

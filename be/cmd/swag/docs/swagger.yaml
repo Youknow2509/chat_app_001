@@ -50,36 +50,6 @@ definitions:
       user_id:
         type: string
     type: object
-  model.DelChatInput:
-    properties:
-      admin_chat_id:
-        type: string
-      chat_id:
-        type: string
-    type: object
-  model.DelMenForChatInput:
-    properties:
-      admin_chat_id:
-        type: string
-      chat_id:
-        type: string
-      user_del_id:
-        type: string
-    type: object
-  model.DeleteFriendInput:
-    properties:
-      friend_email:
-        type: string
-      user_id:
-        type: string
-    type: object
-  model.EndFriendRequestInput:
-    properties:
-      request_id:
-        type: string
-      user_id:
-        type: string
-    type: object
   model.JwtInput:
     properties:
       data:
@@ -368,12 +338,11 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: payload
-        in: body
-        name: payload
+      - description: Chat ID
+        in: query
+        name: chat_id
         required: true
-        schema:
-          $ref: '#/definitions/model.DelChatInput'
+        type: string
       produces:
       - application/json
       responses:
@@ -399,12 +368,16 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: payload
-        in: body
-        name: payload
+      - description: Chat ID
+        in: query
+        name: chat_id
         required: true
-        schema:
-          $ref: '#/definitions/model.DelMenForChatInput'
+        type: string
+      - description: User ID delete
+        in: query
+        name: del_user_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1001,12 +974,11 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: delete friend user information
-        in: body
-        name: body
+      - description: friend mail
+        in: query
+        name: friend_mail
         required: true
-        schema:
-          $ref: '#/definitions/model.DeleteFriendInput'
+        type: string
       produces:
       - application/json
       responses:
@@ -1032,12 +1004,11 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: End friend request
-        in: body
-        name: body
+      - description: request id
+        in: query
+        name: request_id
         required: true
-        schema:
-          $ref: '#/definitions/model.EndFriendRequestInput'
+        type: string
       produces:
       - application/json
       responses:

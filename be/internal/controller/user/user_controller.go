@@ -85,22 +85,22 @@ func (cU *cUser) GetListFriendRequestSend(c *gin.Context) {
 // @Router       /api/v1/user/update_user_avatar [post]
 func (cU *cUser) UpdateUserAvatar(c *gin.Context) {
 	// get user id from token in headers
-    userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
-    if err != nil {
-        global.Logger.Error("Error getting user id from token", zap.Error(err))
-        response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
-        return
-    }
-    // get body params
-    var params model.UpdateAvatarUserInput
-    if err := c.ShouldBindJSON(&params); err != nil {
-        global.Logger.Error("Error binding input", zap.Error(err))
-        response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
-        return
-    }
-    params.UserID = userIDReq
-    // call to service
-    code, err := service.UserInfo().UpdateAvatarUser(c.Request.Context(), &params)
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	// get body params
+	var params model.UpdateAvatarUserInput
+	if err := c.ShouldBindJSON(&params); err != nil {
+		global.Logger.Error("Error binding input", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeBindTokenInput, err.Error())
+		return
+	}
+	params.UserID = userIDReq
+	// call to service
+	code, err := service.UserInfo().UpdateAvatarUser(c.Request.Context(), &params)
 	if err != nil {
 		global.Logger.Error("Error updating avatar user", zap.Error(err))
 		response.ErrorResponse(c, code, response.GetMessageCode(code))
@@ -399,15 +399,16 @@ func (cU *cUser) CreateFriendRequest(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization  header  string  true  "Bearer token"
-// @Param        body body  model.EndFriendRequestInput  true  "End friend request"
+// @Param        request_id query string true  "request id"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /api/v1/user/end_friend_request [delete]
 func (cU *cUser) EndFriendRequest(c *gin.Context) {
-	var parameters model.EndFriendRequestInput
-	if err := c.ShouldBindJSON(&parameters); err != nil {
-		global.Logger.Error("Error binding data", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+	// get query params
+	requestID := c.Query("request_id")
+	// validate input
+	if requestID == "" {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Request ID is required")
 		return
 	}
 	// get user id from token in headers
@@ -417,7 +418,10 @@ func (cU *cUser) EndFriendRequest(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
 	}
-	parameters.UserID = userIDReq
+	parameters := model.EndFriendRequestInput{
+		UserID:    userIDReq,
+		RequestID: requestID,
+	}
 	// call to service
 	codeRes, err := service.UserInfo().EndFriendRequest(c.Request.Context(), &parameters)
 	if codeRes != response.ErrCodeSuccess {
@@ -519,15 +523,16 @@ func (cU *cUser) RejectFriendRequest(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization  header  string  true  "Bearer token"
-// @Param        body body  model.DeleteFriendInput  true  "delete friend user information"
+// @Param        friend_mail query string true  "friend mail"
 // @Success      200  {object}  response.ResponseData
 // @Failure      500  {object}  response.ErrResponseData
 // @Router       /api/v1/user/delete_friend [delete]
 func (cU *cUser) DeleteFriend(c *gin.Context) {
-	var parameters model.DeleteFriendInput
-	if err := c.ShouldBindJSON(&parameters); err != nil {
-		global.Logger.Error("Error binding data", zap.Error(err))
-		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+	// get query params
+	friendID := c.Query("friend_mail")
+	// validate input
+	if friendID == "" {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Friend ID is required")
 		return
 	}
 	// get user id from token in headers
@@ -537,7 +542,10 @@ func (cU *cUser) DeleteFriend(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
 		return
 	}
-	parameters.UserID = userIDReq
+	parameters := model.DeleteFriendInput{
+		UserID:      userIDReq,
+		FriendEmail: friendID,
+	}
 	// call to service
 	codeRes, err := service.UserInfo().DeleteFriend(c.Request.Context(), &parameters)
 	if codeRes != response.ErrCodeSuccess {

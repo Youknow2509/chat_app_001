@@ -309,7 +309,8 @@ func (s *sUserInfo) GetListFriendRequest(ctx context.Context, in *model.GetFrien
 		out = append(out, model.GetListFriendRequestOutput{
 			RequestID:     item.ID,
 			FromUser:      item.FromUser.String,
-			ToUser:        "you",
+			UserNickName:  item.UserNickname.String,
+			UserAvatar:    item.UserAvatar.String,
 			StatusRequest: item.Status.String,
 			CreatedAt:     createdAt,
 		})
