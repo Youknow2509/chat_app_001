@@ -1117,6 +1117,41 @@ paths:
       summary: Forgot Password
       tags:
       - accounts management
+  /api/v1/user/get_friend_request_send:
+    get:
+      consumes:
+      - application/json
+      description: Get List Friend Request Send Output
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Limit number
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrResponseData'
+      summary: Get List Friend Request Send Output
+      tags:
+      - User Info
   /api/v1/user/get_list_friend:
     get:
       consumes:

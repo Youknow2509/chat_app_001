@@ -42,17 +42,17 @@ func (s *sUserInfo) UpdateAvatarUser(ctx context.Context, in *model.UpdateAvatar
 	}
 	// 2. update avatar
 	err = s.r.UpdateAvatarWithID(
-		ctx, 
+		ctx,
 		database.UpdateAvatarWithIDParams{
-			UserID: in.UserID,
+			UserID:     in.UserID,
 			UserAvatar: sql.NullString{String: in.AvatarURL, Valid: true},
 		},
 	)
 	if err != nil {
-        global.Logger.Error("Err update avatar", zap.Error(err))
-	return response.ErrCodeUpdateAvatar, err
-    }
-	// 3. delete cache 
+		global.Logger.Error("Err update avatar", zap.Error(err))
+		return response.ErrCodeUpdateAvatar, err
+	}
+	// 3. delete cache
 	key := fmt.Sprintf("user_info::%s", in.UserID)
 	_ = global.Rdb.Del(ctx, key).Err()
 	return response.ErrCodeSuccess, nil
@@ -236,6 +236,43 @@ func (s *sUserInfo) UpdatePasswordForUserRequest(ctx context.Context, in *model.
 		}
 	}()
 	return response.ErrCodeSuccess, nil
+}
+
+// get list friend request send
+func (s *sUserInfo) GetListFriendRequestSend(ctx context.Context, in *model.GetFriendRequestInput) (out []model.GetListFriendRequestSendOutput, err error) {
+	// 1. check user exist
+	cUserReq, err := s.r.CheckUserBaseExistsWithID(ctx, in.UserID)
+	if err != nil {
+		global.Logger.Error("Err get user with id", zap.Error(err))
+		return nil, err
+	}
+	if cUserReq < 1 {
+		global.Logger.Error("User is not exist")
+		return nil, fmt.Errorf("user is not exist")
+	}
+	// 2. get friend request
+	listFriendUser, err := s.r.GetFriendRequestUserSend(ctx, database.GetFriendRequestUserSendParams{
+		FromUser: sql.NullString{String: in.UserID, Valid: true},
+		Limit:    int32(in.Limit),
+		Offset:   int32(utils.GetOffsetWithLimit(in.Page, in.Limit)),
+	})
+	if err != nil {
+		global.Logger.Error("Err get friend request", zap.Error(err))
+		return nil, err
+	}
+	out = make([]model.GetListFriendRequestSendOutput, 0, len(listFriendUser))
+	for _, item := range listFriendUser {
+		out = append(out, model.GetListFriendRequestSendOutput{
+			RequestID:     item.ID,
+			ToUser:        item.ToUser.String,
+			StatusRequest: item.Status.String,
+			CreatedAt:     item.CreatedAt.Time.Format(time.RFC3339),
+			UserAvatar:   item.UserAvatar.String,
+			UserNickName: item.UserNickname.String,
+		})
+	}
+	
+	return out, nil
 }
 
 // GetListFriendRequest implements service.IUserInfo.

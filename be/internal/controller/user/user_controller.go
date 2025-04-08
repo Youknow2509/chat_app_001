@@ -17,6 +17,62 @@ var User = new(cUser)
 type cUser struct {
 }
 
+// @Summary      Get List Friend Request Send Output
+// @Description  Get List Friend Request Send Output
+// @Tags         User Info
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  true  "Bearer token"
+// @Param        limit  query  int  true  "Limit number"
+// @Param        page  query  int  true  "Page number"
+// @Success      200  {object}  response.ResponseData
+// @Failure      500  {object}  response.ErrResponseData
+// @Router       /api/v1/user/get_friend_request_send [get]
+func (cU *cUser) GetListFriendRequestSend(c *gin.Context) {
+	// query limit and page
+	limit := c.Query("limit")
+	page := c.Query("page")
+	if limit == "" || page == "" {
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, "Limit and page are required")
+		return
+	}
+	// convert string to int
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		global.Logger.Error("Error converting limit to int", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		global.Logger.Error("Error converting page to int", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeInvalidInput, err.Error())
+		return
+	}
+	// get user id from token in headers
+	userIDReq, err := context.GetUserIdFromToken(c.Request.Context())
+	if err != nil {
+		global.Logger.Error("Error getting user id from token", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeUnauthorized, err.Error())
+		return
+	}
+	// create input model
+	input := &model.GetFriendRequestInput{
+		UserID: userIDReq,
+		Limit:  limitInt,
+		Page:   pageInt,
+	}
+	// call to service
+	listFriendRequestSend, err := service.UserInfo().GetListFriendRequestSend(c.Request.Context(), input)
+	if err != nil {
+		global.Logger.Error("Error getting list friend request send", zap.Error(err))
+		response.ErrorResponse(c, response.ErrCodeGetListFriendRequestSend, err.Error())
+		return
+	}
+
+	response.SuccessResponse(c, response.ErrCodeSuccess, listFriendRequestSend)
+}
+
 // @Summary      Update avatar user
 // @Description  Update avatar user
 // @Tags         User Info

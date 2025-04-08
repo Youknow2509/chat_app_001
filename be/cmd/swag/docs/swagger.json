@@ -1345,6 +1345,58 @@
                 }
             }
         },
+        "/api/v1/user/get_friend_request_send": {
+            "get": {
+                "description": "Get List Friend Request Send Output",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Get List Friend Request Send Output",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit number",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/get_list_friend": {
             "get": {
                 "description": "Get list user friend",

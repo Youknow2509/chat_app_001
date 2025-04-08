@@ -2,6 +2,15 @@ package model
 
 import "time"
 
+type GetListFriendRequestSendOutput struct {
+	RequestID     string `json:"request_id"`
+	ToUser        string `json:"to_user"`
+	UserNickName  string `json:"user_nickname"`
+	UserAvatar    string `json:"user_avatar"`
+	StatusRequest string `json:"status_request"`
+	CreatedAt     string `json:"created_at"`
+}
+
 // UpdateAvatarUserInput
 type UpdateAvatarUserInput struct {
 	UserID    string `json:"user_id"`

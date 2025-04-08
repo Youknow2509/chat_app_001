@@ -69,14 +69,18 @@ WHERE id = ?;
 
 -- name: GetFriendRequestUserSend :many
 SELECT
-    id,
-    to_user,
-    status,
-    created_at
-FROM friend_requests 
-WHERE from_user = ?
+    fr.id,
+    fr.to_user,
+    ui.user_nickname,
+    ui.user_avatar,
+    fr.status,
+    fr.created_at
+FROM friend_requests fr
+JOIN user_info ui ON ui.user_id = fr.to_user
+WHERE fr.from_user = ? AND fr.status = 'pending'
 ORDER BY created_at DESC
 LIMIT ? OFFSET ?;
+
 
 -- name: GetFriendRequestUserReceive :many
 SELECT
