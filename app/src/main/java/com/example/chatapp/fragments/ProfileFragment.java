@@ -179,6 +179,9 @@ public class ProfileFragment extends BaseNetworkFragment {
         binding.genderDetail.setText(userDetail.getGender());
         binding.birthdayDetail.setText(userDetail.getBirthday());
 
+        Log.d(TAG, "Update avatar path: " + viewModel.getUserAvatarPath());
+        Log.d(TAG, "Update avatar url: " + viewModel.getUserAvatarUrl());
+
         ImageService.loadAndCacheImage(
                 this,
                 binding.avatarImage,

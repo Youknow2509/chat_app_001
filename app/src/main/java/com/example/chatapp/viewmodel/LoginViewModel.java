@@ -76,7 +76,7 @@ public class LoginViewModel extends AndroidViewModel {
                 // Kiểm tra pathFile
                 if (pathFile != null && !pathFile.isEmpty()) {
                     Log.e(TAG, "Path avatar: " + pathFile);
-                    resPathFileAvatar.postValue(pathFile);
+                    resPathFileAvatar.setValue(pathFile);
                 } else {
                     Log.e(TAG, "Avatar path is empty");
                     errorMessageLiveData.postValue("Error: Empty path");
@@ -130,7 +130,7 @@ public class LoginViewModel extends AndroidViewModel {
                     // Set the token on user object
                     user.setFbToken(token);
                     // Update LiveData with the user that now has a token
-                    userProfileLiveData.postValue(user);
+                    userProfileLiveData.setValue(user);
 
                     UserFbToken userFbToken = new UserFbToken(user.getId(), token, "on", true);
                     apiManager.sendToken(userFbToken, new Callback<ResponseData<Object>>() {
