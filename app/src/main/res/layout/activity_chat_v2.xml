@@ -128,10 +128,10 @@
 
         <LinearLayout
             android:id="@+id/messageInputLayout"
-            android:layout_width="327dp"
-            android:background="@drawable/bg_input_box"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:background="@drawable/bg_input_box">
 
             <FrameLayout
                 android:layout_width="0dp"
@@ -140,13 +140,14 @@
 
                 <EditText
                     android:id="@+id/messageEditText"
-                    android:layout_width="match_parent"
+                    android:layout_width="235dp"
                     android:layout_height="48dp"
+                    android:layout_weight="1"
                     android:background="@null"
                     android:hint="Type a message ..."
+                    android:inputType="text"
                     android:paddingStart="12dp"
                     android:paddingEnd="40dp"
-                    android:inputType="text"
                     android:textColor="#000000"
                     android:textColorHint="#999999" />
 
@@ -182,9 +183,9 @@
                 android:id="@+id/attachIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginEnd="@dimen/_15sdp"
                 android:layout_gravity="center"
                 android:layout_marginStart="10dp"
+                android:layout_marginEnd="@dimen/_15sdp"
                 android:src="@drawable/paperclip_2"
                 app:tint="#999999" />
         </LinearLayout>

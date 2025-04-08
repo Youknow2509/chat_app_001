@@ -1,11 +1,15 @@
 package com.example.chatapp.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.example.chatapp.activities.HomeActivity;
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.ChatMessage;
 import com.example.chatapp.models.WebRTCMessage;
@@ -13,6 +17,7 @@ import com.example.chatapp.models.sqlite.Message;
 import com.example.chatapp.observers.MessageObservable;
 import com.example.chatapp.observers.SignalingObserver;
 import com.example.chatapp.repository.ChatRepo;
+import com.example.chatapp.service.CallNotificationService;
 import com.example.chatapp.utils.session.SessionManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,11 +28,13 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Date;
 
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.webrtc.ApplicationContextProvider;
 import org.webrtc.IceCandidate;
 
 import java.util.ArrayList;
@@ -37,6 +44,7 @@ import java.util.function.Consumer;
 import io.reactivex.disposables.Disposable;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.StompCommand;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
@@ -59,6 +67,7 @@ public class StompClientManager {
     private ChatRepo chatRepo;
     private Context context;
     private List<String> topics = new ArrayList<>();
+    private SignalingObserver signalingObserver;
 
     private StompClientManager() {
         // Initialize your StompClient here
@@ -80,6 +89,7 @@ public class StompClientManager {
 
     public void setSessionManager(SessionManager sessionManager, Context context) {
         this.sessionManager = sessionManager;
+        this.context = context;
         this.chatRepo = new ChatRepo(context);
         initStompClient();
     }
@@ -124,6 +134,12 @@ public class StompClientManager {
     public void reconnect() {
         reconnectAttempts = 0;
         scheduleReconnect();
+    }
+
+    public void unsubscribeTopic(String topic) {
+        mStompClient.send(new StompMessage(StompCommand.UNSUBSCRIBE,
+                        Collections.singletonList(new StompHeader(StompHeader.ID, topic)), null).compile())
+                .subscribe();
     }
 
     private void scheduleReconnect() {
@@ -222,80 +238,100 @@ public class StompClientManager {
         });
     }
 
-    public void sendCallOffer(WebRTCMessage webRTCMessage) {
+    public void sendCallOffer(WebRTCMessage message) {
         if (mStompClient != null && isConnected) {
-            JSONObject callSignal = new JSONObject();
-            try {
-                callSignal.put("type", "offer");
-                callSignal.put("payload", webRTCMessage.getPayload());
-                callSignal.put("chatId", webRTCMessage.getChatId());
-                callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
+            message.setSenderId(sessionManager.getUserId());
+            String jsonString = gson.toJson(message);
 
-                mStompClient.send("/app/call/offer", callSignal.toString()).subscribe(() -> {
-                    Log.d(TAG, "Call offer sent successfully");
-                }, throwable -> {
-                    Log.e(TAG, "Error sending call offer", throwable);
-                });
-            } catch (JSONException e) {
-                Log.e(TAG, "Error creating call offer JSON", e);
-            }
+            mStompClient.send("/app/call/offer", jsonString).subscribe(() -> {
+                Log.d(TAG, "Call offer sent successfully");
+            }, throwable -> {
+                Log.e(TAG, "Error sending call offer", throwable);
+            });
+
         }
     }
 
-    public void sendCallAnswer(WebRTCMessage webRTCMessage) {
+    public void sendCallAnswer(WebRTCMessage message) {
         if (mStompClient != null && isConnected) {
-            JSONObject callSignal = new JSONObject();
-            try {
-                callSignal.put("type", "answer");
-                callSignal.put("payload", webRTCMessage.getPayload());
-                callSignal.put("chatId", webRTCMessage.getChatId());
-                callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
+            message.setSenderId(sessionManager.getUserId());
+            String jsonString = gson.toJson(message);
+            mStompClient.send("/app/call/answer", jsonString).subscribe(() -> {
+                Log.d(TAG, "Call answer sent successfully");
+            }, throwable -> {
+                Log.e(TAG, "Error sending call answer", throwable);
+            });
 
-                mStompClient.send("/app/call/answer", callSignal.toString()).subscribe(() -> {
-                    Log.d(TAG, "Call answer sent successfully");
-                }, throwable -> {
-                    Log.e(TAG, "Error sending call answer", throwable);
-                });
-            } catch (JSONException e) {
-                Log.e(TAG, "Error creating call answer JSON", e);
-            }
         }
+    }
+
+    public void subscribeToCallChannel(String userId) {
+        Log.i(TAG, "subscribeToCallChannel: ");
+        mStompClient.topic("/topic/call/" + userId).subscribe(topicMessage -> {
+            WebRTCMessage message = gson.fromJson(topicMessage.getPayload(), WebRTCMessage.class);
+
+            if (message.getSenderId().equals(sessionManager.getUserId()))
+                return;
+
+            if (message.getType().equals("offer")) {
+                // Get caller info from the message or your database
+                String callerName = (message.getSenderId()); // Implement this method
+                boolean isVideoCall = false; // Implement this method
+
+                // Start the notification service
+                Intent serviceIntent = new Intent(context, CallNotificationService.class);
+                serviceIntent.putExtra("callerName", callerName);
+                serviceIntent.putExtra("chatId", message.getChatId());
+                serviceIntent.putExtra("senderId", message.getSenderId());
+                serviceIntent.putExtra("isVideoCall", isVideoCall);
+                serviceIntent.putExtra("payload", message.getPayload());
+
+//                 Add foreground service type for Android 10+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    serviceIntent.putExtra("foregroundServiceType",
+                            android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL);
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(serviceIntent);
+                } else {
+                    context.startService(serviceIntent);
+                }
+            }
+
+            // Process other message types normally
+            if (signalingObserver != null) {
+                signalingObserver.onSignalingEvent(message);
+            }
+        });
     }
 
     public void setOnSignalingEventListener(SignalingObserver listener) {
-
+        this.signalingObserver = listener;
         mStompClient.topic("/topic/call/" + sessionManager.getUserId()).subscribe(topicMessage -> {
-            Log.d(TAG, "Received signaling message: " + topicMessage.getPayload());
             WebRTCMessage webRTCMessage = gson.fromJson(topicMessage.getPayload(), WebRTCMessage.class);
-            listener.onSignalingEvent(webRTCMessage);
+            if (!webRTCMessage.getSenderId().equals(sessionManager.getUserId())) {
+                Log.i(TAG, "setOnSignalingEventListener: Receiv signal " + webRTCMessage.getType() + " from " + webRTCMessage.getSenderId());
+                listener.onSignalingEvent(webRTCMessage);
+            }
+
         }, throwable -> {
             Log.e(TAG, "Error on subscribe signaling topic", throwable);
         });
 
     }
 
-    public void sendIceCandidate(String receiverId, IceCandidate candidate) {
+    public void sendIceCandidate(WebRTCMessage message) {
         if (mStompClient != null && isConnected) {
-            JSONObject callSignal = new JSONObject();
-            try {
-                JSONObject candidateJson = new JSONObject();
-                candidateJson.put("sdpMid", candidate.sdpMid);
-                candidateJson.put("sdpMLineIndex", candidate.sdpMLineIndex);
-                candidateJson.put("sdp", candidate.sdp);
+            message.setSenderId(sessionManager.getUserId());
+            String jsonString = gson.toJson(message);
+            Log.i(TAG, "sendIceCandidate: chatId: " + message.getChatId() + " senderId: " + message.getSenderId());
+            mStompClient.send("/app/call/candidate", jsonString).subscribe(() -> {
+                Log.d(TAG, "ICE candidate sent successfully");
+            }, throwable -> {
+                Log.e(TAG, "Error sending ICE candidate", throwable);
+            });
 
-                callSignal.put("type", "ice_candidate");
-                callSignal.put("candidate", candidateJson);
-                callSignal.put("receiverId", receiverId);
-                callSignal.put("senderId", "YOUR_USER_ID"); // Replace with actual user ID
-
-                mStompClient.send("/app/call/candidate", callSignal.toString()).subscribe(() -> {
-                    Log.d(TAG, "ICE candidate sent successfully");
-                }, throwable -> {
-                    Log.e(TAG, "Error sending ICE candidate", throwable);
-                });
-            } catch (JSONException e) {
-                Log.e(TAG, "Error creating ICE candidate JSON", e);
-            }
         }
     }
 

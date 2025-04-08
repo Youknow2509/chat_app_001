@@ -20,6 +20,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
@@ -150,7 +152,16 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync"/>
-
+        <service android:name=".service.CallNotificationService"
+            android:foregroundServiceType="phoneCall"
+            tools:ignore="ForegroundServicePermission" />
+        <activity
+            android:name=".activities.IncomingCallActivity"
+            android:launchMode="singleTask"
+            android:showOnLockScreen="true"
+            android:excludeFromRecents="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
         <!-- TokenReceiver -->
         <receiver
             android:name=".receivers.TokenReceiver"

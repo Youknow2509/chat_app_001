@@ -165,8 +165,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     }
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -429,9 +427,11 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     private void VoiceCall() {
         Intent intent = new Intent(getApplicationContext(), CallOrVideoCallActivity.class);
         intent.putExtra(KEY_TYPE_CALL, "voice");
+        intent.putExtra("senderId", sessionManager.getUserId());
+        intent.putExtra("chatId", conversionId);
         intent.putExtra(KEY_USER_ID, receiverUser.id);
         intent.putExtra(KEY_USER_NAME, receiverUser.name);
-        startActivity(intent);
+        startActivityForResult(intent,100);
 
     }
 

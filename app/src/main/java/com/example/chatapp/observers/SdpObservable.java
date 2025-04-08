@@ -1,26 +1,29 @@
 package com.example.chatapp.observers;
 
+import android.util.Log;
+
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 
 public class SdpObservable implements SdpObserver {
+    private static final String TAG = "SdpObservable";
     @Override
     public void onCreateSuccess(SessionDescription sessionDescription) {
-        System.out.println("onCreateSuccess: " + sessionDescription.description);
+        Log.i(TAG, "onCreateSuccess: ");
     }
 
     @Override
     public void onSetSuccess() {
-        System.out.println("onSetSuccess");
+        Log.i(TAG, "onSetSuccess: ");
     }
 
     @Override
     public void onCreateFailure(String s) {
-        System.out.println("onCreateFailure: " + s);
+        Log.e(TAG, "ERR: onCreateFailure: "+ s);
     }
 
     @Override
     public void onSetFailure(String s) {
-        System.out.println("onSetFailure: " + s);
+        Log.e(TAG, "ERR: onSetFailure: "+ s);
     }
 }

@@ -39,8 +39,8 @@ public class WebRTCManager {
     private VideoTrack localVideoTrack;
     private AudioTrack localAudioTrack;
     private CameraVideoCapturer videoCapturer;
-    private boolean isVideoEnabled = true;
-    private boolean isAudioEnabled = true;
+    private boolean isVideoEnabled;
+    private boolean isAudioEnabled;
 
     private static WebRTCManager instance;
 
@@ -117,44 +117,49 @@ public class WebRTCManager {
         return null;
     }
 
-    public void startLocalMediaStream(Context context, SurfaceViewRenderer localVideoView) {
-        // Configure local video view
-        localVideoView.init(eglBase.getEglBaseContext(), null);
-        localVideoView.setEnableHardwareScaler(true);
-        localVideoView.setMirror(true);
-
-        // Create audio source
-        MediaConstraints audioConstraints = new MediaConstraints();
-        AudioSource audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-        localAudioTrack = peerConnectionFactory.createAudioTrack("ARDAMSa0", audioSource);
-        localAudioTrack.setEnabled(isAudioEnabled);
+    public void startLocalMediaStream(Context context, SurfaceViewRenderer localVideoView, boolean isAudioEnabled, boolean isVideoEnabled) {
+        this.isAudioEnabled = isAudioEnabled;
+        this.isVideoEnabled = isVideoEnabled;
+        mediaStream = peerConnectionFactory.createLocalMediaStream("ARDAMS");
+        if(isAudioEnabled){
+            // Create audio source
+            MediaConstraints audioConstraints = new MediaConstraints();
+            AudioSource audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
+            localAudioTrack = peerConnectionFactory.createAudioTrack("ARDAMSa0", audioSource);
+            localAudioTrack.setEnabled(isAudioEnabled);
+            mediaStream.addTrack(localAudioTrack);
+        }
 
         // Create video source and track
-        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBase.getEglBaseContext());
-        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-        videoCapturer.initialize(surfaceTextureHelper, context, videoSource.getCapturerObserver());
-        videoCapturer.startCapture(1280, 720, 30);  // Width, height, fps
+        if(isVideoEnabled){
+            // Configure local video view
+            localVideoView.init(eglBase.getEglBaseContext(), null);
+            localVideoView.setEnableHardwareScaler(true);
+            localVideoView.setMirror(true);
+            SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBase.getEglBaseContext());
+            VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
+            videoCapturer.initialize(surfaceTextureHelper, context, videoSource.getCapturerObserver());
+            videoCapturer.startCapture(1280, 720, 30);  // Width, height, fps
 
-        localVideoTrack = peerConnectionFactory.createVideoTrack("ARDAMSv0", videoSource);
-        localVideoTrack.setEnabled(isVideoEnabled);
-        localVideoTrack.addSink(localVideoView);
+            localVideoTrack = peerConnectionFactory.createVideoTrack("ARDAMSv0", videoSource);
+            localVideoTrack.setEnabled(isVideoEnabled);
+            localVideoTrack.addSink(localVideoView);
+
+            mediaStream.addTrack(localVideoTrack);
+        }
 
         // Create media stream
-        mediaStream = peerConnectionFactory.createLocalMediaStream("ARDAMS");
-        mediaStream.addTrack(localVideoTrack);
-        mediaStream.addTrack(localAudioTrack);
+
+
+
     }
 
     public PeerConnection createPeerConnection(PeerConnection.Observer observer) {
         List<PeerConnection.IceServer> iceServers = new ArrayList<>();
-        // Add STUN and TURN servers
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
 
-        // Add your TURN servers here if needed for NAT traversal
-        // iceServers.add(PeerConnection.IceServer.builder("turn:your-turn-server.com")
-        //        .setUsername("username")
-        //        .setPassword("password")
-        //        .createIceServer());
+//        iceServers.add(PeerConnection.IceServer.builder("khanhdew.ddns.net:3478")
+//                .createIceServer());
 
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(iceServers);
         rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN;
@@ -162,14 +167,27 @@ public class WebRTCManager {
         peerConnection = peerConnectionFactory.createPeerConnection(rtcConfig, observer);
 
         if (peerConnection != null) {
-            peerConnection.addStream(mediaStream);
+            // Create audio source and track if it's not initialized
+            if (localAudioTrack == null) {
+                MediaConstraints audioConstraints = new MediaConstraints();
+                AudioSource audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
+                localAudioTrack = peerConnectionFactory.createAudioTrack("ARDAMSa0", audioSource);
+                localAudioTrack.setEnabled(isAudioEnabled);
+            }
+
+            if (localVideoTrack != null) {
+                peerConnection.addTrack(localVideoTrack);
+            }
+            peerConnection.addTrack(localAudioTrack);
         }
 
         return peerConnection;
     }
 
     public void createOffer(MediaConstraints constraints, SdpObserver observer) {
+        Log.i(TAG, "createOffer: " + constraints);
         if (peerConnection != null) {
+            Log.i(TAG, "createOffer: " + peerConnection);
             peerConnection.createOffer(observer, constraints);
         }
     }

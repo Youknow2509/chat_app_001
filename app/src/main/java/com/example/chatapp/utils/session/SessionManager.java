@@ -52,7 +52,7 @@ public class SessionManager {
     private SharedPreferences userPreferences; // Không mã hóa cho thông tin profile
     private SharedPreferences.Editor userEditor;
 
-    private Context context;
+    private final Context context;
 
     private volatile static SessionManager instance;
 
@@ -90,6 +90,10 @@ public class SessionManager {
             throw new IllegalStateException("SessionManager is not initialized, call initialize() method first.");
         }
         return instance;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     public void saveFBToken(String fbToken) {

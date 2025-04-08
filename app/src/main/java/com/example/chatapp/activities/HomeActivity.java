@@ -10,10 +10,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.content.BroadcastReceiver;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
@@ -56,6 +58,10 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
     private NetworkMonitor networkMonitor;
     private View networkStatusView;
     private Gson gson = new Gson();
+
+    private AlertDialog incomingCallDialog;
+    private SessionDescription incomingOffer;
+    private WebRTCMessage incomingCallMessage;
 
     // Khai báo BroadcastReceiver
     private BroadcastReceiver callStateReceiver = new BroadcastReceiver() {
@@ -109,51 +115,106 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
                 .build();
         NavigationUI.setupWithNavController(binding.navView, navController);
         stompClientManager.subscribeTopic(sessionManager.getUserId());
-        stompClientManager.setOnSignalingEventListener(new SignalingObserver() {
-            @Override
-            public void onOfferReceived(SessionDescription offer) {
-                Log.i(TAG, "onOfferReceived: " + offer.description);
-                // redirect to call activity
-                Intent intent = new Intent(HomeActivity.this, CallOrVideoCallActivity.class);
-
-                intent.putExtra("CALL_TYPE", "video");
-                intent.putExtra("CALLER_NAME", sessionManager.getUserName());
-                intent.putExtra("CALLER_ID", sessionManager.getUserId());
-
-                intent.putExtra("OFFER", offer.description);
-
-                startActivity(intent);
-            }
-
-            @Override
-            public void onAnswerReceived(SessionDescription answer) {
-
-            }
-
-            @Override
-            public void onIceCandidateReceived(IceCandidate iceCandidate) {
-
-            }
-
-            @Override
-            public void onSignalingEvent(WebRTCMessage message) {
-                if (message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
-                    // parse message payload to SessionDescription
-                    SessionDescription offer = gson.fromJson(message.getPayload(), SessionDescription.class);
-                    onOfferReceived(offer);
-                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.ANSWER.getType())) {
-                    // parse message payload to SessionDescription
-                    SessionDescription answer = gson.fromJson(message.getPayload(), SessionDescription.class);
-                    onAnswerReceived(answer);
-                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.CANDIDATE.getType())) {
-                    // parse message payload to IceCandidate
-                    IceCandidate iceCandidate = gson.fromJson(message.getPayload(), IceCandidate.class);
-                    onIceCandidateReceived(iceCandidate);
-                }
-            }
-        });
+//        stompClientManager.setOnSignalingEventListener(new SignalingObserver() {
+//            @Override
+//            public void onOfferReceived(SessionDescription offer) {
+//                Log.i(TAG, "onOfferReceived: ");
+//                incomingOffer = offer;
+//                showIncomingCallDialog(incomingCallMessage);
+//            }
+//
+//            @Override
+//            public void onAnswerReceived(SessionDescription answer) {
+//
+//            }
+//
+//            @Override
+//            public void onIceCandidateReceived(IceCandidate iceCandidate) {
+//
+//            }
+//
+//            @Override
+//            public void onSignalingEvent(WebRTCMessage message) {
+//                if (message.getType().equals(WebRTCMessage.Type.OFFER.getType())) {
+//                    // parse message payload to SessionDescription
+//                    SessionDescription offer = gson.fromJson(message.getPayload(), SessionDescription.class);
+//                    incomingCallMessage = message;
+//                    onOfferReceived(offer);
+//                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.ANSWER.getType())) {
+//                    // parse message payload to SessionDescription
+//                    SessionDescription answer = gson.fromJson(message.getPayload(), SessionDescription.class);
+//                    onAnswerReceived(answer);
+//                } else if (Objects.equals(message.getType(), WebRTCMessage.Type.CANDIDATE.getType())) {
+//                    // parse message payload to IceCandidate
+//                    IceCandidate iceCandidate = gson.fromJson(message.getPayload(), IceCandidate.class);
+//                    onIceCandidateReceived(iceCandidate);
+//                }
+//            }
+//        });
+        stompClientManager.subscribeToCallChannel(sessionManager.getUserId());
         requestCameraPermission();
 
+    }
+
+    private void showIncomingCallDialog(WebRTCMessage message) {
+        runOnUiThread(() -> {
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_incoming_call, null);
+            TextView tvCallerName = dialogView.findViewById(R.id.tvCallerName);
+            TextView tvCallType = dialogView.findViewById(R.id.tvCallType);
+            Button btnAccept = dialogView.findViewById(R.id.btnAccept);
+            Button btnReject = dialogView.findViewById(R.id.btnReject);
+
+            // Get caller name from message or database
+            String callerName = message.getSenderId(); // Replace with actual caller name from your database
+
+            // Determine call type from message
+            boolean isVideoCall = true; // Replace with actual logic to determine call type
+
+            tvCallerName.setText(callerName);
+            tvCallType.setText(isVideoCall ? "Video Call" : "Voice Call");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(dialogView);
+            builder.setCancelable(false);
+
+            incomingCallDialog = builder.create();
+
+            // Play ringtone
+            // Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
+            // r.play();
+
+            btnAccept.setOnClickListener(v -> {
+                // r.stop();
+                incomingCallDialog.dismiss();
+                acceptCall(message);
+            });
+
+            btnReject.setOnClickListener(v -> {
+                // r.stop();
+                incomingCallDialog.dismiss();
+                rejectCall(message);
+            });
+
+//            incomingCallDialog.show();
+        });
+    }
+
+    private void acceptCall(WebRTCMessage message) {
+        Intent intent = new Intent(HomeActivity.this, CallOrVideoCallActivity.class);
+        intent.putExtra("chatId", message.getChatId());
+        intent.putExtra("senderId", message.getSenderId());
+        intent.putExtra(Constants.KEY_TYPE_CALL, "video"); // Set based on actual call type
+        intent.putExtra("INCOMING_CALL", true);
+        startActivity(intent);
+    }
+
+    private void rejectCall(WebRTCMessage message) {
+        // Send rejection message to caller
+        WebRTCMessage rejectMessage = new WebRTCMessage();
+        rejectMessage.setSenderId(sessionManager.getUserId());
+        rejectMessage.setChatId(message.getChatId());
+        rejectMessage.setType("reject");
+//        stompClientManager.sendCallReject(rejectMessage);
     }
 
     /**
@@ -241,5 +302,7 @@ public class HomeActivity extends AppCompatActivity implements NetworkMonitor.Ne
             networkStatusView.setVisibility(View.VISIBLE);
         }
     }
+
+
 
 }
