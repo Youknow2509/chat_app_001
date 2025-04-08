@@ -78,6 +78,8 @@ public class ChatFragment extends Fragment {
         viewModel.chatList.observe(getViewLifecycleOwner(), chatList -> {
             if (chatList != null) {
                 updateChatList(chatList);
+                binding.chatRecyclerView.setAdapter(chatListAdapter);
+                chatListAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -176,78 +178,6 @@ public class ChatFragment extends Fragment {
 
 
         return chatListItems;
-    }
-
-    private Bitmap getImageBitmap(int resourceId) {
-        return BitmapFactory.decodeResource(getResources(), resourceId);
-    }
-
-
-    private void getUsersFromApi() {
-        // Demo du lieu chat
-
-//        users.add(new User("1", "Alex Linderson", "alex.linderson@example.com", getImageBitmap(R.drawable.user)));
-//        chatListItems = getChatListItems();
-//        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
-//            @Override
-//            public void onUserClick(User user) {
-//                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
-//                intent.putExtra(Constants.KEY_USER, user);
-//                startActivity(intent);
-//            }
-//        });
-
-
-        // Gọi API để lấy danh sách chat
-
-        apiManager.getListChatPrivateForUser(sessionManager.getAccessToken(), 10, 1, new Callback<ResponseData<Object>>() {
-            @Override
-            public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ResponseData<Object> responseData = response.body();
-                    if (responseData.getCode() == 20001 && "success".equals(responseData.getMessage())) {
-                        // Parse chat data
-                        chatDTOList = new ArrayList<>();
-                        Gson gson = new Gson();
-                        JsonElement jsonElement = JsonParser.parseString(gson.toJson(responseData.getData()));
-                        JsonArray jsonArray = jsonElement.getAsJsonArray();
-
-                        if (jsonArray != null && jsonArray.size() > 0) {
-                            Type listType = new TypeToken<List<ChatDTO>>() {}.getType();
-                            chatDTOList = gson.fromJson(jsonArray, listType);
-                        }
-
-                        // Update UI with chat data
-                        chatListItems = getChatListItems();
-
-                        // Cập nhật adapter hiện tại thay vì tạo mới
-                        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
-                            @Override
-                            public void onUserClick(ChatDTO chatDTO) {
-                                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
-                                intent.putExtra(Constants.KEY_CHAT, chatDTO);
-                                startActivity(intent);
-                            }
-                        });
-                        binding.chatRecyclerView.setAdapter(chatListAdapter);
-                        chatListAdapter.notifyDataSetChanged();
-
-                        // Log để kiểm tra
-                        Log.d("ChatFragment", "Loaded " + chatListItems.size() + " chat items");
-                    } else {
-                        Log.d("ChatFragment", "Error: " + responseData.getMessage());
-                    }
-                } else {
-                    Log.d("ChatFragment", "Request failed: " + response.message());
-                }
-            }
-
-
-            @Override
-            public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-                Log.d("ChatFragment", "Request failed: " + t.getMessage());
-            }
-        });
     }
 
 }

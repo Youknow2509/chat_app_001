@@ -113,6 +113,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private Uri currentMediaUri;
     private String currentMediaType = "image";
+    private String urlIntoCloud;
 
     private CloudinaryManager cloudinaryManager;
     private File tempPhotoFile;
@@ -237,20 +238,48 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                 result -> {
                 if (result != null) {
                     // Upload media to Cloudinary
-                    currentMediaUri = Uri.parse(result);
                     Log.d(TAG, "Media URL: " + currentMediaUri);
+                    sendImageToServer(result);
+
+            }
+        });
+
+        sendMediaViewModel.getImageNewFile().observe(this, file -> {
+            if (file != null) {
+                ChatMessage chatMessage = new ChatMessage();
+                chatMessage.setSenderId(sessionManager.getUserId());
+                chatMessage.setContent(file.getAbsolutePath());
+                Date currentDate = new Date();
+                // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
+                String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
+                chatMessage.setDateTime(formattedDate);
+
+                chatMessage.setReceiverId(receiverUser.id);
+                chatMessages.add(chatMessage);
+                Log.d(TAG, "Saved media file: " + savedMediaFile.getAbsolutePath());
+            } else {
+                showToast("Error saving media file");
             }
         });
 
     }
 
-    /**
-     * Handle saving image
-     */
-    private void saveImageToDeviceAndUpload(View v) {
-        if (binding != null) {
-            sendMediaViewModel.saveMediaToInternalStorageAndUpload(currentMediaUri, currentMediaType);
-        }
+    private void sendImageToServer(String url) {
+        urlIntoCloud = url;
+        MediaMessageDTO mediaMessageDTO = new MediaMessageDTO("", conversionId, "image", url);
+        Gson gson = new Gson();
+        String messageJson = gson.toJson(mediaMessageDTO);
+        stompClientManager.sendMessage(messageJson, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) {
+                if (throwable != null) {
+                    showToast("Error sending message");
+                } else {
+                    Log.d(TAG, "Image sent successfully");
+                }
+            }
+        });
+
     }
 
     private void showMentionSuggestions() {
@@ -382,34 +411,9 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
             chatMessages.add(chatMessage);
         }
         else if(type_message.equals("image")){
-            savedMediaFile = new File(currentMediaUri.getPath());
-            MediaMessageDTO mediaMessageDTO = new MediaMessageDTO("", conversionId, "image", currentMediaUri.toString());
-            Gson gson = new Gson();
-            String messageJson = gson.toJson(mediaMessageDTO);
-            stompClientManager.sendMessage(messageJson, new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable throwable) {
-                    if (throwable != null) {
-                        showToast("Error sending message");
-                    } else {
-                        Log.d(TAG, "Message sent successfully");
-                    }
-                }
-            });
+            sendMediaViewModel.saveMediaToInternalStorageAndUpload(currentMediaUri, currentMediaType);
 
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setSenderId(sessionManager.getUserId());
-            chatMessage.setContent(currentMediaUri.toString());
-            Date currentDate = new Date();
-            // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
-            String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
-            chatMessage.setDateTime(formattedDate);
-            chatMessage.setReceiverId(receiverUser.id);
-
-            chatMessages.add(chatMessage);
         }
-
-
 
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
         binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
@@ -517,7 +521,8 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                 receiverUser.image,
                 preferenceManager.getString(Constants.KEY_USER_ID),
                 false,
-                sessionManager
+                sessionManager,
+                type_message
         );
 
         dataSync.init(new ApiManager(this), chatRepo, sessionManager);

@@ -3,9 +3,12 @@ package com.example.chatapp.adapters;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 import com.example.chatapp.databinding.ItemMessageIncomingBinding;
 import com.example.chatapp.databinding.ItemMessageIncomingWithAvatarBinding;
 import com.example.chatapp.databinding.ItemMessageOutgoingBinding;
@@ -20,6 +23,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Bitmap receiverProfileImage;
     private final String senderId;
     private final boolean isGroupChat;
+    private final String typeMessage;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
@@ -27,12 +31,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private SessionManager sessionManager;
 
-    public ChatAdapter(List<ChatMessage> chatMessages, Bitmap receiverProfileImage, String senderId, boolean isGroupChat, SessionManager sessionManager) {
+    public ChatAdapter(List<ChatMessage> chatMessages, Bitmap receiverProfileImage, String senderId, boolean isGroupChat, SessionManager sessionManager, String typeMessage) {
         this.sessionManager = sessionManager;
         this.chatMessages = chatMessages;
         this.receiverProfileImage = receiverProfileImage;
         this.senderId = senderId;
         this.isGroupChat = isGroupChat;
+        this.typeMessage = typeMessage;
     }
 
     @Override
@@ -76,10 +81,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = chatMessages.get(position);
+        String typeMessage = message.getMessageType();
         int viewType = getItemViewType(position);
 
         if (holder instanceof SentMessageViewHolder && viewType == VIEW_TYPE_SENT) {
-            ((SentMessageViewHolder) holder).setData(message);
+            ((SentMessageViewHolder) holder).setData(message, typeMessage);
         } else if (holder instanceof GroupMessageViewHolder && viewType == VIEW_TYPE_GROUP_RECEIVED) {
             ((GroupMessageViewHolder) holder).setData(message, receiverProfileImage);
         } else if (holder instanceof ReceiverMessageViewHolder && viewType == VIEW_TYPE_RECEIVED) {
@@ -101,9 +107,22 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             binding = itemContainerSentMessageBinding;
         }
 
-        void setData(ChatMessage chatMessage) {
-            binding.textMessage.setText(chatMessage.getContent());
-            binding.textTime.setText(chatMessage.getDateTime());
+        void setData(ChatMessage chatMessage, String isImageMessage) {
+            if("image".equals(isImageMessage)){
+                Log.d("Test123",isImageMessage);
+                binding.textTime.setText(chatMessage.getDateTime());
+                binding.imageMessage.setVisibility(View.VISIBLE);
+                binding.textMessage.setVisibility(View.GONE);
+                Glide.with(binding.imageMessage.getContext())
+                        .load(chatMessage.getContent())
+                        .into(binding.imageMessage);
+            } else {
+                binding.imageMessage.setVisibility(View.GONE);
+                binding.textMessage.setVisibility(View.VISIBLE);
+                binding.textMessage.setText(chatMessage.getContent());
+                binding.textTime.setText(chatMessage.getDateTime());
+            }
+
         }
     }
 

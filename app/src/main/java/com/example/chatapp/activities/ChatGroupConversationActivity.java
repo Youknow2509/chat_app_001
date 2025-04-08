@@ -52,6 +52,7 @@ public class ChatGroupConversationActivity extends BaseNetworkActivity implement
     private PreferenceManager preferenceManager;
     private String id_client_test = "0";
     private SessionManager sessionManager;
+    private String typeMessage = "text";
 
 
     @Override
@@ -177,7 +178,8 @@ public class ChatGroupConversationActivity extends BaseNetworkActivity implement
                 receiverGroup.image,
                 preferenceManager.getString(Constants.KEY_GROUP_ID),
                 isGroupChat,
-                sessionManager
+                sessionManager,
+                typeMessage
         );
         binding.chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.chatRecyclerView.setAdapter(chatAdapter);

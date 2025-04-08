@@ -53,13 +53,13 @@ public class ChatViewModel extends ViewModel {
             @Override
             public void onResponse(Call<ResponseData<Object>> call, Response<ResponseData<Object>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    _chatList.postValue(processResponse(response.body()));
+                    _chatList.setValue(processResponse(response.body()));
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
-                _chatList.postValue(null);
+                _chatList.setValue(null);
             }
         });
     }
