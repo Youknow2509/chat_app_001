@@ -50,7 +50,7 @@ public abstract class BaseNetworkActivity extends AppCompatActivity implements N
     @Override
     public void onNetworkStateChanged(boolean isAvailable) {
         if (isAvailable) {
-            showSnackbar("Mạng đã được kết nối");
+            // showSnackbar("Mạng đã được kết nối");
             onNetworkAvailable();
         } else {
             onNetworkUnavailable();
@@ -61,7 +61,7 @@ public abstract class BaseNetworkActivity extends AppCompatActivity implements N
      * Được gọi khi mạng khả dụng - để các lớp con override nếu cần
      */
     protected void onNetworkAvailable() {
-        Log.d("BaseNetworkActivity", "onNetworkAvailable");
+//        Log.d("BaseNetworkActivity", "onNetworkAvailable");
         // Lớp con có thể override để thực hiện các hành động cụ thể
     }
 

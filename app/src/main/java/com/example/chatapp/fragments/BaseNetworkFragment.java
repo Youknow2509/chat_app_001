@@ -41,7 +41,7 @@ public abstract class BaseNetworkFragment extends Fragment implements NetworkMon
     @Override
     public void onNetworkStateChanged(boolean isAvailable) {
         if (isAvailable) {
-            showSnackbar("Mạng đã được kết nối");
+//            showSnackbar("Mạng đã được kết nối");
             onNetworkAvailable();
         } else {
             onNetworkUnavailable();

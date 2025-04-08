@@ -130,16 +130,27 @@ public class TokenRefreshService extends Service implements NetworkMonitor.Netwo
     public void onDestroy() {
         Log.d(TAG, "TokenRefreshService destroyed");
 
-        // Dừng kiểm tra token
-        stopTokenChecking();
+        try {
+            // 1. Dừng các tác vụ đang chạy trước
+            stopTokenChecking();
 
-        // Hủy đăng ký lắng nghe mạng
-        networkMonitor.removeListener(this);
+            // 2. Hủy đăng ký listener TRƯỚC KHI unregister NetworkMonitor
+            if (networkMonitor != null) {
+                try {
+                    networkMonitor.removeListener(this);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error removing network listener", e);
+                }
+            }
 
-        // Giải phóng WakeLock nếu đang giữ
-        releaseWakeLock();
-
-        super.onDestroy();
+            // 3. Giải phóng WakeLock
+            releaseWakeLock();
+        } catch (Exception e) {
+            Log.e(TAG, "Error during service destruction", e);
+        } finally {
+            // Luôn gọi super.onDestroy() trong finally để đảm bảo nó được thực thi
+            super.onDestroy();
+        }
     }
 
     @Override
@@ -238,6 +249,8 @@ public class TokenRefreshService extends Service implements NetworkMonitor.Netwo
         }
 
         Log.d(TAG, "Starting token refresh");
+        Log.d(TAG, "Access token after refresh: " + accessToken);
+        Log.d(TAG, "Refresh token after refresh: " + refreshToken);
 
         // Gọi API refresh token
         apiManager.refreshToken(accessToken, refreshToken, new Callback<ResponseData<Object>>() {
@@ -258,7 +271,8 @@ public class TokenRefreshService extends Service implements NetworkMonitor.Netwo
                             sessionManager.updateTokens(newAccessToken, newRefreshToken);
 
                             Log.d(TAG, "Token refreshed successfully");
-
+                            Log.d(TAG, "Access token after refresh: " + newAccessToken);
+                            Log.d(TAG, "Refresh token after refresh: " + newRefreshToken);
                             // Thông báo token đã được refresh
                             broadcastTokenRefreshed();
                         } catch (Exception e) {

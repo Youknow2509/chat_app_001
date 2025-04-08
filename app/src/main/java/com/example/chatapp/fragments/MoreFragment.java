@@ -141,5 +141,22 @@ public class MoreFragment extends Fragment {
             Intent intent = new Intent(getContext(), StorageManagerActivity.class);
             startActivity(intent);
         });
+
+        // refresh token
+        binding.refreshTokenLayout.setOnClickListener(this::handleRefreshToken);
+    }
+
+    /**
+     * Refresh token
+     * Call worker service to refresh token
+     */
+    private void handleRefreshToken(View v){
+//        sessionManager.saveAuthData(
+//                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDI3MzAwODYsImp0aSI6ImJiMzI0MjYxLTg4NTMtNGI3Yy04ZDFhLWQwOTE1M2RiY2QxOCIsImlhdCI6MTc0MjcwMTI4NiwiaXNzIjoiZ28tZWNvbW1lcmNlIiwic3ViIjoiYjE1YWE1MjMtN2UyMS00YmRiLTg4YjctN2FkYjcyM2U4ZDlhOmNsaXRva2VuOjZkZWQ0MGFjMzExODRmNzVhNTE0NTQ3ZDYxYmU3ZDgxIiwidXNlcl9pZCI6ImIxNWFhNTIzLTdlMjEtNGJkYi04OGI3LTdhZGI3MjNlOGQ5YSJ9.BKrDjt7jjNgvEf1BKVUdq5gxRgWZsQvZDnEo4UpLvHM",
+//                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDQyMDkxNjMsImp0aSI6ImRhNTBjZjM1LWM0MWUtNGIxZC05ODY0LTgxZWE5ZTEzOTNkZCIsImlhdCI6MTc0MzYwNDM2MywiaXNzIjoiZ28tZWNvbW1lcmNlIiwic3ViIjoiYmQyOTZiMTAtODFjZi00NzdmLTgyMzYtNThmMjkyMjQ0NTdlIiwidXNlcl9pZCI6IiJ9.qobtDjYLhIBAvM8JMl6PUQpQiOvXNCz9ldb2NqWHPj0",
+//                sessionManager.getUserId()
+//        );
+        Intent serviceIntent = new Intent(this.getContext(), TokenRefreshService.class);
+        this.getContext().startService(serviceIntent);
     }
 }
