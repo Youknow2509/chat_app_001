@@ -12,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.chatapp.R;
 import com.example.chatapp.models.FriendInvitation;
 
@@ -22,6 +25,37 @@ public class FriendInvitationAdapter extends RecyclerView.Adapter<FriendInvitati
     private Context context;
     private List<FriendInvitation> invitations;
     private boolean isReceivedTab;
+
+    // Interface for handling button clicks
+    private OnAcceptClickListener acceptClickListener;
+    private OnRejectClickListener rejectClickListener;
+    private OnCancelClickListener cancelClickListener;
+
+    // Interface definitions
+    public interface OnAcceptClickListener {
+        void onAcceptClick(int position);
+    }
+
+    public interface OnRejectClickListener {
+        void onRejectClick(int position);
+    }
+
+    public interface OnCancelClickListener {
+        void onCancelClick(int position);
+    }
+
+    // Methods to set listeners
+    public void setOnAcceptClickListener(OnAcceptClickListener listener) {
+        this.acceptClickListener = listener;
+    }
+
+    public void setOnRejectClickListener(OnRejectClickListener listener) {
+        this.rejectClickListener = listener;
+    }
+
+    public void setOnCancelClickListener(OnCancelClickListener listener) {
+        this.cancelClickListener = listener;
+    }
 
     public FriendInvitationAdapter(Context context, List<FriendInvitation> invitations, boolean isReceivedTab) {
         this.context = context;
@@ -46,57 +80,129 @@ public class FriendInvitationAdapter extends RecyclerView.Adapter<FriendInvitati
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FriendInvitation invitation = invitations.get(position);
 
-        holder.tvUsername.setText(invitation.getUsername());
-        holder.tvEmail.setText(invitation.getEmail());
+        // Set basic user info
+        holder.tvUsername.setText(invitation.getNickName());
+        holder.tvEmail.setText(""); // TODO
         holder.tvTime.setText(invitation.getTime());
 
-        // Hiển thị các nút tương ứng với tab
+        // Load avatar with improved error handling
+        loadAvatar(holder.imgAvatar, invitation.getAvatarUrl());
+
+        // Reset views before setting new state
+        resetViewState(holder);
+
+        // Set up views based on invitation tab and status
         if (isReceivedTab) {
-            holder.layoutReceivedButtons.setVisibility(View.VISIBLE);
-            holder.layoutSentButtons.setVisibility(View.GONE);
-
-            // Xử lý sự kiện cho nút chấp nhận
-            holder.btnAccept.setOnClickListener(v -> {
-                invitation.setStatus(FriendInvitation.STATUS_ACCEPTED);
-                notifyItemChanged(position);
-                // Gọi API chấp nhận lời mời
-            });
-
-            // Xử lý sự kiện cho nút từ chối
-            holder.btnReject.setOnClickListener(v -> {
-                invitation.setStatus(FriendInvitation.STATUS_REJECTED);
-                notifyItemChanged(position);
-                // Gọi API từ chối lời mời
-            });
+            setupReceivedInvitationView(holder, invitation, position);
         } else {
-            holder.layoutReceivedButtons.setVisibility(View.GONE);
-            holder.layoutSentButtons.setVisibility(View.VISIBLE);
+            setupSentInvitationView(holder, invitation, position);
+        }
+    }
 
-            // Hiển thị trạng thái lời mời đã gửi
-            switch (invitation.getStatus()) {
-                case FriendInvitation.STATUS_PENDING:
-                    holder.tvStatus.setText("Đang chờ");
-                    holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorWarning));
-                    holder.btnCancel.setVisibility(View.VISIBLE);
-                    break;
-                case FriendInvitation.STATUS_ACCEPTED:
-                    holder.tvStatus.setText("Đã chấp nhận");
-                    holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorSuccess));
-                    holder.btnCancel.setVisibility(View.GONE);
-                    break;
-                case FriendInvitation.STATUS_REJECTED:
-                    holder.tvStatus.setText("Đã từ chối");
-                    holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorDanger));
-                    holder.btnCancel.setVisibility(View.GONE);
-                    break;
+    /**
+     * Reset view state to default
+     */
+    private void resetViewState(ViewHolder holder) {
+        holder.layoutReceivedButtons.setVisibility(View.GONE);
+        holder.layoutSentButtons.setVisibility(View.GONE);
+        holder.tvStatus.setVisibility(View.GONE);
+        holder.btnAccept.setEnabled(true);
+        holder.btnReject.setEnabled(true);
+        holder.btnCancel.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Setup view for received invitation tab
+     */
+    private void setupReceivedInvitationView(ViewHolder holder, FriendInvitation invitation, int position) {
+        holder.layoutReceivedButtons.setVisibility(View.VISIBLE);
+
+        // Update UI based on invitation status
+        if (invitation.getStatus() == FriendInvitation.STATUS_PENDING) {
+            holder.btnAccept.setEnabled(true);
+            holder.btnReject.setEnabled(true);
+            holder.tvStatus.setVisibility(View.GONE);
+        } else {
+            holder.btnAccept.setEnabled(false);
+            holder.btnReject.setEnabled(false);
+            holder.tvStatus.setVisibility(View.VISIBLE);
+
+            if (invitation.getStatus() == FriendInvitation.STATUS_ACCEPTED) {
+                holder.tvStatus.setText("Đã chấp nhận");
+                holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorSuccess));
+            } else if (invitation.getStatus() == FriendInvitation.STATUS_REJECTED) {
+                holder.tvStatus.setText("Đã từ chối");
+                holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorDanger));
             }
+        }
 
-            // Xử lý sự kiện cho nút hủy lời mời
-            holder.btnCancel.setOnClickListener(v -> {
-                invitations.remove(position);
-                notifyItemRemoved(position);
-                // Gọi API hủy lời mời
-            });
+        // Set up button click listeners
+        final int adapterPosition = position;
+        holder.btnAccept.setOnClickListener(v -> {
+            if (acceptClickListener != null && adapterPosition != RecyclerView.NO_POSITION) {
+                acceptClickListener.onAcceptClick(adapterPosition);
+            }
+        });
+
+        holder.btnReject.setOnClickListener(v -> {
+            if (rejectClickListener != null && adapterPosition != RecyclerView.NO_POSITION) {
+                rejectClickListener.onRejectClick(adapterPosition);
+            }
+        });
+    }
+
+    /**
+     * Setup view for sent invitation tab
+     */
+    private void setupSentInvitationView(ViewHolder holder, FriendInvitation invitation, int position) {
+        holder.layoutSentButtons.setVisibility(View.VISIBLE);
+        holder.tvStatus.setVisibility(View.VISIBLE);
+
+        // Display invitation status
+        switch (invitation.getStatus()) {
+            case FriendInvitation.STATUS_PENDING:
+                holder.tvStatus.setText("Đang chờ");
+                holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorWarning));
+                holder.btnCancel.setVisibility(View.VISIBLE);
+                break;
+            case FriendInvitation.STATUS_ACCEPTED:
+                holder.tvStatus.setText("Đã chấp nhận");
+                holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorSuccess));
+                holder.btnCancel.setVisibility(View.GONE);
+                break;
+            case FriendInvitation.STATUS_REJECTED:
+                holder.tvStatus.setText("Đã từ chối");
+                holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorDanger));
+                holder.btnCancel.setVisibility(View.GONE);
+                break;
+        }
+
+        // Set up cancel button click listener
+        final int adapterPosition = position;
+        holder.btnCancel.setOnClickListener(v -> {
+            if (cancelClickListener != null && adapterPosition != RecyclerView.NO_POSITION) {
+                cancelClickListener.onCancelClick(adapterPosition);
+            }
+        });
+    }
+
+    /**
+     * Load avatar image with improved error handling
+     */
+    private void loadAvatar(ImageView imageView, String avatarUrl) {
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.user_circle_3)
+                .error(R.drawable.user_circle_3)
+                .circleCrop();
+
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            Glide.with(context)
+                    .load(avatarUrl)
+                    .apply(options)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.user_circle_3);
         }
     }
 
@@ -124,6 +230,30 @@ public class FriendInvitationAdapter extends RecyclerView.Adapter<FriendInvitati
             btnCancel = itemView.findViewById(R.id.btnCancel);
             layoutReceivedButtons = itemView.findViewById(R.id.layoutReceivedButtons);
             layoutSentButtons = itemView.findViewById(R.id.layoutSentButtons);
+        }
+    }
+
+    /**
+     * Manually update the status of a specific invitation
+     * @param position position of the invitation in the list
+     * @param status new status to set
+     */
+    public void updateInvitationStatus(int position, int status) {
+        if (position >= 0 && position < invitations.size()) {
+            invitations.get(position).setStatus(status);
+            notifyItemChanged(position);
+        }
+    }
+
+    /**
+     * Remove an invitation from the list
+     * @param position position of the invitation to remove
+     */
+    public void removeInvitation(int position) {
+        if (position >= 0 && position < invitations.size()) {
+            invitations.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, invitations.size());
         }
     }
 }

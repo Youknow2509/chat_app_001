@@ -7,13 +7,30 @@ import android.widget.Toast;
 
 import com.example.chatapp.consts.Constants;
 import com.example.chatapp.dto.UserFbToken;
-import com.example.chatapp.models.request.AccountModels.*;
-import com.example.chatapp.models.request.ChatModels.*;
-import com.example.chatapp.models.request.TokenModels.*;
-import com.example.chatapp.models.request.UserModels.*;
+import com.example.chatapp.models.request.AccountModels.LoginInput;
+import com.example.chatapp.models.request.AccountModels.RefreshTokenInput;
+import com.example.chatapp.models.request.AccountModels.RegisterInput;
+import com.example.chatapp.models.request.AccountModels.UpdatePasswordInput;
+import com.example.chatapp.models.request.AccountModels.UpgradeNameAndAvatarRegisterInput;
+import com.example.chatapp.models.request.AccountModels.VerifyInput;
+import com.example.chatapp.models.request.ChatModels.AddMemberToChatInput;
+import com.example.chatapp.models.request.ChatModels.ChangeAdminGroupChatInput;
+import com.example.chatapp.models.request.ChatModels.CreateChatGroupInput;
+import com.example.chatapp.models.request.ChatModels.CreateChatPrivateInput;
+import com.example.chatapp.models.request.ChatModels.DelChatInput;
+import com.example.chatapp.models.request.ChatModels.DelMenForChatInput;
+import com.example.chatapp.models.request.ChatModels.UpgradeChatInfoInput;
+import com.example.chatapp.models.request.TokenModels.JwtInput;
+import com.example.chatapp.models.request.UserModels.AcceptFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.CreateFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.DeleteFriendInput;
+import com.example.chatapp.models.request.UserModels.EndFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.RejectFriendRequestInput;
+import com.example.chatapp.models.request.UserModels.UpdateUserAvatarInput;
+import com.example.chatapp.models.request.UserModels.UpdateUserInfoInput;
+import com.example.chatapp.models.request.UserModels.UserChangePasswordInput;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.models.sqlite.Message;
-import com.example.chatapp.network.NetworkConnectionInterceptor;
 import com.example.chatapp.service.TokenRefreshService;
 import com.example.chatapp.utils.Utils;
 
@@ -243,6 +260,14 @@ public class ApiManager {
 
     }
 
+    public void getListFriendRequestSend(String token, int limit, int page, Callback<ResponseData<Object>> callback) {
+        if (!checkNetworkConnection()) return;
+
+        Call<ResponseData<Object>> call = apiService.getListFriendRequestSend(formatToken(token), limit, page);
+        call.enqueue(wrapCallback(call, callback));
+
+    }
+
     public void acceptFriendRequest(String token, String requestId, String userAcceptId, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 
@@ -261,20 +286,18 @@ public class ApiManager {
 
     }
 
-    public void endFriendRequest(String token, String requestId, String userId, Callback<ResponseData<Object>> callback) {
+    public void endFriendRequest(String token, String requestId, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 
-        EndFriendRequestInput input = new EndFriendRequestInput(requestId, userId);
-        Call<ResponseData<Object>> call = apiService.endFriendRequest(formatToken(token), input);
+        Call<ResponseData<Object>> call = apiService.endFriendRequest(formatToken(token), requestId);
         call.enqueue(wrapCallback(call, callback));
 
     }
 
-    public void deleteFriend(String token, String userId, String friendEmail, Callback<ResponseData<Object>> callback) {
+    public void deleteFriend(String token, String friendEmail, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 
-        DeleteFriendInput input = new DeleteFriendInput(userId, friendEmail);
-        Call<ResponseData<Object>> call = apiService.deleteFriend(formatToken(token), input);
+        Call<ResponseData<Object>> call = apiService.deleteFriend(formatToken(token), friendEmail);
         call.enqueue(wrapCallback(call, callback));
 
     }
@@ -325,11 +348,10 @@ public class ApiManager {
 
     }
 
-    public void deleteMemberFromChat(String token, String adminId, String chatId, String userDelId, Callback<ResponseData<Object>> callback) {
+    public void deleteMemberFromChat(String token, String chatId, String userDelId, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 
-        DelMenForChatInput input = new DelMenForChatInput(adminId, chatId, userDelId);
-        Call<ResponseData<Object>> call = apiService.deleteMemberFromChat(formatToken(token), input);
+        Call<ResponseData<Object>> call = apiService.deleteMemberFromChat(formatToken(token), chatId, userDelId);
         call.enqueue(wrapCallback(call, callback));
 
     }
@@ -343,11 +365,10 @@ public class ApiManager {
 
     }
 
-    public void deleteChat(String token, String adminId, String chatId, Callback<ResponseData<Object>> callback) {
+    public void deleteChat(String token, String chatId, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 
-        DelChatInput input = new DelChatInput(adminId, chatId);
-        Call<ResponseData<Object>> call = apiService.deleteChat(formatToken(token), input);
+        Call<ResponseData<Object>> call = apiService.deleteChat(formatToken(token), chatId);
         call.enqueue(wrapCallback(call, callback));
 
     }
@@ -439,7 +460,7 @@ public class ApiManager {
         });
     }
 
-    public void sendUserLocation(String userId, double lat, double lon){
+    public void sendUserLocation(String userId, double lat, double lon) {
         if (!checkNetworkConnection()) return;
         Map<String, Object> user = new HashMap<>();
         user.put("userId", userId);

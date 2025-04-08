@@ -4,34 +4,60 @@ public class FriendInvitation {
     public static final int STATUS_ACCEPTED = 1;
     public static final int STATUS_REJECTED = 2;
 
-    private String id;
-    private String username;
-    private String email;
+    private String request_id;
+    private String user_id;
+    private String nickName;
     private String time;
+    private String avatarUrl;
     private int status;
 
-    public FriendInvitation(String id, String username, String email, String time, int status) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
+    public FriendInvitation(String request_id, String user_id, String nickName, String time, String avatarUrl, int status) {
+        this.request_id = request_id;
+        this.user_id = user_id;
+        this.nickName = nickName;
         this.time = time;
+        this.avatarUrl = avatarUrl;
         this.status = status;
     }
-
-    public String getId() {
-        return id;
+    //
+    public String getRequest_id() {
+        return request_id;
     }
 
-    public String getUsername() {
-        return username;
+    public void setRequest_id(String request_id) {
+        this.request_id = request_id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getTime() {
         return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public int getStatus() {
