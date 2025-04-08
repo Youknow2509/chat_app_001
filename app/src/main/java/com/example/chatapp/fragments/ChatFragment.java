@@ -23,6 +23,7 @@ import com.example.chatapp.models.response.ResponseData;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +43,7 @@ import com.example.chatapp.consts.Constants;
 import com.example.chatapp.models.request.ChatModels;
 import com.example.chatapp.models.response.ResponseData;
 import com.example.chatapp.utils.session.SessionManager;
+import com.example.chatapp.viewmodel.ChatViewModel;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -64,6 +66,7 @@ public class ChatFragment extends Fragment {
     List<ChatListItem> users;
     private List<ChatDTO> chatDTOList;
     private FragmentChatV2Binding binding;
+    private ChatViewModel viewModel;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +74,26 @@ public class ChatFragment extends Fragment {
         chatDTOList = new ArrayList<>();
     }
 
+    private void observeViewModel() {
+        viewModel.chatList.observe(getViewLifecycleOwner(), chatList -> {
+            if (chatList != null) {
+                updateChatList(chatList);
+            }
+        });
+    }
 
+    private void updateChatList(List<ChatDTO> chatList) {
+        chatDTOList = chatList;
+        chatListItems = getChatListItems();
+        chatListAdapter = new ChatListAdapter(chatListItems, new ChatListAdapter.ChatItemClickListener() {
+            @Override
+            public void onUserClick(ChatDTO chatDTO) {
+                Intent intent = new Intent(getContext(), ChatConversationActivity.class);
+                intent.putExtra(Constants.KEY_CHAT, chatDTO);
+                startActivity(intent);
+            }
+        });
+    }
 
 
     @Override
@@ -99,7 +121,11 @@ public class ChatFragment extends Fragment {
             startActivity(intent);
         });
 
-        getUsersFromApi();
+        viewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        observeViewModel();
+
+        // Thay thế getUsersFromApi() bằng:
+        viewModel.loadChatData(apiManager, sessionManager.getAccessToken());
 
         // Cau hinh option menu tren toolbar
         binding.addIcon.setOnClickListener(v -> {
