@@ -38,6 +38,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.senderId = senderId;
         this.isGroupChat = isGroupChat;
         this.typeMessage = typeMessage;
+        setHasStableIds(true);
     }
 
     @Override
@@ -51,6 +52,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return VIEW_TYPE_RECEIVED;
         }
     }
+
+    @Override
+    public long getItemId(int position) {
+        return chatMessages.get(position).getId() != null ? chatMessages.get(position).getId().hashCode() : position;
+    }
+
 
 
     @NonNull
@@ -108,19 +115,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void setData(ChatMessage chatMessage, String isImageMessage) {
-            if("image".equals(isImageMessage)){
-                Log.d("Test123",isImageMessage);
-                binding.textTime.setText(chatMessage.getDateTime());
+            binding.imageMessage.setVisibility(View.GONE);
+            binding.textMessage.setVisibility(View.GONE);
+            if ("image".equals(chatMessage.getMessageType())) {
                 binding.imageMessage.setVisibility(View.VISIBLE);
-                binding.textMessage.setVisibility(View.GONE);
                 Glide.with(binding.imageMessage.getContext())
                         .load(chatMessage.getContent())
                         .into(binding.imageMessage);
             } else {
-                binding.imageMessage.setVisibility(View.GONE);
                 binding.textMessage.setVisibility(View.VISIBLE);
                 binding.textMessage.setText(chatMessage.getContent());
-                binding.textTime.setText(chatMessage.getDateTime());
             }
 
         }

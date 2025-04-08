@@ -126,6 +126,12 @@ public interface ChatAppService {
             @Header("Authorization") String token,
             @Query("friend_mail") String friendEmail);
 
+    @GET("/api/v1/user/get_list_friend")
+    Call<ResponseData<Object>> getListFriend(
+            @Header("Authorization") String token,
+            @Query("limit") int limit,
+            @Query("page") int page);
+
     // ============ Chat Management ============
 
     @POST("/api/v1/chat/create-chat-private")

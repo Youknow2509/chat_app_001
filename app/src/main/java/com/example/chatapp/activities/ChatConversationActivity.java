@@ -238,22 +238,26 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                     // Upload media to Cloudinary
                     Log.d(TAG, "Media URL: " + currentMediaUri);
                     sendImageToServer(result);
+                    ChatMessage chatMessage = new ChatMessage();
+                    chatMessage.setSenderId(sessionManager.getUserId());
+                    chatMessage.setReceiverId(receiverUser.id);
+                    chatMessage.setContent(result); // đây là URL ảnh
+                    chatMessage.setMessageType("image"); // ✅ rất quan trọng!
+                    chatMessage.setDateTime(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
 
-            }
+                    chatMessages.add(chatMessage);
+
+                    binding.chatRecyclerView.post(() -> {
+                        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+                        binding.chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
+                    });
+
+                }
         });
 
         sendMediaViewModel.getImageNewFile().observe(this, file -> {
             if (file != null) {
-                ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setSenderId(sessionManager.getUserId());
-                chatMessage.setContent(file.getAbsolutePath());
-                Date currentDate = new Date();
-                // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
-                String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
-                chatMessage.setDateTime(formattedDate);
 
-                chatMessage.setReceiverId(receiverUser.id);
-                chatMessages.add(chatMessage);
                 Log.d(TAG, "Saved media file: " + savedMediaFile.getAbsolutePath());
             } else {
                 showToast("Error saving media file");
@@ -530,6 +534,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true); // Show newest messages at the bottom
         binding.chatRecyclerView.setLayoutManager(layoutManager);
+        chatAdapter.setHasStableIds(true);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
         // Configure swipe refresh

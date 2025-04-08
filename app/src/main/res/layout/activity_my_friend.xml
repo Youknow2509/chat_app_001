@@ -167,16 +167,17 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycleViewUser"
-        android:layout_width="414dp"
-        android:layout_height="550dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="81dp"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/frameLayout"
         app:layout_constraintTop_toTopOf="@+id/frameLayout"
-        tools:layout_editor_absoluteX="-3dp" />
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

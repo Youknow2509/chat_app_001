@@ -302,6 +302,13 @@ public class ApiManager {
 
     }
 
+    public void getListFriend(String token, int limit, int page, Callback<ResponseData<Object>> callback) {
+        if (!checkNetworkConnection()) return;
+
+        Call<ResponseData<Object>> call = apiService.getListFriend(formatToken(token), limit, page);
+        call.enqueue(wrapCallback(call, callback));
+    }
+
     // ======== Chat Management ========
 
     public void createChatPrivate(String token, String user1, String user2, Callback<ResponseData<Object>> callback) {
