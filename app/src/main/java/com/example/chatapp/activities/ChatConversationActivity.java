@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -51,6 +54,7 @@ import com.example.chatapp.utils.StompClientManager;
 import com.example.chatapp.utils.cloudinary.CloudinaryManager;
 import com.example.chatapp.utils.file.MediaUtils;
 import com.example.chatapp.utils.session.SessionManager;
+import com.example.chatapp.viewmodel.ChatViewModel;
 import com.example.chatapp.viewmodel.LoginViewModel;
 import com.example.chatapp.viewmodel.SendMediaViewModel;
 import com.google.gson.Gson;
@@ -108,21 +112,19 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     private static final String FILEPROVIDER_AUTHORITY = "com.example.chatapp.fileprovider";
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private Uri currentMediaUri;
+    private String currentMediaType = "image";
 
     private CloudinaryManager cloudinaryManager;
+    private File tempPhotoFile;
 
-
-    private final ActivityResultLauncher<String[]> pickMediaLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<String[]> pickPictureLauncher = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
             uri -> {
                 if (uri != null) {
-                    // Persist permission for this URI
-                    binding.getRoot().getContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-                    // Hiển thị dialog xem trước ảnh
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    currentMediaType = "image";
+                    currentMediaUri = uri;
                     showImagePreviewDialog(uri);
-
-                    Log.i(TAG, "Selected media URI: " + uri.toString());
                 }
             });
 
@@ -180,6 +182,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         loadChatDetails();
         binding.progressBar.setVisibility(View.GONE);
 
+
         init();
         mentionSuggestions = new ArrayList<>();
         mentionSuggestions.add(new MentionSuggestion("GEMINI_2_FLASH", R.drawable.avatar_circle_bg));
@@ -230,15 +233,24 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         messageObservable = MessageObservable.getInstance();
         messageObservable.addObserver(this);
 
-        sendMediaViewModel.getStringUrlResult().observe(this ,
+        sendMediaViewModel.getResMediaUrlPostUpdate().observe(this ,
                 result -> {
                 if (result != null) {
                     // Upload media to Cloudinary
-                    String mediaUrl = result;
-                    Log.d(TAG, "Media URL: " + mediaUrl);
+                    currentMediaUri = Uri.parse(result);
+                    Log.d(TAG, "Media URL: " + currentMediaUri);
             }
         });
 
+    }
+
+    /**
+     * Handle saving image
+     */
+    private void saveImageToDeviceAndUpload(View v) {
+        if (binding != null) {
+            sendMediaViewModel.saveMediaToInternalStorageAndUpload(currentMediaUri, currentMediaType);
+        }
     }
 
     private void showMentionSuggestions() {
@@ -323,7 +335,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         binding.sendButton.setOnClickListener(v -> SendMessage());
         binding.userVoiceCall.setOnClickListener(v -> VoiceCall());
         binding.userVideoCall.setOnClickListener(v -> VideoCall());
-        binding.cameraIcon.setOnClickListener(v -> TakeCamera());
+        binding.cameraIcon.setOnClickListener(v -> takePhoto());
         binding.attachIcon.setOnClickListener(v -> AttachFile());
         binding.chatToolbar.menuButton.setOnClickListener(v -> ShowMore());
         binding.chatToolbar.syncButton.setOnClickListener(v -> syncWithServer());
@@ -369,11 +381,32 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
             chatMessage.setReceiverId(receiverUser.id);
             chatMessages.add(chatMessage);
         }
-        else{
-            // Handle sending media message
-            if (currentMediaUri != null) {
-                MediaUtils mediaUtils = new MediaUtils();
-            }
+        else if(type_message.equals("image")){
+            savedMediaFile = new File(currentMediaUri.getPath());
+            MediaMessageDTO mediaMessageDTO = new MediaMessageDTO("", conversionId, "image", currentMediaUri.toString());
+            Gson gson = new Gson();
+            String messageJson = gson.toJson(mediaMessageDTO);
+            stompClientManager.sendMessage(messageJson, new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) {
+                    if (throwable != null) {
+                        showToast("Error sending message");
+                    } else {
+                        Log.d(TAG, "Message sent successfully");
+                    }
+                }
+            });
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSenderId(sessionManager.getUserId());
+            chatMessage.setContent(currentMediaUri.toString());
+            Date currentDate = new Date();
+            // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
+            String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
+            chatMessage.setDateTime(formattedDate);
+            chatMessage.setReceiverId(receiverUser.id);
+
+            chatMessages.add(chatMessage);
         }
 
 
@@ -415,33 +448,52 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         File storageDir = getFilesDir();
         return File.createTempFile(fileName, extension, storageDir);
     }
-    private void TakeCamera() {
+    /**
+     * Take photo with camera
+     */
+    private void takePhoto() {
         try {
-            File photoFile = createMediaFile(".jpg");
-            Uri photoURI = FileProvider.getUriForFile(this,
+            // Create temp directory if it doesn't exist
+            File tempDir = new File(getCacheDir(), "temp_photos");
+            if (!tempDir.exists()) {
+                tempDir.mkdirs();
+            }
+
+            // Create temporary file
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            tempPhotoFile = new File(tempDir, "TEMP_" + timeStamp + ".jpg");
+
+            currentMediaUri = FileProvider.getUriForFile(
+                    this,
                     FILEPROVIDER_AUTHORITY,
-                    photoFile);
-            Uri file = MediaUtils.saveToMediaStore(this, photoFile,
-                    "image");
-            Log.d(TAG, "Saved photo to: " + file.getPath());
-            currentMediaUri = FileProvider.getUriForFile(this,
-                    FILEPROVIDER_AUTHORITY,
-                    photoFile);
-            Log.i(TAG, "Photo URI: " + currentMediaUri.toString());
+                    tempPhotoFile
+            );
+
+            Log.i(TAG, "Temporary Photo URI: " + currentMediaUri);
             takePhotoLauncher.launch(currentMediaUri);
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Log.e(TAG, "Error creating image file", ex);
-            Toast.makeText(this, "Error creating image file", Toast.LENGTH_SHORT).show();
+            showSnackbar("Lỗi khi tạo file ảnh: " + ex.getMessage());
         }
     }
 
-
     /**
-     * Open gallery for media selection
+     * Open gallery for image selection
      */
     private void openGallery() {
-        pickMediaLauncher.launch(new String[]{"image/*", "video/*"});
+        pickPictureLauncher.launch(new String[]{"image/*"});
+    }
+
+    /**
+     * Check camera permission
+     */
+    private boolean checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            return false;
+        }
+        return true;
     }
 
     private void AttachFile() {

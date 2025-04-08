@@ -1,57 +1,157 @@
 package com.example.chatapp.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 
-import com.example.chatapp.models.relationship.ConversationWithLastMessage;
-import com.example.chatapp.models.relationship.MessageWithMedia;
-import com.example.chatapp.models.sqlite.Message;
-import com.example.chatapp.models.sqlite.User;
-import com.example.chatapp.repository.ChatRepo;
+import com.example.chatapp.api.ApiManager;
+import com.example.chatapp.consts.Constants;
+import com.example.chatapp.models.UserDetail;
+import com.example.chatapp.models.UserProfileSession;
+import com.example.chatapp.models.request.UserModels;
+import com.example.chatapp.models.response.ResponseData;
+import com.example.chatapp.utils.cloudinary.CloudinaryManager;
+import com.example.chatapp.utils.file.MediaUtils;
+import com.example.chatapp.utils.session.SessionManager;
 
-import java.util.List;
-import java.util.UUID;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatViewModel extends AndroidViewModel {
-    private ChatRepo repository;
+    private static final String TAG = "ChatViewModel";
 
-    private final MediatorLiveData<List<ConversationWithLastMessage>> conversationsLiveData = new MediatorLiveData<>();
-    private LiveData<List<ConversationWithLastMessage>> currentConversationsSource;
+    // LiveData objects
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> resMediaUrlPostUpdate = new MutableLiveData<>();
+    private final MutableLiveData<File> imageNewFile = new MutableLiveData<>();
 
-    public ChatViewModel(Application application) {
+    // Services and managers
+    private final SessionManager sessionManager;
+    private final ApiManager apiManager;
+    private final CloudinaryManager cloudinaryManager;
+
+    public ChatViewModel(@NonNull Application application) {
         super(application);
-        repository = new ChatRepo(application);
+        Context context = application.getApplicationContext();
+
+        // Initialize services
+        this.sessionManager = new SessionManager(context);
+        this.apiManager = new ApiManager(context);
+        this.cloudinaryManager = CloudinaryManager.getInstance(context);
+
+        // Load initial user data
     }
 
-    public LiveData<List<ConversationWithLastMessage>> getConversations(String userId) {
-        if (currentConversationsSource != null) {
-            conversationsLiveData.removeSource(currentConversationsSource);
+    /**
+     * Process media from URI and save to internal storage
+     */
+    public void saveMediaToInternalStorageAndUpload(Uri mediaUri, String mediaType) {
+        isLoading.setValue(true);
+
+        MediaUtils.saveMediaToInternalStorageAsync(
+                getApplication().getApplicationContext(),
+                mediaUri,
+                mediaType
+        ).thenAccept(file -> {
+            if (file != null) {
+                Log.d(TAG, "Image saved to: " + file.getAbsolutePath());
+                imageNewFile.postValue(file);
+                uploadImageToCloudinary(file);
+            } else {
+                isLoading.postValue(false);
+                errorMessage.postValue("Lỗi khi lưu ảnh");
+            }
+        });
+    }
+
+    /**
+     * Upload image to Cloudinary
+     */
+    private void uploadImageToCloudinary(File file) {
+        if (file == null) {
+            isLoading.setValue(false);
+            errorMessage.setValue("Không thể xử lý file ảnh");
+            return;
         }
 
-        currentConversationsSource = repository.getConversationsForCurrentUser(userId);
-        conversationsLiveData.addSource(currentConversationsSource, conversationsLiveData::setValue);
+        String path = Uri.fromFile(file).toString();
+        String folder = "/users/" + sessionManager.getUserName() + "/images/";
+        Log.d(TAG, "Upload avatar to Cloudinary: " + path + " to folder: " + folder);
 
-        return conversationsLiveData;
+
+        cloudinaryManager.uploadImage(path, folder, new CloudinaryManager.CloudinaryCallback<Map<String, Object>>() {
+            @Override
+            public void onSuccess(Map<String, Object> result) {
+                String url = (String) result.get("url");
+                if (url != null) {
+                    Log.d(TAG, "Upload success: " + url);
+                    resMediaUrlPostUpdate.setValue(url);
+                } else {
+                    isLoading.postValue(false);
+                    errorMessage.postValue("Không nhận được URL từ server");
+                }
+            }
+
+            @Override
+            public void onError(String errorMsg) {
+                isLoading.postValue(false);
+                errorMessage.postValue("Lỗi tải lên: " + errorMsg);
+                Log.e(TAG, "Upload error: " + errorMsg);
+            }
+
+            @Override
+            public void onProgress(int progress) {
+                Log.d(TAG, "Upload progress: " + progress + "%");
+            }
+        });
     }
 
-    public LiveData<List<MessageWithMedia>> getMessages(String conversationId) {
-        return repository.getMessagesForConversation(conversationId);
+    /**
+     * Save profile to session
+     */
+    private void saveAvatarToSQLite(UserDetail userDetail) {
+        // TODO: saveAvatarToSQLite
     }
 
-    public void sendMessage(String conversationId, String senderId, String text) {
-        String messageId = UUID.randomUUID().toString();
-        Message message = new Message(messageId, conversationId, senderId, text);
-        repository.sendMessage(message);
+    /**
+     * Get access token
+     */
+    public String getAccessToken() {
+        return sessionManager.getAccessToken();
     }
 
-    public void markAsRead(String conversationId) {
-        repository.markConversationAsRead(conversationId);
+    /**
+     * Public getters for LiveData objects
+     */
+
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
     }
 
-    public LiveData<List<User>> getFriends(String userId) {
-        return repository.getFriends(userId);
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
+    public LiveData<String> getResMediaUrlPostUpdate() {
+        return resMediaUrlPostUpdate;
+    }
+
+    public LiveData<File> getImageNewFile() {
+        return imageNewFile;
     }
 }
