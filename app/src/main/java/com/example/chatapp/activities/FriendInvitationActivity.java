@@ -51,6 +51,9 @@ public class FriendInvitationActivity extends AppCompatActivity {
     private MutableLiveData<List<FriendItemRequest>> listFriendRequestLive = new MutableLiveData<>();
     private MutableLiveData<List<FriendItemRequestSend>> listFriendRequestSendLive = new MutableLiveData<>();
 
+    // Track current tab to ensure proper data loading
+    private int currentTab = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,24 +88,25 @@ public class FriendInvitationActivity extends AppCompatActivity {
         // Observer for received friend requests
         listFriendRequestLive.observe(this, friendRequests -> {
             if (friendRequests != null) {
-                // Convert FriendItemRequestSend to FriendInvitation
+                // Convert FriendItemRequest to FriendInvitation
                 receivedInvitations.clear();
                 for (FriendItemRequest request : friendRequests) {
-                    receivedInvitations.add(
-                            new FriendInvitation(
-                                    request.getRequest_id(),
-                                    request.getFrom_user(),
-                                    request.getUser_nickname(),
-                                    request.getCreated_at(),
-                                    request.getUser_avatar(),
-                                    FriendInvitation.STATUS_PENDING)
-                    );
+                    if (request != null && request.getRequest_id() != null) {
+                        receivedInvitations.add(
+                                new FriendInvitation(
+                                        request.getRequest_id(),
+                                        request.getFrom_user(),
+                                        request.getUser_nickname(),
+                                        request.getCreated_at(),
+                                        request.getUser_avatar(),
+                                        FriendInvitation.STATUS_PENDING)
+                        );
+                    }
                 }
 
                 // Update UI if currently on the Received tab
-                if (tabLayout.getSelectedTabPosition() == 0) {
-                    adapter.updateData(receivedInvitations, true);
-                    updateEmptyStateVisibility(receivedInvitations);
+                if (currentTab == 0) {
+                    updateReceivedTabUI();
                 }
             }
         });
@@ -113,47 +117,66 @@ public class FriendInvitationActivity extends AppCompatActivity {
                 // Convert FriendItemRequestSend to FriendInvitation
                 sentInvitations.clear();
                 for (FriendItemRequestSend request : friendRequests) {
-                    // Determine status based on request status
-                    int status = FriendInvitation.STATUS_PENDING;
-                    if (request.getStatus_request() != null) {
-                        if (request.getStatus_request().equals("accepted")) {
-                            status = FriendInvitation.STATUS_ACCEPTED;
-                        } else if (request.getStatus_request().equals("rejected")) {
-                            status = FriendInvitation.STATUS_REJECTED;
+                    if (request != null && request.getRequest_id() != null) {
+                        // Determine status based on request status
+                        int status = FriendInvitation.STATUS_PENDING;
+                        if (request.getStatus_request() != null) {
+                            if (request.getStatus_request().equals("accepted")) {
+                                status = FriendInvitation.STATUS_ACCEPTED;
+                            } else if (request.getStatus_request().equals("rejected")) {
+                                status = FriendInvitation.STATUS_REJECTED;
+                            }
                         }
-                    }
 
-                    sentInvitations.add(
-                            new FriendInvitation(
-                                    request.getRequest_id(),
-                                    request.getTo_user(),
-                                    request.getUser_nickname(),
-                                    request.getCreated_at(),
-                                    request.getUser_avatar(),
-                                    status)
-                    );
+                        sentInvitations.add(
+                                new FriendInvitation(
+                                        request.getRequest_id(),
+                                        request.getTo_user(),
+                                        request.getUser_nickname(),
+                                        request.getCreated_at(),
+                                        request.getUser_avatar(),
+                                        status)
+                        );
+                    }
                 }
 
                 // Update UI if currently on the Sent tab
-                if (tabLayout.getSelectedTabPosition() == 1) {
-                    adapter.updateData(sentInvitations, false);
-                    updateEmptyStateVisibility(sentInvitations);
+                if (currentTab == 1) {
+                    updateSentTabUI();
                 }
             }
         });
     }
 
     /**
+     * Update the UI for the Received tab
+     */
+    private void updateReceivedTabUI() {
+        adapter.updateData(receivedInvitations, true);
+        updateEmptyStateVisibility(receivedInvitations);
+    }
+
+    /**
+     * Update the UI for the Sent tab
+     */
+    private void updateSentTabUI() {
+        adapter.updateData(sentInvitations, false);
+        updateEmptyStateVisibility(sentInvitations);
+    }
+
+    /**
      * Update empty state message visibility
      */
     private void updateEmptyStateVisibility(List<FriendInvitation> list) {
-        if (list.isEmpty()) {
+        if (list == null || list.isEmpty()) {
             tvNoInvitations.setVisibility(View.VISIBLE);
-            tvNoInvitations.setText(tabLayout.getSelectedTabPosition() == 0 ?
+            tvNoInvitations.setText(currentTab == 0 ?
                     "Không có lời mời kết bạn nào" :
                     "Bạn chưa gửi lời mời kết bạn nào");
+            recyclerViewInvitations.setVisibility(View.GONE);
         } else {
             tvNoInvitations.setVisibility(View.GONE);
+            recyclerViewInvitations.setVisibility(View.VISIBLE);
         }
     }
 
@@ -188,6 +211,8 @@ public class FriendInvitationActivity extends AppCompatActivity {
                                     // Convert the data object to the expected type
                                     Gson gson = new Gson();
                                     String json = gson.toJson(responseData.getData());
+                                    Log.d(TAG, "Received invitations raw JSON: " + json);
+
                                     Type type = new TypeToken<List<FriendItemRequest>>(){}.getType();
                                     List<FriendItemRequest> requests = gson.fromJson(json, type);
 
@@ -196,13 +221,19 @@ public class FriendInvitationActivity extends AppCompatActivity {
                                 } else {
                                     // Handle API error
                                     handleApiError(responseData.getMessage());
+                                    // Set empty list to clear any previous data
+                                    listFriendRequestLive.setValue(new ArrayList<>());
                                 }
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing response: " + e.getMessage());
                                 handleApiError("Lỗi xử lý dữ liệu");
+                                // Set empty list to clear any previous data
+                                listFriendRequestLive.setValue(new ArrayList<>());
                             }
                         } else {
                             handleApiError("Lỗi kết nối máy chủ");
+                            // Set empty list to clear any previous data
+                            listFriendRequestLive.setValue(new ArrayList<>());
                         }
                         showLoading(false);
                     }
@@ -211,6 +242,8 @@ public class FriendInvitationActivity extends AppCompatActivity {
                     public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
                         Log.e(TAG, "onFailure: " + t.getMessage());
                         handleApiError("Lỗi lấy yêu cầu kết bạn");
+                        // Set empty list to clear any previous data
+                        listFriendRequestLive.setValue(new ArrayList<>());
                         showLoading(false);
                     }
                 }
@@ -235,6 +268,8 @@ public class FriendInvitationActivity extends AppCompatActivity {
                                     // Convert the data object to the expected type
                                     Gson gson = new Gson();
                                     String json = gson.toJson(responseData.getData());
+                                    Log.d(TAG, "Sent invitations raw JSON: " + json);
+
                                     Type type = new TypeToken<List<FriendItemRequestSend>>(){}.getType();
                                     List<FriendItemRequestSend> requests = gson.fromJson(json, type);
 
@@ -243,13 +278,19 @@ public class FriendInvitationActivity extends AppCompatActivity {
                                 } else {
                                     // Handle API error
                                     handleApiError(responseData.getMessage());
+                                    // Set empty list to clear any previous data
+                                    listFriendRequestSendLive.setValue(new ArrayList<>());
                                 }
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing response: " + e.getMessage());
                                 handleApiError("Lỗi xử lý dữ liệu");
+                                // Set empty list to clear any previous data
+                                listFriendRequestSendLive.setValue(new ArrayList<>());
                             }
                         } else {
                             handleApiError("Lỗi kết nối máy chủ");
+                            // Set empty list to clear any previous data
+                            listFriendRequestSendLive.setValue(new ArrayList<>());
                         }
                     }
 
@@ -257,6 +298,8 @@ public class FriendInvitationActivity extends AppCompatActivity {
                     public void onFailure(Call<ResponseData<Object>> call, Throwable t) {
                         Log.e(TAG, "onFailure: " + t.getMessage());
                         handleApiError("Lỗi lấy danh sách kết bạn đã gửi");
+                        // Set empty list to clear any previous data
+                        listFriendRequestSendLive.setValue(new ArrayList<>());
                     }
                 }
         );
@@ -283,7 +326,7 @@ public class FriendInvitationActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         recyclerViewInvitations.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new FriendInvitationAdapter(this, receivedInvitations, true);
+        adapter = new FriendInvitationAdapter(this, new ArrayList<>(), true);
         recyclerViewInvitations.setAdapter(adapter);
 
         // Setup item click listeners
@@ -298,6 +341,8 @@ public class FriendInvitationActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
+                currentTab = position;
+
                 if (position == 0) {
                     // "Received" tab
                     loadReceivedInvitations();
@@ -326,16 +371,8 @@ public class FriendInvitationActivity extends AppCompatActivity {
     private void loadReceivedInvitations() {
         showLoading(true);
 
-        // Use data from LiveData if available
-        List<FriendItemRequest> requests = listFriendRequestLive.getValue();
-        if (requests != null && !requests.isEmpty()) {
-            // Use the data from LiveData (already processed in observer)
-            adapter.updateData(receivedInvitations, true);
-            updateEmptyStateVisibility(receivedInvitations);
-        } else {
-            // If no data in LiveData, show empty state message
-            updateEmptyStateVisibility(receivedInvitations);
-        }
+        // Always update the UI with current data, even if empty
+        updateReceivedTabUI();
 
         showLoading(false);
     }
@@ -343,23 +380,28 @@ public class FriendInvitationActivity extends AppCompatActivity {
     private void loadSentInvitations() {
         showLoading(true);
 
-        // Use data from LiveData if available
-        List<FriendItemRequestSend> requests = listFriendRequestSendLive.getValue();
-        if (requests != null && !requests.isEmpty()) {
-            // Use the data from LiveData (already processed in observer)
-            adapter.updateData(sentInvitations, false);
-            updateEmptyStateVisibility(sentInvitations);
-        } else {
-            // If no data in LiveData, show empty state message
-            updateEmptyStateVisibility(sentInvitations);
-        }
+        // Always update the UI with current data, even if empty
+        updateSentTabUI();
 
         showLoading(false);
     }
 
     private void acceptInvitation(int position) {
-        showLoading(true);
+        // Validate position
+        if (position < 0 || position >= receivedInvitations.size()) {
+            handleApiError("Lỗi: Không tìm thấy lời mời kết bạn");
+            return;
+        }
+
         FriendInvitation invitation = receivedInvitations.get(position);
+
+        // Validate invitation data
+        if (invitation == null || invitation.getRequest_id() == null || invitation.getRequest_id().isEmpty()) {
+            handleApiError("Lỗi: Lời mời kết bạn không hợp lệ");
+            return;
+        }
+
+        showLoading(true);
 
         apiManager.acceptFriendRequest(
                 sessionManager.getAccessToken(),
@@ -400,8 +442,21 @@ public class FriendInvitationActivity extends AppCompatActivity {
     }
 
     private void rejectInvitation(int position) {
-        showLoading(true);
+        // Validate position
+        if (position < 0 || position >= receivedInvitations.size()) {
+            handleApiError("Lỗi: Không tìm thấy lời mời kết bạn");
+            return;
+        }
+
         FriendInvitation invitation = receivedInvitations.get(position);
+
+        // Validate invitation data
+        if (invitation == null || invitation.getRequest_id() == null || invitation.getRequest_id().isEmpty()) {
+            handleApiError("Lỗi: Lời mời kết bạn không hợp lệ");
+            return;
+        }
+
+        showLoading(true);
 
         apiManager.rejectFriendRequest(
                 sessionManager.getAccessToken(),
@@ -442,8 +497,21 @@ public class FriendInvitationActivity extends AppCompatActivity {
     }
 
     private void cancelInvitation(int position) {
-        showLoading(true);
+        // Validate position
+        if (position < 0 || position >= sentInvitations.size()) {
+            handleApiError("Lỗi: Không tìm thấy lời mời kết bạn");
+            return;
+        }
+
         FriendInvitation invitation = sentInvitations.get(position);
+
+        // Validate invitation data
+        if (invitation == null || invitation.getRequest_id() == null || invitation.getRequest_id().isEmpty()) {
+            handleApiError("Lỗi: Lời mời kết bạn không hợp lệ");
+            return;
+        }
+
+        showLoading(true);
 
         apiManager.endFriendRequest(
                 sessionManager.getAccessToken(),
@@ -457,10 +525,13 @@ public class FriendInvitationActivity extends AppCompatActivity {
                                 Toast.makeText(FriendInvitationActivity.this,
                                         "Đã hủy lời mời kết bạn", Toast.LENGTH_SHORT).show();
 
-                                // Remove from list
-                                sentInvitations.remove(position);
-                                adapter.notifyItemRemoved(position);
-                                adapter.notifyItemRangeChanged(position, sentInvitations.size());
+                                // Verify position is still valid before removing
+                                if (position < sentInvitations.size()) {
+                                    // Remove from list
+                                    sentInvitations.remove(position);
+                                    adapter.notifyItemRemoved(position);
+                                    adapter.notifyItemRangeChanged(position, sentInvitations.size());
+                                }
 
                                 // Check if list is empty
                                 updateEmptyStateVisibility(sentInvitations);
@@ -492,8 +563,7 @@ public class FriendInvitationActivity extends AppCompatActivity {
             tvNoInvitations.setVisibility(View.GONE);
         } else {
             loadingIndicator.setVisibility(View.GONE);
-            recyclerViewInvitations.setVisibility(View.VISIBLE);
-            // The empty state text visibility is managed separately
+            // Don't set recyclerView visibility here as it's managed in updateEmptyStateVisibility
         }
     }
 
