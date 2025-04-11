@@ -72,6 +72,12 @@ public class MyFriendActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        userFriendViewModel.loadUserFriendData(apiManager, sessionManager.getAccessToken());
+    }
+
     private void updateListFriend(List<UserFriendDto> userFriendDtos) {
         userFriendDtoList.clear();
         userFriendDtoList.addAll(userFriendDtos);
