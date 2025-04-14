@@ -69,6 +69,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChatConversationActivity extends BaseNetworkActivity implements MessageObserver {
@@ -235,21 +236,22 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         sendMediaViewModel.getResMediaUrlPostUpdate().observe(this ,
                 result -> {
                 if (result != null) {
+                    runOnUiThread(() -> {
                     // Upload media to Cloudinary
-                    Log.d(TAG, "Media URL: " + currentMediaUri);
-                    sendImageToServer(result);
-                    ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.setSenderId(sessionManager.getUserId());
-                    chatMessage.setReceiverId(receiverUser.id);
-                    chatMessage.setContent(result); // đây là URL ảnh
-                    chatMessage.setMessageType("image"); // ✅ rất quan trọng!
-                    chatMessage.setDateTime(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+                        Log.d(TAG, "Media URL: " + currentMediaUri);
+                        sendImageToServer(result);
+                        type_message = "image";
+                        ChatMessage chatMessage = new ChatMessage();
+                        chatMessage.setSenderId(sessionManager.getUserId());
+                        chatMessage.setMediaUrl(currentMediaUri.toString());
+                        chatMessage.setReceiverId(receiverUser.id);
+                        chatMessage.setContent(result);
+                        chatMessage.setMessageType(type_message);
+                        chatMessage.setDateTime(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
 
-                    chatMessages.add(chatMessage);
+                        chatMessages.add(chatMessage);
 
-                    binding.chatRecyclerView.post(() -> {
                         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
-                        binding.chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
                     });
 
                 }
@@ -370,7 +372,7 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
     }
 
     private void SendMessage() {
-        if(type_message.equals("text")){
+        if (type_message.equals("text") && !binding.messageEditText.getText().toString().isEmpty()){
             String messageText = binding.messageEditText.getText().toString();
             if (messageText.isEmpty()) {
                 return;
@@ -403,12 +405,13 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
             chatMessage.setReceiverId(receiverUser.id);
             chatMessages.add(chatMessage);
         }
-        else if(type_message.equals("image")){
+        else if (type_message.equals("image") && currentMediaUri != null) {
             sendMediaViewModel.saveMediaToInternalStorageAndUpload(currentMediaUri, currentMediaType);
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setSenderId(sessionManager.getUserId());
             chatMessage.setContent(urlIntoCloud);
             chatMessage.setMessageType(type_message);
+            chatMessage.setMediaUrl(currentMediaUri.toString());
             Date currentDate = new Date();
             // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
             String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
@@ -428,8 +431,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                     }
                 }
             });
-
-            chatMessages.add(chatMessage);
             Log.d("TAG", "Image sent successfully");
         }
 
@@ -546,8 +547,12 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
 
         dataSync.init(new ApiManager(this), chatRepo, sessionManager);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setStackFromEnd(true); // Show newest messages at the bottom
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
         binding.chatRecyclerView.setLayoutManager(layoutManager);
         chatAdapter.setHasStableIds(true);
         binding.chatRecyclerView.setAdapter(chatAdapter);
@@ -570,7 +575,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
 
         LiveData<List<Message>> messagesLiveData = chatRepo.getMessagesForConversation(
                 conversionId, PAGE_SIZE, loadOffset);
-
         // Create a one-time observer that removes itself after processing
         messagesLiveData.observe(this, new androidx.lifecycle.Observer<List<Message>>() {
             @Override
@@ -654,12 +658,24 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
             for (Message message : messages) {
                 ChatMessage chatMessage = new ChatMessage();
                 chatMessage.setId(message.getId());
-                chatMessage.setSenderId(message.getSenderId());
-                chatMessage.setChatId(message.getChatId());
-                chatMessage.setContent(message.getContent());
+                if("media".equals(message.getMessageType())){
+                    chatMessage.setMessageType("media");
+                    chatMessage.setSenderId(message.getSenderId());
+                    chatMessage.setChatId(message.getChatId());
+                    chatMessage.setMediaUrl(message.getMediaUrl());
+                    chatMessage.setContent(message.getContent());
+                    chatMessage.setDateTime(new SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(message.getCreatedAt()));
+                    newMessages.add(chatMessage);
+                }
+                else{
+                    chatMessage.setMessageType("text");
+                    chatMessage.setSenderId(message.getSenderId());
+                    chatMessage.setChatId(message.getChatId());
+                    chatMessage.setContent(message.getContent());
 
-                chatMessage.setDateTime(new SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(message.getCreatedAt()));
-                newMessages.add(chatMessage);
+                    chatMessage.setDateTime(new SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(message.getCreatedAt()));
+                    newMessages.add(chatMessage);
+                }
             }
 
             // Add messages in chronological order

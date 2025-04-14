@@ -88,11 +88,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = chatMessages.get(position);
-        String typeMessage = message.getMessageType();
         int viewType = getItemViewType(position);
 
         if (holder instanceof SentMessageViewHolder && viewType == VIEW_TYPE_SENT) {
-            ((SentMessageViewHolder) holder).setData(message, typeMessage);
+            ((SentMessageViewHolder) holder).setData(message);
         } else if (holder instanceof GroupMessageViewHolder && viewType == VIEW_TYPE_GROUP_RECEIVED) {
             ((GroupMessageViewHolder) holder).setData(message, receiverProfileImage);
         } else if (holder instanceof ReceiverMessageViewHolder && viewType == VIEW_TYPE_RECEIVED) {
@@ -114,14 +113,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             binding = itemContainerSentMessageBinding;
         }
 
-        void setData(ChatMessage chatMessage, String isImageMessage) {
+        void setData(ChatMessage chatMessage) {
             binding.imageMessage.setVisibility(View.GONE);
             binding.textMessage.setVisibility(View.GONE);
-            if ("image".equals(isImageMessage)) {
+            if ("media".equals(chatMessage.getMessageType())) {
+                Log.d("Hehe", "setData: " + chatMessage.getMediaUrl());
                 binding.imageMessage.setVisibility(View.VISIBLE);
                 binding.textTime.setText(chatMessage.getDateTime());
                 Glide.with(binding.imageMessage.getContext())
-                        .load(chatMessage.getContent())
+                        .load(chatMessage.getMediaUrl())
                         .into(binding.imageMessage);
             } else {
                 binding.textMessage.setVisibility(View.VISIBLE);

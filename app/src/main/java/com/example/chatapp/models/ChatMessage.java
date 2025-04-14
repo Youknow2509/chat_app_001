@@ -42,6 +42,14 @@ public class ChatMessage {
                 '}';
     }
 
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
+    }
+
     public void setReceiverId(String receiverId) {
         this.receiverId = receiverId;
     }
