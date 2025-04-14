@@ -85,7 +85,11 @@ public interface ChatAppService {
     @GET("/api/v1/user/find_user")
     Call<ResponseData<Object>> findUser(
             @Header("Authorization") String token,
-            @Query("email") String email);
+            @Query("email") String email,
+            @Query("limit") int limit,
+            @Query("page") int page
+    );
+
 
     // ============ Friend Management ============
 

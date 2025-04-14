@@ -26,9 +26,9 @@
                android:textSize="16sp" />
            <ImageView
                android:id="@+id/imageMessage"
-               android:layout_width="250dp"
+               android:layout_width="100dp"
                android:visibility="gone"
-               android:layout_height="250dp"/>
+               android:layout_height="100dp"/>
        </FrameLayout>
 
 

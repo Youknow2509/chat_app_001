@@ -10,19 +10,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.example.chatapp.databinding.ItemContainerUserBinding;
+import com.bumptech.glide.Glide;
 import com.example.chatapp.databinding.ItemUserAddfriendBinding;
+import com.example.chatapp.dto.UserDto;
 import com.example.chatapp.listeners.UserListener;
 import com.example.chatapp.models.User;
 
 public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.UserViewHolder> {
-    private final List<User> users;
+    private final List<UserDto> users;
     private final UserListener userListener;
 
-    public UserSearchAdapter(List<User> users, UserListener userListener) {
+    public UserSearchAdapter(List<UserDto> users, UserListener userListener) {
         this.users = users;
         this.userListener = userListener;
     }
@@ -55,10 +55,12 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
             binding = itemContainerUserBinding;
         }
 
-        void setUserData(User user, int position) {
-            binding.nameText.setText(user.name);
-            binding.emailText.setText(user.email);
-            binding.avatarImage.setImageBitmap(user.image);
+        void setUserData(UserDto user, int position) {
+            binding.nameText.setText(user.getName());
+            binding.emailText.setText(user.getEmail());
+            Glide.with(binding.getRoot().getContext())
+                    .load(user.getImageUrl())
+                    .into(binding.avatarImage);
 
             binding.addIcon.setOnClickListener(v -> {
                 binding.addIcon.setVisibility(View.GONE);
@@ -71,7 +73,7 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
         }
     }
 
-    public void updateList(List<User> newList) {
+    public void updateList(List<UserDto> newList) {
         users.clear();
         users.addAll(newList);
         notifyDataSetChanged();

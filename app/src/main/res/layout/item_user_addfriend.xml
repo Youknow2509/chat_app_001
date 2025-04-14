@@ -33,7 +33,6 @@
         android:ellipsize="end"
         app:layout_constraintTop_toTopOf="@id/avatarImage"
         app:layout_constraintStart_toEndOf="@id/avatarImage"
-        app:layout_constraintEnd_toStartOf="@id/addIcon"
         app:layout_constraintHorizontal_bias="0.0" />
 
     <!-- Số điện thoại -->

@@ -233,10 +233,10 @@ public class ApiManager {
 
     }
 
-    public void findUser(String token, String email, Callback<ResponseData<Object>> callback) {
+    public void findUser(String token, String email, int limit, int page, Callback<ResponseData<Object>> callback) {
         if (!checkNetworkConnection()) return;
 
-        Call<ResponseData<Object>> call = apiService.findUser(formatToken(token), email);
+        Call<ResponseData<Object>> call = apiService.findUser(formatToken(token), email,limit, page);
         call.enqueue(wrapCallback(call, callback));
 
     }

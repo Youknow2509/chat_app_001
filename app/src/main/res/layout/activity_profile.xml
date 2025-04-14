@@ -34,7 +34,6 @@
             android:layout_height="match_parent">
 
             <!-- Thanh tìm kiếm đè lên -->
-            !-- Thanh tìm kiếm đè lên -->
             <LinearLayout
                 android:id="@+id/toolbarContent"
                 android:layout_width="368dp"
