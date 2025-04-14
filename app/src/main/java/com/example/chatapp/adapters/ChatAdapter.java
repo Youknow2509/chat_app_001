@@ -117,14 +117,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void setData(ChatMessage chatMessage, String isImageMessage) {
             binding.imageMessage.setVisibility(View.GONE);
             binding.textMessage.setVisibility(View.GONE);
-            if ("image".equals(chatMessage.getMessageType())) {
+            if ("image".equals(isImageMessage)) {
                 binding.imageMessage.setVisibility(View.VISIBLE);
+                binding.textTime.setText(chatMessage.getDateTime());
                 Glide.with(binding.imageMessage.getContext())
                         .load(chatMessage.getContent())
                         .into(binding.imageMessage);
             } else {
                 binding.textMessage.setVisibility(View.VISIBLE);
                 binding.textMessage.setText(chatMessage.getContent());
+                binding.textTime.setText(chatMessage.getDateTime());
             }
 
         }

@@ -255,15 +255,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
                 }
         });
 
-        sendMediaViewModel.getImageNewFile().observe(this, file -> {
-            if (file != null) {
-
-                Log.d(TAG, "Saved media file: " + savedMediaFile.getAbsolutePath());
-            } else {
-                showToast("Error saving media file");
-            }
-        });
-
     }
 
     private void sendImageToServer(String url) {
@@ -414,7 +405,32 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
         }
         else if(type_message.equals("image")){
             sendMediaViewModel.saveMediaToInternalStorageAndUpload(currentMediaUri, currentMediaType);
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSenderId(sessionManager.getUserId());
+            chatMessage.setContent(urlIntoCloud);
+            chatMessage.setMessageType(type_message);
+            Date currentDate = new Date();
+            // Format the date to a readable string : dd/MM/yyyy HH:mm:ss
+            String formattedDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(currentDate);
+            chatMessage.setDateTime(formattedDate);
+            chatMessage.setReceiverId(receiverUser.id);
+            MessageDTO messageDTO = new MessageDTO(urlIntoCloud, conversionId, chatMessage.getMessageType());
+            // parse messageDTO to json string
+            Gson gson = new Gson();
+            String messageJson = gson.toJson(messageDTO);
+            stompClientManager.sendMessage(messageJson, new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) {
+                    if (throwable != null) {
+                        showToast("Error sending message");
+                    } else {
+                        Log.d(TAG, "Message sent successfully");
+                    }
+                }
+            });
 
+            chatMessages.add(chatMessage);
+            Log.d("TAG", "Image sent successfully");
         }
 
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
@@ -425,7 +441,6 @@ public class ChatConversationActivity extends BaseNetworkActivity implements Mes
             showToast("Receiver is not available, message sent.");
         }
     }
-
 
 
     private void VoiceCall() {
