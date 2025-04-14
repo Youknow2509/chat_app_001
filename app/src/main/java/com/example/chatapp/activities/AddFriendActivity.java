@@ -41,7 +41,7 @@ public class AddFriendActivity  extends AppCompatActivity {
         sessionManager = SessionManager.getInstance();
         apiManager = new ApiManager(this);
         setContentView(binding.getRoot());
-        userSearchAdapter = new UserSearchAdapter(users, new UserListener() {
+        userSearchAdapter = new UserSearchAdapter(users,apiManager,sessionManager.getAccessToken(), new UserListener() {
             @Override
             public void onUserClick(User user) {
                 Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
