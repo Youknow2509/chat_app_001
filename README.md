@@ -9,4 +9,7 @@
 - Users can also see the last time the other user was online.
 - Users can also see the status of the other user (online/offline).
 - Users can also see the profile picture of the other user.
-- TODO...
+- TODO...](https://github.com/Youknow2509/chat_app_001/tree/main)
+
+# Demo
+[Demo](https://youtu.be/JXeNwvmz7NE)
